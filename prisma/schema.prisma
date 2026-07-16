@@ -1,0 +1,38 @@
+// ML-DEP database schema.
+//
+// Phase 0 scope: role structure only (ML-DES.md §7, Phase0-TechStack-Spec.md §4).
+// Business models — Event, Invitation, Template, Booking, Order, Payment,
+// MediaAsset — are deliberately absent; they arrive with their own phases.
+//
+// Auth identities live in Supabase's `auth.users` table, which Prisma does not
+// manage. Profile mirrors that table by id, holding app-level data Supabase
+// Auth has no concept of (role, display name).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+/// Application-level user record. `id` matches Supabase auth.users.id.
+model Profile {
+  id          String   @id @db.Uuid
+  email       String   @unique
+  displayName String?
+  avatarUrl   String?
+  role        Role     @default(CUSTOMER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([role])
+  @@map("profiles")
+}

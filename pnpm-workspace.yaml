@@ -1,0 +1,14 @@
+# pnpm settings. Since pnpm 10 these live here rather than in package.json.
+#
+# pnpm blocks dependency build scripts by default (supply-chain hardening).
+# These packages genuinely need theirs, so they are approved explicitly:
+#   prisma / @prisma/* — postinstall generates the query engine binary
+#   esbuild            — installs its platform-native binary
+#   unrs-resolver      — native resolver binary used by ESLint
+# Add an entry only when a package actually fails without its script.
+allowBuilds:
+  "@prisma/client": true
+  "@prisma/engines": true
+  esbuild: true
+  prisma: true
+  unrs-resolver: true
