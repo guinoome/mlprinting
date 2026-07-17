@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** Phase 1. Describes the foundation as built plus the boundaries later
+**Status:** Phase 2. Describes the foundation as built plus the boundaries later
 phases must respect. Update this doc whenever module boundaries or data flow
 change (V1 doc §13, Repository Memory).
 
@@ -78,10 +78,20 @@ Auth identities live in Supabase's `auth.users`, which Prisma does not manage.
 `Profile` mirrors it by id and holds what Supabase Auth has no concept of —
 role, display name, avatar. The two are joined by uuid, never merged.
 
-Phase 1 defines `Profile`, `Preference`, and the `Role`/`ThemePreference` enums.
-Business models arrive with their phases: `Event`/`Invitation` (Phase 3),
-`MediaAsset` (Phase 4), `Template` (Phase 2), `Booking`/`Order` (Phase 7),
-`Payment`/`Deployment` (Phase 8).
+Phase 2 defines `Profile`, `Preference`, and the template catalog
+(`Template`, `TemplateCategory`, `TemplateCollection`, `TemplateScreenshot`,
+`TemplateFavorite`, `TemplateView`, `TemplateUse`). Remaining business models
+arrive with their phases: `Event`/`Invitation` (Phase 3), `MediaAsset`
+(Phase 4), `Booking`/`Order` (Phase 7), `Payment`/`Deployment` (Phase 8).
+
+**Categories are rows, not an enum.** Ph2.md §1 requires that future categories
+need no code change, so adding "Reunion" is an INSERT and the filter UI reads
+the table. The same section lists Featured, New, Premium, and Seasonal alongside
+Wedding and Birthday — but those are not the same kind of thing, and one flat
+list would stop a template being both Premium and a Wedding. They are split by
+what they are: event type → `TemplateCategory`, price → `Template.tier`,
+curation → `isFeatured`, recency → derived from `publishedAt`, season →
+`TemplateCollection` with a date window.
 
 `Profile` rows are reconciled on first authenticated request rather than created
 at signup (`lib/auth/session.ts`). A user exists the moment they confirm their
@@ -175,6 +185,7 @@ Phase 1 delivers four seams later phases plug into rather than reinvent:
 | Logging (Ph1 §9) | `lib/logger.ts` | Any `catch`; one `report()` seam for a future service |
 | Notifications (Ph1 §7) | `lib/notifications/`, `components/ui/toast*` | Any client interaction |
 | Uploads (Ph1 §8) | `services/upload/` | Ph4 Media Library, Ph1 avatars |
+| Recommendations (Ph2 §8) | `services/recommendations/` | Ph2 marketplace; Ph3 builder |
 
 Two shapes worth keeping:
 
@@ -189,6 +200,43 @@ Two shapes worth keeping:
 
 The logger redacts credential-shaped keys before writing. Logs travel to places
 credentials must not: consoles, aggregators, support tickets.
+
+**The recommender is replaceable by contract.** Ph2.md §8 requires it, and two
+properties buy it: a strategy is *handed* candidates and signals rather than
+querying for them (so it can be an HTTP call to a model, and is testable without
+a database), and it returns scores with reasons rather than a re-ordered list
+(so a ranking stays auditable). Swapping implementations is one line in
+`services/recommendations/index.ts`.
+
+---
+
+## The marketplace
+
+```
+URL search params  ──▶  criteria.ts  ──▶  query.ts  ──▶  repository.ts  ──▶  page
+   (untrusted)          (parse+clamp)     (Prisma
+                                          where/orderBy)
+```
+
+**The URL is the state.** Every filter, the sort, and the page live in search
+params. That buys a shareable link, a working back button, and a server-rendered
+first paint with the right results already in the HTML — none of which a
+client-side filter store gives you. Filters render as `<Link>`s, so the whole
+filter panel ships zero JavaScript and works before hydration.
+
+`criteria.ts` and `query.ts` are pure and carry most of the marketplace's tests.
+Ph2.md asks twice for this layer to stay extensible (§3, §4); a new filter is one
+field in `criteria.ts` plus one clause in `query.ts`, and nothing else changes.
+
+Two rules that are easy to break later:
+
+- **`buildWhere` always constrains `publishedAt`**, unconditionally and first. A
+  draft leaking into the catalog is the failure this function exists to prevent,
+  so it is not a filter callers opt into.
+- **Every `orderBy` ends with a unique tiebreaker.** Without one, rows with equal
+  sort values have no stable order between pages: a template appears on both
+  page 1 and page 2 while another never appears. It looks like a data bug and is
+  a query bug.
 
 ---
 
@@ -214,14 +262,27 @@ made public (ML-DES.md §5).
 Vitest for unit tests, colocated (`lib/utils.test.ts` beside `lib/utils.ts`).
 Playwright for end-to-end flows, in `e2e/`.
 
-Phase 1 has 81 unit tests, concentrated where a mistake is expensive and a test
-is cheap: redirect sanitisation, upload validation, route matching, credential
-redaction. Components are not unit-tested — their behaviour is Radix's, already
-tested upstream, and asserting that a div has a class tests the test.
+Unit tests are concentrated where a mistake is expensive and a test is cheap:
+redirect sanitisation, upload validation, route matching, credential redaction,
+and the marketplace's criteria/query layer. Components are not unit-tested —
+their behaviour is Radix's, already tested upstream, and asserting that a div has
+a class tests the test.
 
-`e2e/` still holds config only. Phase 1's flows are worth driving end to end, but
-they need a seeded Supabase project to sign into; that lands with the deployment
-gates in `docs/deployment-workflow.md`.
+**Unit tests are not enough for the query layer**, and Phase 2 proved it. They
+assert the *shape* of a `where` clause; they cannot tell you the SQL returns the
+right rows, that pagination does not repeat a template, or that a `notFound()`
+actually sets a 404. Run `pnpm db:local` and drive it.
+
+`pnpm db:local` starts a real Postgres — PGlite, compiled to WebAssembly —
+behind a TCP socket, so Prisma connects with an ordinary connection string and
+migrations, the seed, and every query run offline with no credentials. Two
+caveats: it serves one connection at a time, so append
+`?pgbouncer=true&connection_limit=1` to the URL, and it is a development
+convenience, not a substitute for testing against Supabase before a release.
+
+`e2e/` still holds config only. The flows are worth driving end to end, but they
+need a seeded Supabase project to sign into; that lands with the deployment gates
+in `docs/deployment-workflow.md`.
 
 ---
 
@@ -242,6 +303,24 @@ before the phases they affect:
   decision at Phase 8.
 - **QR-scan check-in** — user-approved override of the V1 §5 non-goal, but no
   phase doc owns it. Nearest fit: Phase 3 (RSVP) or Phase 7 (booking).
+
+Raised in Phase 2:
+
+- **Template artwork is generated placeholder SVG.** `lib/placeholder-art.ts`
+  exists because the marketplace needs cover images and ML Printing has not
+  supplied any. When real artwork arrives it replaces `Template.coverImageUrl`
+  and `TemplateScreenshot.url`, and that module should be deleted rather than
+  left as a fallback nobody notices is still rendering.
+- **Search is `ILIKE`, not full-text.** No ranking, no stemming, no typo
+  tolerance. A deliberate ceiling at a catalog of dozens; `searchClause()` in
+  `features/template-marketplace/query.ts` is the only place that changes when it
+  needs to be a tsvector or a search service.
+- **The recommender's weights are judgement, not measurement.** There is no usage
+  data to fit them against yet. They are named constants so the judgement is
+  arguable rather than buried.
+- **No admin CRUD for templates.** Ph2.md's deliverables are a customer
+  marketplace; the catalog is currently populated by `prisma/seed.ts`. Staff
+  template management has no phase doc that owns it.
 
 Raised in Phase 1:
 

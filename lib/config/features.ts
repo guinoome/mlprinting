@@ -16,9 +16,13 @@ function flag(name: string, fallback = false): boolean {
 }
 
 export const features = {
-  /** Ph2 — Template Marketplace */
+  /**
+   * Ph2 — Template Marketplace. Shipped, so this defaults on: it is now a kill
+   * switch (set the env var to "false" to close the marketplace), not a phase
+   * gate. A shipped feature that still defaults off is a feature nobody sees.
+   */
   get templateMarketplace() {
-    return flag("NEXT_PUBLIC_FEATURE_TEMPLATE_MARKETPLACE");
+    return flag("NEXT_PUBLIC_FEATURE_TEMPLATE_MARKETPLACE", true);
   },
   /** Ph3 — Invitation Builder */
   get invitationBuilder() {

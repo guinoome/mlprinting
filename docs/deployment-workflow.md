@@ -122,11 +122,35 @@ work.
 ### 6. Run the database migration
 
 ```bash
-pnpm prisma:migrate
+pnpm prisma:migrate   # tables
+pnpm prisma:seed      # the template catalog
 ```
 
-Creates the `profiles` and `preferences` tables. Until this runs, sign-in
-succeeds and the dashboard then fails to load a profile.
+The migration creates the identity tables (`profiles`, `preferences`) and the
+template catalog. Until it runs, sign-in succeeds and the dashboard then fails to
+load a profile.
+
+The seed populates the catalog. It is idempotent — every write upserts on a slug,
+so running it twice changes nothing. Without it the marketplace renders an honest
+"No templates published yet" rather than breaking.
+
+To work on any of this without Supabase, run a local Postgres instead — no
+install, no credentials:
+
+```bash
+pnpm db:local   # PGlite (Postgres compiled to WASM) on 127.0.0.1:55432
+```
+
+Then point the app at it in `.env.local`. The extra params are not optional —
+PGlite serves one connection at a time, and Prisma will otherwise open a pool and
+kill it:
+
+```
+DATABASE_URL="postgresql://postgres:postgres@localhost:55432/postgres?pgbouncer=true&connection_limit=1"
+```
+
+This is for development and verification. It is not a substitute for testing
+against the real Supabase database before a release.
 
 ### 7. Verify
 

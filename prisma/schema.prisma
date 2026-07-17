@@ -1,7 +1,8 @@
 // ML-DEP database schema.
 //
-// Phase 1 scope: identity and preferences only (ML-DES.md §7, Ph1.md §4–§5).
-// Business models — Event, Invitation, Template, Booking, Order, Payment,
+// Phase 2 scope: identity, preferences, and the template catalog
+// (ML-DES.md §7, Ph1.md §4–§5, Ph2.md §1/§7/§9).
+// Remaining business models — Event, Invitation, Booking, Order, Payment,
 // MediaAsset — are deliberately absent; they arrive with their own phases.
 //
 // Auth identities live in Supabase's `auth.users` table, which Prisma does not
@@ -44,6 +45,9 @@ model Profile {
   updatedAt   DateTime @updatedAt
 
   preferences Preference?
+  favorites   TemplateFavorite[]
+  views       TemplateView[]
+  uses        TemplateUse[]
 
   @@index([role])
   @@map("profiles")
@@ -64,4 +68,238 @@ model Preference {
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@map("preferences")
+}
+
+// ---------------------------------------------------------------------------
+// Template Marketplace — Ph2.md
+//
+// Ph2.md §1 lists the catalog as: Featured, New, Premium, Seasonal, Wedding,
+// Birthday, Christening, Corporate, Debut, Anniversary, Graduation, Custom.
+// Those are not one kind of thing, and modelling them as one flat list would
+// make a template unable to be both Premium and a Wedding. They are separated
+// by what they actually are:
+//
+//   Wedding, Birthday, … , Custom  → TemplateCategory rows (the event type)
+//   Premium / Free                 → Template.tier
+//   Featured                       → Template.isFeatured
+//   New                            → derived from Template.publishedAt
+//   Seasonal                       → TemplateCollection, which has a date window
+//
+// §1 also requires that future categories need no code change. That is why
+// categories are rows and not an enum: adding "Reunion" is an INSERT, and the
+// filter UI reads the table. The enums below are deliberately *not* categories —
+// they are closed vocabularies the UI renders differently per value.
+// ---------------------------------------------------------------------------
+
+enum TemplateTier {
+  FREE
+  PREMIUM
+}
+
+enum TemplateOrientation {
+  PORTRAIT
+  LANDSCAPE
+  SQUARE
+}
+
+/// Which surface a screenshot depicts — Ph2.md §6 requires all three.
+enum ScreenshotKind {
+  DESKTOP
+  MOBILE
+  PRINT
+}
+
+/// Event type — Ph2.md §1. Rows, not an enum, so "Custom Categories" and any
+/// future category are data rather than a deployment.
+model TemplateCategory {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        String   @unique
+  name        String
+  description String?
+  /// Display order in filter lists. Ties broken by name.
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  templates Template[]
+
+  @@index([isActive, sortOrder])
+  @@map("template_categories")
+}
+
+/// Curated grouping — Ph2.md §1 (Seasonal, and future curation).
+///
+/// Has a date window because "Seasonal" is the whole reason this exists: a
+/// Christmas collection should leave the marketplace in January without anyone
+/// remembering to unpublish it.
+model TemplateCollection {
+  id          String    @id @default(uuid()) @db.Uuid
+  slug        String    @unique
+  name        String
+  description String?
+  /// Null means always active. Both bounds are inclusive of the window.
+  activeFrom  DateTime?
+  activeTo    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  templates TemplateOnCollection[]
+
+  @@map("template_collections")
+}
+
+/// Explicit join table rather than an implicit m-n relation, so the ordering of
+/// templates within a collection is curatable.
+model TemplateOnCollection {
+  templateId   String @db.Uuid
+  collectionId String @db.Uuid
+  sortOrder    Int    @default(0)
+
+  template   Template           @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  collection TemplateCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([templateId, collectionId])
+  @@index([collectionId, sortOrder])
+  @@map("templates_on_collections")
+}
+
+/// An invitation template — Ph2.md §1, §7.
+///
+/// This model owns *presentation*, which is exactly why invitation data must
+/// not (V1 §7, "Design Once, Deliver Everywhere"). The split is the point: an
+/// event record says "the reception is at 6pm"; a template says what that looks
+/// like on a website and on paper. Neither knows about the other.
+model Template {
+  id   String @id @default(uuid()) @db.Uuid
+  /// URL identity. Stable across renames — the name is display, this is not.
+  slug String @unique
+
+  name             String
+  /// One line, shown on the card (Ph2.md §2).
+  shortDescription String
+  /// Full copy, shown on the preview page (Ph2.md §6).
+  description      String
+
+  categoryId String           @db.Uuid
+  category   TemplateCategory @relation(fields: [categoryId], references: [id])
+
+  // --- Metadata (Ph2.md §7) ---
+  /// Designer-facing version of the template artwork itself, not of this row.
+  version  String   @default("1.0.0")
+  designer String
+  /// Free-text search surface — themes, motifs, occasions (Ph2.md §3).
+  tags     String[]
+  /// Colour theme slugs, e.g. ["blush","ivory"] (Ph2.md §4 Color Theme).
+  colors   String[]
+  /// Style slugs, e.g. ["modern","minimal"] (Ph2.md §4 Style).
+  styles   String[]
+  /// What the template can do — e.g. ["rsvp","gallery","map"] (Ph2.md §7).
+  /// Strings, not an enum: Ph3–Ph9 each add capabilities, and a template
+  /// declaring one the platform does not know about yet is harmless.
+  features String[]
+
+  orientation       TemplateOrientation @default(PORTRAIT)
+  tier              TemplateTier        @default(FREE)
+  /// Ph2.md §7 — a template may suit one output and not the other.
+  printCompatible   Boolean             @default(true)
+  websiteCompatible Boolean             @default(true)
+
+  coverImageUrl String
+
+  // --- Curation and lifecycle ---
+  isFeatured  Boolean   @default(false)
+  /// Null means draft. "New" (Ph2.md §1) is derived from this, not stored — a
+  /// stored isNew flag is a lie the moment nobody runs the job that clears it.
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  /// Denormalised count of TemplateUse rows, for the "Most Popular" sort
+  /// (Ph2.md §5). Sorting on a live count() across the catalog is a table scan
+  /// per page view; this is incremented when a use is recorded.
+  useCount Int @default(0)
+
+  screenshots TemplateScreenshot[]
+  collections TemplateOnCollection[]
+  favorites   TemplateFavorite[]
+  views       TemplateView[]
+  uses        TemplateUse[]
+
+  // Every index here backs a filter or sort in Ph2.md §4/§5. The composite
+  // ones lead with publishedAt because every catalog query filters on it.
+  @@index([publishedAt, categoryId])
+  @@index([publishedAt, tier])
+  @@index([publishedAt, isFeatured])
+  @@index([publishedAt, useCount])
+  @@index([publishedAt, name])
+  @@map("templates")
+}
+
+/// Preview imagery — Ph2.md §6 (desktop, mobile, print).
+model TemplateScreenshot {
+  id         String         @id @default(uuid()) @db.Uuid
+  templateId String         @db.Uuid
+  kind       ScreenshotKind
+  url        String
+  /// Alt text. Required, not optional — an optional alt field is an empty one.
+  alt        String
+  sortOrder  Int            @default(0)
+
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId, kind, sortOrder])
+  @@map("template_screenshots")
+}
+
+/// Saved favourites — Ph2.md §9.
+model TemplateFavorite {
+  profileId  String   @db.Uuid
+  templateId String   @db.Uuid
+  createdAt  DateTime @default(now())
+
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, templateId])
+  @@index([profileId, createdAt])
+  @@map("template_favorites")
+}
+
+/// Recently viewed — Ph2.md §9.
+///
+/// One row per profile+template, with viewedAt overwritten on each visit,
+/// rather than an append-only log. "Recently viewed" wants a short distinct
+/// list; an event log would grow without bound and then need a DISTINCT ON to
+/// answer the only question ever asked of it. Analytics, if it ever wants the
+/// full stream, is a separate concern with a separate table.
+model TemplateView {
+  profileId  String   @db.Uuid
+  templateId String   @db.Uuid
+  viewedAt   DateTime @default(now())
+
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, templateId])
+  @@index([profileId, viewedAt])
+  @@map("template_views")
+}
+
+/// Recently used — Ph2.md §9, and the popularity signal for §8.
+///
+/// A "use" is selecting a template to build with. In Phase 2 that is where the
+/// journey stops: the Invitation Builder is Ph3, and Ph2.md's Out of Scope is
+/// explicit that no editing happens here.
+model TemplateUse {
+  profileId  String   @db.Uuid
+  templateId String   @db.Uuid
+  usedAt     DateTime @default(now())
+
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, templateId])
+  @@index([profileId, usedAt])
+  @@map("template_uses")
 }

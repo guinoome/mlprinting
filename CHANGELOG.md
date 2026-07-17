@@ -13,6 +13,40 @@ Phase 10.
 
 ### Added
 
+- Phase 2 — Template Marketplace.
+  - Template catalog: categories as database rows (adding one is an INSERT, not
+    a deploy — Ph2.md §1), curated collections with seasonal date windows,
+    tiers, featured flags, and derived "New".
+  - Search across name, description, designer, category, tags, colours, and
+    styles (Ph2.md §3). Filters for event type, colour, style, orientation,
+    price, recently added, and favourites (§4). Sorts for recommended, popular,
+    newest, and alphabetical (§5).
+  - Template cards and a preview page with desktop, mobile, and print previews,
+    full metadata, and no editing affordance (§2, §6, §7).
+  - Recommendation engine behind a strategy interface, so an AI implementation
+    replaces one line rather than every caller (§8). Basic scorer weights event
+    type, popularity (log-scaled), freshness, and facet affinity.
+  - Favourites, recently viewed, and recently used (§9).
+  - Pagination, lazy-loaded images with per-breakpoint sizes, and cached
+    category/facet metadata (§10).
+  - Generated placeholder artwork (`lib/placeholder-art.ts`) — deterministic
+    SVG served with immutable caching. Scaffolding until ML Printing supplies
+    real template imagery; media upload is out of scope for this phase.
+  - `pnpm db:local` — a local Postgres via PGlite (WASM), so migrations, the
+    seed, and every query can be run offline without Supabase credentials.
+  - Seeded catalog: 8 categories, 2 collections, 20 templates (19 published,
+    1 draft kept deliberately to prove the publication filter).
+
+### Fixed
+
+- `/templates/<unknown>` returned HTTP 200 while rendering "Page not found".
+  `app/templates/loading.tsx` wrapped the whole subtree in a Suspense boundary,
+  so Next flushed a 200 before the page's `notFound()` ran. Moving it into the
+  `(catalog)` route group scopes it to the catalog and restores the 404. Caught
+  by driving a real database, not by any unit test.
+
+### Added
+
 - Phase 1 — core platform skeleton.
   - Authentication: login, registration, logout, session management, password
     change. Route protection registered for `/dashboard` and `/admin`.

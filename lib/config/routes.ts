@@ -9,7 +9,19 @@ export const routes = {
   home: "/",
   login: "/login",
   register: "/register",
+
+  /** Template Marketplace — Ph2. Public: browsing needs no account. */
   templates: "/templates",
+  template: (slug: string) => `/templates/${slug}`,
+
+  /**
+   * Guided Invitation Builder — Ph3, not built.
+   *
+   * Registered now because Ph2's "Use Template" has to hand off somewhere, and
+   * a string literal buried in an action is how a route rename becomes a dead
+   * link. Gated behind features.invitationBuilder, so nothing reaches it yet.
+   */
+  builder: "/builder",
 
   dashboard: {
     root: "/dashboard",

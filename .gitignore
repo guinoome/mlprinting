@@ -37,3 +37,6 @@ next-env.d.ts
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# local PGlite database (scripts/local-db.ts)
+/.pglite/

@@ -10,10 +10,15 @@ ML-DEP/
 │   ├── global-error.tsx    Root-layout error boundary
 │   ├── not-found.tsx       404
 │   ├── (auth)/             Login, register — chrome-free layout
-│   └── (dashboard)/        Customer + admin dashboards, behind auth
-│       ├── dashboard/      Customer: events, orders, media, notifications, account
-│       └── admin/          Staff: bookings, templates, production, customers,
-│                           promotions, reports, settings
+│   ├── (dashboard)/        Customer + admin dashboards, behind auth
+│   │   ├── dashboard/      Customer: events, orders, media, notifications, account
+│   │   └── admin/          Staff: bookings, templates, production, customers,
+│   │                       promotions, reports, settings
+│   ├── templates/          Template Marketplace — public (Ph2)
+│   │   ├── (catalog)/      Catalog + its loading.tsx (see the file for why the
+│   │   │                   route group exists — it is load-bearing)
+│   │   └── [slug]/         Template preview
+│   └── api/placeholder/    Generated placeholder artwork
 │
 ├── components/             Shared UI, no business logic
 │   ├── ui/                 Design-system primitives (Button, Card, Toast, …)
@@ -25,10 +30,14 @@ ML-DEP/
 │
 ├── features/               Domain modules — one per business capability
 │   ├── auth/               Login, register, logout, password change
-│   └── account/            Profile, avatar, preferences
+│   ├── account/            Profile, avatar, preferences
+│   └── template-marketplace/  Catalog: criteria, query, repository, actions (Ph2)
 │
 ├── services/               Shared capabilities features call
-│   └── upload/             File upload framework (Ph4's Media Library reuses it)
+│   ├── upload/             File upload framework (Ph4's Media Library reuses it)
+│   └── recommendations/    Strategy interface + basic scorer (Ph2 §8)
+│
+├── scripts/local-db.ts     Local Postgres (PGlite) — pnpm db:local
 │
 ├── lib/                    Framework-agnostic utilities
 │   ├── auth/               Roles, protected-route registry, session reading
@@ -60,9 +69,9 @@ belongs here; an `InvitationCard` does not (that's `features/`). The test: could
 this component drop into an unrelated product unchanged?
 
 **`features/`** — one folder per capability, each self-contained with its own
-components, schema, and actions. Current occupants: `auth`, `account`. Future:
-`template-marketplace` (Ph2), `invitation-builder` (Ph3), `media-library` (Ph4),
-`booking` (Ph7), `payment` (Ph8).
+components, schema, and actions. Current occupants: `auth`, `account`,
+`template-marketplace`. Future: `invitation-builder` (Ph3), `media-library`
+(Ph4), `booking` (Ph7), `payment` (Ph8).
 
 A feature may use `components/`, `services/`, and `lib/`. It may **not** import
 another feature — put shared logic in `services/` instead.
