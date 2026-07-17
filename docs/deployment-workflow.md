@@ -29,14 +29,19 @@ GitHub (guinoome/mlprinting)
 
 Once configured, no manual deployment step exists (PROJECT_CHARTER.md).
 
-**Phase 0 status:** the pipeline is *prepared, not live* (ML-DES.md §5). Wiring
-is verified by a successful build; the site is not made public.
+**Status:** the pipeline is *prepared, not live* (ML-DES.md §5). Wiring is
+verified by a successful build; the site is not made public.
 
 ---
 
 ## First-time setup
 
-Steps 1–3 require account credentials and must be done by the repository owner.
+Steps 1–4 require account credentials and must be done by the repository owner.
+
+The application builds and runs with none of this configured — that is
+deliberate, and it is what lets CI verify the code without secrets. The cost is
+that a green build proves nothing about these steps. Until they are done, the
+dashboard renders an honest "Setup incomplete" page rather than pretending.
 
 ### 1. Push to GitHub
 
@@ -53,14 +58,45 @@ git push -u origin main
 At <https://supabase.com> (free tier). Collect the four values listed in
 [development-workflow.md](development-workflow.md#filling-in-envlocal).
 
-### 3. Link Vercel
+### 3. Create the storage buckets
+
+Phase 1's upload framework (`services/upload`) writes to two buckets. Create both
+in Supabase → Storage:
+
+| Bucket | Access | Holds |
+|---|---|---|
+| `avatars` | Public | Profile pictures |
+| `media` | **Private** | Customer media (Ph4), served via signed URLs |
+
+Then add a row-level security policy on each restricting writes to the caller's
+own folder — objects are stored at `<userId>/…`, and that prefix is what the
+policy matches on:
+
+```sql
+-- Per bucket. Repeat with bucket_id = 'media'.
+create policy "own folder write" on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'avatars'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+```
+
+**This step is not optional.** The application derives every upload path from the
+session, so it cannot write outside a user's own prefix — but that is application
+code, and application code is not an access policy. Without RLS, anyone holding
+the anon key can write anywhere in the bucket, and the anon key is public by
+design. The code convention and the policy have to agree; only the policy is
+enforced.
+
+### 4. Link Vercel
 
 At <https://vercel.com> → New Project → import `guinoome/mlprinting`.
 
 Framework preset: **Next.js** (auto-detected). Build command, output directory,
 and install command all use the defaults.
 
-### 4. Configure environment variables
+### 5. Configure environment variables
 
 In Vercel → Project → Settings → Environment Variables, add every variable from
 `.env.example`, for Production **and** Preview:
@@ -72,14 +108,32 @@ In Vercel → Project → Settings → Environment Variables, add every variable
 | `SUPABASE_SERVICE_ROLE_KEY` | **Secret — server only** |
 | `DATABASE_URL` | **Secret — server only** |
 | `NEXT_PUBLIC_APP_URL` | Public — the deployment URL |
+| `NEXT_PUBLIC_FEATURE_*` | Public — leave unset; each turns on with its phase |
 
 Secrets are never committed. `.env.local` is gitignored, and Vercel is the only
 place production values live.
 
-### 5. Verify
+Anything named `NEXT_PUBLIC_*` is compiled into the browser bundle and is
+readable by anyone who loads the site. That is fine for the anon key, which is
+designed for it, and fatal for the service-role key, which bypasses row-level
+security entirely. Never rename a secret to carry that prefix to make an import
+work.
 
-Push a commit and confirm the Vercel build succeeds. That is the Phase 0
-deliverable — a green build, not a public site.
+### 6. Run the database migration
+
+```bash
+pnpm prisma:migrate
+```
+
+Creates the `profiles` and `preferences` tables. Until this runs, sign-in
+succeeds and the dashboard then fails to load a profile.
+
+### 7. Verify
+
+Push a commit and confirm the Vercel build succeeds, then sign in and reach the
+dashboard. A green build alone proves the pipeline; it does not prove the
+Supabase and database gates above were completed, because the build deliberately
+does not need them.
 
 ---
 

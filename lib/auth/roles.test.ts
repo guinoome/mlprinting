@@ -1,29 +1,54 @@
 import { describe, it, expect } from "vitest";
-import { isProtectedRoute, PROTECTED_ROUTE_PREFIXES, ROLES } from "./roles";
+import {
+  isProtectedRoute,
+  isStaffRoute,
+  isStaffRole,
+  PROTECTED_ROUTE_PREFIXES,
+  ROLES,
+} from "./roles";
 
 describe("roles", () => {
-  it("defines the three roles from the Phase 0 spec", () => {
+  it("defines the three roles from the spec", () => {
     expect(Object.values(ROLES)).toEqual(["ADMIN", "STAFF", "CUSTOMER"]);
+  });
+
+  it("admits admin and staff to the back office, but not customers", () => {
+    expect(isStaffRole(ROLES.ADMIN)).toBe(true);
+    expect(isStaffRole(ROLES.STAFF)).toBe(true);
+    expect(isStaffRole(ROLES.CUSTOMER)).toBe(false);
   });
 });
 
 describe("isProtectedRoute", () => {
   it("treats public routes as unprotected", () => {
     expect(isProtectedRoute("/")).toBe(false);
+    expect(isProtectedRoute("/login")).toBe(false);
+    expect(isProtectedRoute("/register")).toBe(false);
   });
 
-  it("matches a protected prefix exactly and as a parent path", () => {
-    // Drive the real matcher against a known prefix rather than depending on
-    // the Phase 0 list being empty.
-    const withPrefix = (pathname: string, prefix: string) =>
-      pathname === prefix || pathname.startsWith(`${prefix}/`);
-
-    expect(withPrefix("/dashboard", "/dashboard")).toBe(true);
-    expect(withPrefix("/dashboard/orders", "/dashboard")).toBe(true);
-    expect(withPrefix("/dashboards-public", "/dashboard")).toBe(false);
+  it("protects the dashboard and admin trees", () => {
+    expect(isProtectedRoute("/dashboard")).toBe(true);
+    expect(isProtectedRoute("/dashboard/orders")).toBe(true);
+    expect(isProtectedRoute("/admin")).toBe(true);
+    expect(isProtectedRoute("/admin/bookings")).toBe(true);
   });
 
-  it("has no business routes registered in Phase 0", () => {
-    expect(PROTECTED_ROUTE_PREFIXES).toHaveLength(0);
+  it("matches on path segments, not string prefixes", () => {
+    // "/dashboards-public" starts with "/dashboard" as a string. Were the
+    // matcher a bare startsWith, this route would be gated by accident.
+    expect(isProtectedRoute("/dashboards-public")).toBe(false);
+    expect(isProtectedRoute("/administration")).toBe(false);
+  });
+
+  it("registers both Phase 1 route trees", () => {
+    expect(PROTECTED_ROUTE_PREFIXES).toEqual(["/dashboard", "/admin"]);
+  });
+});
+
+describe("isStaffRoute", () => {
+  it("covers admin but not the customer dashboard", () => {
+    expect(isStaffRoute("/admin")).toBe(true);
+    expect(isStaffRoute("/admin/reports")).toBe(true);
+    expect(isStaffRoute("/dashboard")).toBe(false);
   });
 });

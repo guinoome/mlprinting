@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** Phase 0. Describes the foundation as built plus the boundaries later
+**Status:** Phase 1. Describes the foundation as built plus the boundaries later
 phases must respect. Update this doc whenever module boundaries or data flow
 change (V1 doc §13, Repository Memory).
 
@@ -78,10 +78,20 @@ Auth identities live in Supabase's `auth.users`, which Prisma does not manage.
 `Profile` mirrors it by id and holds what Supabase Auth has no concept of —
 role, display name, avatar. The two are joined by uuid, never merged.
 
-Phase 0 defines `Profile` and the `Role` enum only. Business models arrive with
-their phases: `Event`/`Invitation` (Phase 3), `MediaAsset` (Phase 4),
-`Template` (Phase 2), `Booking`/`Order` (Phase 7), `Payment`/`Deployment`
-(Phase 8).
+Phase 1 defines `Profile`, `Preference`, and the `Role`/`ThemePreference` enums.
+Business models arrive with their phases: `Event`/`Invitation` (Phase 3),
+`MediaAsset` (Phase 4), `Template` (Phase 2), `Booking`/`Order` (Phase 7),
+`Payment`/`Deployment` (Phase 8).
+
+`Profile` rows are reconciled on first authenticated request rather than created
+at signup (`lib/auth/session.ts`). A user exists the moment they confirm their
+email — an event that happens outside this app — so a signup-time insert would
+need a database trigger backing it up, and then two code paths would own the
+same row and drift.
+
+The Prisma client is constructed lazily (`lib/db.ts`). Instantiating it at module
+load throws without `DATABASE_URL`, which would mean any page importing it breaks
+the secret-less CI build.
 
 ---
 
@@ -110,8 +120,28 @@ Two decisions worth keeping:
 - The protected-route list lives in `lib/auth/roles.ts`, not scattered across
   route files. Adding a protected area later means adding one string.
 
-Phase 0 registers no protected routes and implements no permission logic —
-structure only, per ML-DES.md §7 and Ph1.md §4.
+Phase 1 registers `/dashboard` and `/admin`.
+
+**Two gates, two places, on purpose.** The middleware proves *who* you are; it
+cannot decide *what* you may see, because the role is a Postgres column and
+middleware runs on the edge without Prisma. So:
+
+| Gate | Where | Question |
+|---|---|---|
+| Session | `middleware.ts` → `lib/supabase/middleware.ts` | Are you signed in? |
+| Role | `app/(dashboard)/admin/layout.tsx` | Are you staff? |
+
+The layouts re-check the session even though middleware already did. That is not
+redundancy — a matcher gap or a config change silently disables middleware, and a
+layout that assumes "something upstream checked" is how a dashboard renders to
+nobody. Authorisation belongs next to the data it protects.
+
+Authenticated routes are pinned `force-dynamic`. Without it, a build with no env
+vars prerenders them: `getUser()` returns before touching cookies, Next sees
+nothing dynamic, and the dashboard becomes static HTML served to everyone.
+
+Per Ph1.md §4 there is still no permission system — roles gate whole route trees
+and nothing finer. Resist adding per-action permissions until a phase asks.
 
 ---
 
@@ -127,6 +157,38 @@ colour, swapping it is a one-file change.
 
 Variants use `class-variance-authority` (see `components/ui/button.tsx`). Extend
 a component's variants rather than forking it.
+
+Interactive primitives are built on Radix (dropdown, dialog, toast, switch,
+avatar, label). The reason is accessibility behaviour that is tedious to
+hand-roll and easy to half-finish: focus trapping, focus restoration, live-region
+announcement, Escape handling, scroll lock.
+
+---
+
+## Cross-cutting frameworks
+
+Phase 1 delivers four seams later phases plug into rather than reinvent:
+
+| Framework | Lives in | Consumed by |
+|---|---|---|
+| Configuration (Ph1 §10) | `lib/config/` | Everything — branding, routes, flags, nav |
+| Logging (Ph1 §9) | `lib/logger.ts` | Any `catch`; one `report()` seam for a future service |
+| Notifications (Ph1 §7) | `lib/notifications/`, `components/ui/toast*` | Any client interaction |
+| Uploads (Ph1 §8) | `services/upload/` | Ph4 Media Library, Ph1 avatars |
+
+Two shapes worth keeping:
+
+- **The notification store is framework-free.** `notify()` is a plain module
+  function, not a hook, because the most common caller is a `catch` block in an
+  event handler where hook rules do not apply. React binds to it through
+  `useSyncExternalStore`.
+- **Feature flags are getters, not constants.** They read `process.env` at call
+  time, so a flag cannot be frozen into a module at import. Every business
+  capability ships dark and is gated to its phase — that is what lets Phases 2–10
+  land incrementally instead of in one unreviewable drop.
+
+The logger redacts credential-shaped keys before writing. Logs travel to places
+credentials must not: consoles, aggregators, support tickets.
 
 ---
 
@@ -152,8 +214,14 @@ made public (ML-DES.md §5).
 Vitest for unit tests, colocated (`lib/utils.test.ts` beside `lib/utils.ts`).
 Playwright for end-to-end flows, in `e2e/`.
 
-Phase 0 has no user flows to drive, so `e2e/` holds config only. Tests arrive
-alongside the features they cover.
+Phase 1 has 81 unit tests, concentrated where a mistake is expensive and a test
+is cheap: redirect sanitisation, upload validation, route matching, credential
+redaction. Components are not unit-tested — their behaviour is Radix's, already
+tested upstream, and asserting that a div has a class tests the test.
+
+`e2e/` still holds config only. Phase 1's flows are worth driving end to end, but
+they need a seeded Supabase project to sign into; that lands with the deployment
+gates in `docs/deployment-workflow.md`.
 
 ---
 
@@ -174,3 +242,19 @@ before the phases they affect:
   decision at Phase 8.
 - **QR-scan check-in** — user-approved override of the V1 §5 non-goal, but no
   phase doc owns it. Nearest fit: Phase 3 (RSVP) or Phase 7 (booking).
+
+Raised in Phase 1:
+
+- **Storage buckets are referenced but not provisioned.** `services/upload`
+  writes to `avatars` (public) and `media` (private). Both must be created in
+  Supabase with row-level security policies scoping writes to
+  `<userId>/…` before uploads work — the path convention is enforced in code
+  today, and code is not an access policy. See `docs/deployment-workflow.md`.
+- **Email change has no flow.** Deliberately excluded from the account form
+  (`features/account/schema.ts`): it is an identity change needing confirmation
+  to both the old and new address, and treating it as an ordinary field is how an
+  account is lost to a typo. Needs its own design.
+- **No error-tracking service.** `logger.report()` is the seam; nothing consumes
+  it. Choosing a service is a paid-tool decision under V1 §11.
+- **Brand palette still placeholder.** Unblocked whenever ML Printing provides
+  colours — one file, `app/globals.css`.

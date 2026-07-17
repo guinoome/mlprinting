@@ -1,6 +1,6 @@
 // ML-DEP database schema.
 //
-// Phase 0 scope: role structure only (ML-DES.md §7, Phase0-TechStack-Spec.md §4).
+// Phase 1 scope: identity and preferences only (ML-DES.md §7, Ph1.md §4–§5).
 // Business models — Event, Invitation, Template, Booking, Order, Payment,
 // MediaAsset — are deliberately absent; they arrive with their own phases.
 //
@@ -23,7 +23,17 @@ enum Role {
   CUSTOMER
 }
 
+enum ThemePreference {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
 /// Application-level user record. `id` matches Supabase auth.users.id.
+///
+/// Note what is absent: no password, no session, no email-verification state.
+/// Supabase Auth owns those in auth.users. Mirroring credentials here would
+/// mean two sources of truth for who someone is, and the copy always loses.
 model Profile {
   id          String   @id @db.Uuid
   email       String   @unique
@@ -33,6 +43,25 @@ model Profile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  preferences Preference?
+
   @@index([role])
   @@map("profiles")
+}
+
+/// Basic preferences — Ph1.md §5.
+///
+/// Split from Profile rather than inlined: preferences grow every phase
+/// (notification channels, print defaults, locale), and a wide Profile row read
+/// on every request to learn a role is the wrong shape for that growth.
+model Preference {
+  profileId          String          @id @db.Uuid
+  theme              ThemePreference @default(SYSTEM)
+  emailNotifications Boolean         @default(true)
+  marketingEmails    Boolean         @default(false)
+  updatedAt          DateTime        @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("preferences")
 }
