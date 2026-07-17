@@ -2,10 +2,10 @@
 
 import { useFormState } from "react-dom";
 import { updateProfile } from "../actions";
-import type { ActionState } from "@/features/auth/actions";
-import { FormField } from "@/features/auth/components/form-field";
-import { SubmitButton } from "@/features/auth/components/submit-button";
-import { FormStatus } from "@/features/auth/components/form-status";
+import type { ActionState } from "@/lib/forms/action-state";
+import { FormField } from "@/components/form/form-field";
+import { SubmitButton } from "@/components/form/submit-button";
+import { FormStatus } from "@/components/form/form-status";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 

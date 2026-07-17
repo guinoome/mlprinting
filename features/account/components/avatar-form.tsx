@@ -2,9 +2,9 @@
 
 import { useFormState } from "react-dom";
 import { updateAvatar } from "../actions";
-import type { ActionState } from "@/features/auth/actions";
-import { SubmitButton } from "@/features/auth/components/submit-button";
-import { FormStatus } from "@/features/auth/components/form-status";
+import type { ActionState } from "@/lib/forms/action-state";
+import { SubmitButton } from "@/components/form/submit-button";
+import { FormStatus } from "@/components/form/form-status";
 import { FileDrop } from "@/components/ui/file-drop";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { initialsFrom } from "@/lib/utils";

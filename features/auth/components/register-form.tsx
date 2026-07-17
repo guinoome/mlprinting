@@ -3,9 +3,9 @@
 import { useFormState } from "react-dom";
 import Link from "next/link";
 import { register, type ActionState } from "../actions";
-import { FormField } from "./form-field";
-import { SubmitButton } from "./submit-button";
-import { FormStatus } from "./form-status";
+import { FormField } from "@/components/form/form-field";
+import { SubmitButton } from "@/components/form/submit-button";
+import { FormStatus } from "@/components/form/form-status";
 import { routes } from "@/lib/config";
 
 const initialState: ActionState = {};

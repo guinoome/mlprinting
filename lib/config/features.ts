@@ -24,9 +24,12 @@ export const features = {
   get templateMarketplace() {
     return flag("NEXT_PUBLIC_FEATURE_TEMPLATE_MARKETPLACE", true);
   },
-  /** Ph3 — Invitation Builder */
+  /**
+   * Ph3 — Guided Invitation Builder. Shipped, so this defaults on and is now a
+   * kill switch rather than a phase gate.
+   */
   get invitationBuilder() {
-    return flag("NEXT_PUBLIC_FEATURE_INVITATION_BUILDER");
+    return flag("NEXT_PUBLIC_FEATURE_INVITATION_BUILDER", true);
   },
   /** Ph4 — Media Library */
   get mediaLibrary() {

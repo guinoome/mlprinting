@@ -12,7 +12,7 @@ import {
   avatarPath,
 } from "@/services/upload/storage";
 import { extensionOf } from "@/services/upload";
-import type { ActionState } from "@/features/auth/actions";
+import { type ActionState, fieldErrorsFrom } from "@/lib/forms/action-state";
 import { profileSchema, preferencesSchema } from "./schema";
 
 /**
@@ -24,15 +24,6 @@ import { profileSchema, preferencesSchema } from "./schema";
  */
 
 const UNAUTHENTICATED: ActionState = { error: "Please sign in again." };
-
-function fieldErrorsFrom(issues: { path: PropertyKey[]; message: string }[]) {
-  const fieldErrors: Record<string, string> = {};
-  for (const issue of issues) {
-    const key = String(issue.path[0] ?? "");
-    if (key && !fieldErrors[key]) fieldErrors[key] = issue.message;
-  }
-  return fieldErrors;
-}
 
 export async function updateProfile(
   _prevState: ActionState,

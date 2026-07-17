@@ -22,6 +22,7 @@ ML-DEP/
 │
 ├── components/             Shared UI, no business logic
 │   ├── ui/                 Design-system primitives (Button, Card, Toast, …)
+│   ├── form/               Form primitives shared by every feature's forms
 │   ├── nav/                App shell, sidebar, mobile drawer, user menu
 │   ├── page-header.tsx     Standard page heading + breadcrumbs
 │   ├── placeholder-module.tsx  A section awaiting its phase
@@ -31,17 +32,20 @@ ML-DEP/
 ├── features/               Domain modules — one per business capability
 │   ├── auth/               Login, register, logout, password change
 │   ├── account/            Profile, avatar, preferences
-│   └── template-marketplace/  Catalog: criteria, query, repository, actions (Ph2)
+│   ├── template-marketplace/  Catalog: criteria, query, repository, actions (Ph2)
+│   └── invitation-builder/ Steps, schema, autosave, preview model (Ph3)
 │
 ├── services/               Shared capabilities features call
 │   ├── upload/             File upload framework (Ph4's Media Library reuses it)
-│   └── recommendations/    Strategy interface + basic scorer (Ph2 §8)
+│   ├── recommendations/    Strategy interface + basic scorer (Ph2 §8)
+│   └── media/              Asset records — the seam Ph4's Library takes over
 │
 ├── scripts/local-db.ts     Local Postgres (PGlite) — pnpm db:local
 │
 ├── lib/                    Framework-agnostic utilities
 │   ├── auth/               Roles, protected-route registry, session reading
-│   ├── config/             Branding, routes, feature flags, navigation registry
+│   ├── config/             Branding, routes, flags, nav, design vocabulary
+│   ├── forms/              ActionState — the shape actions return to forms
 │   ├── notifications/      Notification store (framework-free)
 │   ├── hooks/              React bindings (use-toast)
 │   ├── supabase/           Auth clients (browser, server, middleware)
@@ -70,16 +74,25 @@ this component drop into an unrelated product unchanged?
 
 **`features/`** — one folder per capability, each self-contained with its own
 components, schema, and actions. Current occupants: `auth`, `account`,
-`template-marketplace`. Future: `invitation-builder` (Ph3), `media-library`
-(Ph4), `booking` (Ph7), `payment` (Ph8).
+`template-marketplace`, `invitation-builder`. Future: `media-library` (Ph4),
+`booking` (Ph7), `payment` (Ph8).
 
 A feature may use `components/`, `services/`, and `lib/`. It may **not** import
 another feature — put shared logic in `services/` instead.
 
-> One exception exists today, and it is a debt, not a pattern: `features/account`
-> imports form primitives and the `ActionState` type from `features/auth`. When a
-> third feature needs them, they move to `components/` and `lib/` rather than
-> growing a second cross-feature import.
+**There are currently zero cross-feature imports.** Phase 1 left one as a noted
+debt (`account` reaching into `auth` for form primitives) with a trigger: *when a
+third feature needs them, move them.* Phase 3 was the third, so they moved —
+`components/form/` for the primitives, `lib/forms/` for `ActionState`. The
+password form went to `features/auth`, where its action already lived; the
+account page composes it, because `app/` may import any feature.
+
+Two ways features meet without importing each other, both in use:
+
+- **Through `app/`** — a page composes two features. The account page renders
+  `features/auth`'s password form next to `features/account`'s profile form.
+- **Through a route in `lib/config`** — Ph2's "Use this template" redirects to
+  `routes.builderNew`, and Ph3 owns what happens there.
 
 **`services/`** — capabilities multiple features need: uploads (Ph1), media
 storage (Ph4), PDF generation (Ph6), deployment (Ph8). Services expose

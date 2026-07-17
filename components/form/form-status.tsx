@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-import type { ActionState } from "../actions";
+import type { ActionState } from "@/lib/forms/action-state";
 
 /**
  * Form-level outcome banner — the errors and messages that belong to the whole

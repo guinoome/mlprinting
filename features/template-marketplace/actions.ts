@@ -210,9 +210,12 @@ export async function useTemplate(
   }
 
   if (features.invitationBuilder) {
-    redirect(`${routes.builder}?template=${encodeURIComponent(slug)}`);
+    // A route, not an import: the builder owns draft creation, and a feature
+    // may not import another feature (docs/architecture.md). lib/config is the
+    // shared knowledge between them.
+    redirect(`${routes.builderNew}?template=${encodeURIComponent(slug)}`);
   }
 
-  // The builder is not built yet. The selection is recorded and will be waiting.
+  // The builder is switched off. The selection is recorded and will be waiting.
   redirect(`${routes.templates}/${slug}?selected=1`);
 }

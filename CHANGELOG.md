@@ -13,6 +13,47 @@ Phase 10.
 
 ### Added
 
+- Phase 3 — Guided Invitation Builder.
+  - The invitation dataset (Ph3.md §12): `Invitation` with hosts, venues,
+    content, people, programme, personalization, and media links. Content and
+    presentation are separate records — no colour, font, or coordinate exists on
+    an invitation row, which is what lets Ph5's website and Ph6's PDF render from
+    the same data.
+  - Eight-step guided workflow driven by a step registry, so a new step is one
+    entry plus a form (§1). Save Draft and Continue to Order are deliberately
+    not steps — autosave makes the first redundant, and the second is Ph7.
+  - Event info, hosts, venues, content, media, and personalization steps
+    (§2–§7). Hosts and venues are lists: §3 spans "Bride & Groom" to "Company",
+    and a ceremony at 3pm with a reception at 6pm is one event with two clocks.
+  - Autosave with three mechanisms (§8): debounced while typing, flush on
+    blur/tab-hide, and a beforeunload warning if anything is still unsaved.
+    Plus a manual Save, which is what makes autosave trustworthy.
+  - Validation (§9): required fields, RSVP-before-event date consistency,
+    24-hour time format, image requirements, and character limits sized to the
+    printed card. Save-time validation is separate from completeness checking —
+    collapsing them would make it impossible to autosave an unfinished draft.
+  - Live preview (§10) for desktop, mobile, and print, from a pure view model
+    that Ph5's website generator is intended to share.
+  - Draft management (§11): create, inline rename, resume where you left off
+    (stored on the row, so it works across devices), and delete with a confirm.
+  - Approved design vocabulary (`lib/config/design-vocabulary.ts`) — colour
+    themes, typography pairings, backgrounds, decorations, and section toggles.
+    Personalization stores slugs from this list and nothing else, which is what
+    makes §6's "within the approved design system" enforceable rather than
+    aspirational.
+  - `MediaAsset` and `services/media` — the seam Ph4's Media Library will own.
+    Invitations reference assets by id, one asset can fill several slots, and
+    deleting a referenced asset is refused.
+  - "My Events" is now the real drafts list; Ph2's "Use this template" hands off
+    into the builder via `/builder/new`.
+
+### Changed
+
+- `prisma/migrations/` gained `migration_lock.toml`, so migrations can now be
+  generated incrementally rather than only from empty.
+
+### Added
+
 - Phase 2 — Template Marketplace.
   - Template catalog: categories as database rows (adding one is an INSERT, not
     a deploy — Ph2.md §1), curated collections with seasonal date windows,

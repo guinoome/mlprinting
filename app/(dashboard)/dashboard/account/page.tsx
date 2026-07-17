@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { ProfileForm } from "@/features/account/components/profile-form";
 import { AvatarForm } from "@/features/account/components/avatar-form";
-import { PasswordForm } from "@/features/account/components/password-form";
+import { PasswordForm } from "@/features/auth/components/password-form";
 import { PreferencesForm } from "@/features/account/components/preferences-form";
 import { getProfile } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";

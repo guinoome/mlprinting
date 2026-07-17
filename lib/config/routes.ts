@@ -14,14 +14,17 @@ export const routes = {
   templates: "/templates",
   template: (slug: string) => `/templates/${slug}`,
 
-  /**
-   * Guided Invitation Builder — Ph3, not built.
-   *
-   * Registered now because Ph2's "Use Template" has to hand off somewhere, and
-   * a string literal buried in an action is how a route rename becomes a dead
-   * link. Gated behind features.invitationBuilder, so nothing reaches it yet.
-   */
+  /** Guided Invitation Builder — Ph3. */
   builder: "/builder",
+  /**
+   * Starts a draft, optionally from `?template=<slug>`.
+   *
+   * This is the handoff from the marketplace. Ph2 redirects here rather than
+   * importing the builder's create action — a feature may not import another
+   * feature, and a shared route in config is how they meet.
+   */
+  builderNew: "/builder/new",
+  builderStep: (id: string, step: string) => `/builder/${id}/${step}`,
 
   dashboard: {
     root: "/dashboard",

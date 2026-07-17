@@ -7,6 +7,10 @@ import { isSupabaseConfigured, env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { routes, features } from "@/lib/config";
 import { loginSchema, registerSchema, changePasswordSchema } from "./schema";
+import {
+  type ActionState as SharedActionState,
+  fieldErrorsFrom,
+} from "@/lib/forms/action-state";
 import { safeRedirect } from "./redirect";
 
 /**
@@ -17,34 +21,22 @@ import { safeRedirect } from "./redirect";
  * is a convenience, and a request can arrive without ever passing through it.
  */
 
-export interface ActionState {
-  error?: string;
-  /** Field-level messages, keyed by input name. */
-  fieldErrors?: Record<string, string>;
-  /** Non-error outcome — e.g. "check your inbox" after registering. */
-  message?: string;
-}
+/**
+ * Re-exported for the auth forms that already import it from here. The type
+ * itself moved to lib/forms once a third feature needed it — see
+ * docs/folder-structure.md.
+ */
+export type { ActionState } from "@/lib/forms/action-state";
 
-const NOT_CONFIGURED: ActionState = {
+const NOT_CONFIGURED: SharedActionState = {
   error:
     "Authentication is not configured on this deployment yet. See docs/deployment-workflow.md.",
 };
 
-function fieldErrorsFrom(issues: { path: PropertyKey[]; message: string }[]) {
-  const fieldErrors: Record<string, string> = {};
-  for (const issue of issues) {
-    const key = String(issue.path[0] ?? "");
-    // Keep the first message per field. A stack of messages on one input is
-    // noise; the user fixes one thing at a time.
-    if (key && !fieldErrors[key]) fieldErrors[key] = issue.message;
-  }
-  return fieldErrors;
-}
-
 export async function login(
-  _prevState: ActionState,
+  _prevState: SharedActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<SharedActionState> {
   if (!isSupabaseConfigured()) return NOT_CONFIGURED;
 
   const parsed = loginSchema.safeParse({
@@ -73,9 +65,9 @@ export async function login(
 }
 
 export async function register(
-  _prevState: ActionState,
+  _prevState: SharedActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<SharedActionState> {
   if (!isSupabaseConfigured()) return NOT_CONFIGURED;
   if (!features.registration) {
     return { error: "Registration is currently closed." };
@@ -132,9 +124,9 @@ export async function logout(): Promise<void> {
 }
 
 export async function changePassword(
-  _prevState: ActionState,
+  _prevState: SharedActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<SharedActionState> {
   if (!isSupabaseConfigured()) return NOT_CONFIGURED;
 
   const parsed = changePasswordSchema.safeParse({

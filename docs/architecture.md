@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** Phase 2. Describes the foundation as built plus the boundaries later
+**Status:** Phase 3. Describes the foundation as built plus the boundaries later
 phases must respect. Update this doc whenever module boundaries or data flow
 change (V1 doc §13, Repository Memory).
 
@@ -33,6 +33,35 @@ the single most important constraint in the codebase: **invitation data must
 never carry presentation details**. A colour, font, or page coordinate stored on
 the event record couples the website and the print output together, and the two
 have irreconcilable layout needs. Presentation belongs to templates and themes.
+
+**As of Phase 3 this is enforced, not aspirational.** Three records, three
+owners:
+
+| Record | Owns | Example |
+|---|---|---|
+| `Invitation` (+ hosts, venues, content, people, programme) | What the event IS | "The reception is at 6pm at Marco Polo Plaza" |
+| `Template` | What the design LOOKS like | The artwork, the layout |
+| `InvitationPersonalization` | Which approved choices were made | `colorTheme: "midnight-navy"` |
+
+Two rules make the seam hold:
+
+- **No raw values, anywhere.** Personalization stores *slugs* from
+  `lib/config/design-vocabulary.ts` — never a hex, never a font stack. That is
+  what makes Ph3.md §6's "customization must remain within the approved design
+  system" checkable, and it is why there is no colour picker. A hex column would
+  also hand Ph6's press output colours no ink can reproduce.
+- **The resolution happens in one place.** `features/invitation-builder/preview/model.ts`
+  turns slugs into values. Ph5's website generator is meant to import that model
+  and write its own renderer on top; duplicating the resolution is how the
+  preview and the real site start disagreeing about what the invitation says.
+
+The test: *if you can imagine the print generator reading a field and having no
+idea what to do with it, that field is in the wrong table.*
+
+One subtlety worth keeping. `Invitation.eventTheme` ("Enchanted Garden") is
+**content** — a phrase printed on the card. `InvitationPersonalization.colorTheme`
+is **presentation**. Ph3.md lists them in different sections (§2 vs §6) for
+exactly this reason, and they are not the same "theme".
 
 The parallel rule for assets is *Capture Once, Reuse Everywhere* (Ph4.md): a
 customer uploads a photo once, and the Media Library is the only owner of it.
@@ -78,11 +107,27 @@ Auth identities live in Supabase's `auth.users`, which Prisma does not manage.
 `Profile` mirrors it by id and holds what Supabase Auth has no concept of —
 role, display name, avatar. The two are joined by uuid, never merged.
 
-Phase 2 defines `Profile`, `Preference`, and the template catalog
+Phase 3 defines identity (`Profile`, `Preference`), the template catalog
 (`Template`, `TemplateCategory`, `TemplateCollection`, `TemplateScreenshot`,
-`TemplateFavorite`, `TemplateView`, `TemplateUse`). Remaining business models
-arrive with their phases: `Event`/`Invitation` (Phase 3), `MediaAsset`
-(Phase 4), `Booking`/`Order` (Phase 7), `Payment`/`Deployment` (Phase 8).
+`TemplateFavorite`, `TemplateView`, `TemplateUse`), and the invitation dataset
+(`Invitation`, `InvitationHost`, `InvitationVenue`, `InvitationContent`,
+`InvitationPerson`, `ProgramItem`, `InvitationPersonalization`,
+`InvitationMedia`, `MediaAsset`). Remaining: `Booking`/`Order` (Phase 7),
+`Payment`/`Deployment` (Phase 8).
+
+**Wall-clock times are strings, not DateTimes.** `eventTime` and
+`InvitationVenue.startTime` store `"15:00"`. "The ceremony is at 3pm" is a fact
+about the venue's clock, not an instant — round-tripping it through UTC is how a
+printed invitation ends up announcing a 7am reception. `eventDate` carries the
+instant; `timeZone` renders it.
+
+**`MediaAsset` is Phase 4's, held in trust.** Ph3.md §7 says "Connect to the
+Invitation Media Library" and the Success Criteria require uploading media —
+but the Library is Ph4. Rather than build a parallel store Ph4 would have to
+unpick, Phase 3 introduced the minimum record Ph4 will own, shaped to the
+contract Ph4.md already specifies (§9 no duplicates, §10 replace preserving
+references, §11 delete protection, §15 nothing depends on its consumers).
+Phase 4 adds folders, processing, search, and the browser on top.
 
 **Categories are rows, not an enum.** Ph2.md §1 requires that future categories
 need no code change, so adding "Reunion" is an INSERT and the filter UI reads
@@ -303,6 +348,26 @@ before the phases they affect:
   decision at Phase 8.
 - **QR-scan check-in** — user-approved override of the V1 §5 non-goal, but no
   phase doc owns it. Nearest fit: Phase 3 (RSVP) or Phase 7 (booking).
+
+Raised in Phase 3:
+
+- **The builder UI has not been driven end to end.** The data layer, the preview
+  model, and every pure module are verified against a real Postgres (`pnpm
+  db:local`), but the builder itself needs a signed-in session, and a Supabase
+  project is a credentialed step nobody has completed yet. Autosave, the step
+  flow, and the upload path are therefore *unexercised in a browser*. This is the
+  highest-value thing to check once the deployment gates are done.
+- **Autosave has no conflict handling.** Two tabs editing one draft will
+  last-write-win, silently. Acceptable now — drafts are single-user and the
+  window is seconds — but it is a real gap the moment collaboration appears.
+- **`services/media` is a subset of Ph4.** No image processing, variants,
+  folders, quotas, or search. Alt text is captured but nothing enforces it,
+  though both generators will need it before publishing.
+- **Print preview is an approximation.** Ph3.md §10 says "basic". No bleed, no
+  crop marks, no CMYK, no real page geometry — Ph6 owns those.
+- **Section visibility has no per-template awareness.** A template that cannot
+  render a gallery will still offer the toggle. The template's `features` column
+  (Ph2) is the obvious input; no phase doc connects the two yet.
 
 Raised in Phase 2:
 

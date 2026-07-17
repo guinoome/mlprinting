@@ -3,9 +3,9 @@
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { updatePreferences } from "../actions";
-import type { ActionState } from "@/features/auth/actions";
-import { SubmitButton } from "@/features/auth/components/submit-button";
-import { FormStatus } from "@/features/auth/components/form-status";
+import type { ActionState } from "@/lib/forms/action-state";
+import { SubmitButton } from "@/components/form/submit-button";
+import { FormStatus } from "@/components/form/form-status";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { applyTheme, type ThemePreference } from "@/lib/theme";
