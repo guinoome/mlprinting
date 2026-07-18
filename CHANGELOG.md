@@ -13,6 +13,28 @@ Phase 10.
 
 ### Added
 
+- Phase 4 — Invitation Media Library.
+  - Computed virtual folders (Ph4.md §2, §9): assets group "By Event" and "By
+    Type" as read-time views over the existing asset pool and usage join —
+    never a stored folder table, since one photo may belong to many events.
+  - Replace Asset (§10): same id, new bytes, an incrementing `version` field —
+    every existing reference updates automatically, with no version history
+    kept.
+  - A real Upload Manager (§3): drag-and-drop, multi-file, per-file progress,
+    retry, and cancel — the one place in the app that uses a Route Handler
+    instead of a Server Action, because Server Actions cannot expose
+    upload-progress events.
+  - Image processing (§5): `sharp`-generated thumbnail and preview variants at
+    upload time, re-encoded to WebP (which strips EXIF/GPS metadata as a side
+    effect), served through an authenticated proxy route
+    (`/api/media/[assetId]/[version]/[variant]`) with safe immutable caching —
+    never a rotating Supabase signed URL. Degrades to the original alone when
+    a file (e.g. some HEIC images) can't be decoded.
+  - Search (§8) and a storage quota summary (§12), following the same
+    criteria/query pattern Phase 2's marketplace established.
+  - The Guided Invitation Builder's media step now browses the full library
+    (Ph3.md §7's "Connect to the Invitation Media Library"), replacing the
+    flat per-invitation list Phase 3 shipped as a placeholder.
 - Phase 3 — Guided Invitation Builder.
   - The invitation dataset (Ph3.md §12): `Invitation` with hosts, venues,
     content, people, programme, personalization, and media links. Content and
