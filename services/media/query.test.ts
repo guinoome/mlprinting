@@ -42,7 +42,7 @@ describe("buildMediaWhere", () => {
     const where = buildMediaWhere(parseMediaCriteria({ q: "beach" }), {
       profileId: "user-1",
     });
-    const clause = where.AND?.find((c: any) => c.AND) as any;
+    const clause = (where.AND as any)?.find((c: any) => c.AND) as any;
     expect(clause.AND[0].OR).toEqual([
       { originalFilename: { contains: "beach", mode: "insensitive" } },
       { altText: { contains: "beach", mode: "insensitive" } },
