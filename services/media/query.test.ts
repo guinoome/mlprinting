@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { describe, expect, it } from "vitest";
 import { parseMediaCriteria } from "./criteria";
 import { buildMediaWhere, buildMediaOrderBy, buildMediaPagination } from "./query";
@@ -42,7 +43,13 @@ describe("buildMediaWhere", () => {
     const where = buildMediaWhere(parseMediaCriteria({ q: "beach" }), {
       profileId: "user-1",
     });
-    const clause = (where.AND as any)?.find((c: any) => c.AND) as any;
+    const clause = (where.AND as Prisma.MediaAssetWhereInput[]).find(
+      (
+        candidate,
+      ): candidate is Prisma.MediaAssetWhereInput & {
+        AND: Prisma.MediaAssetWhereInput[];
+      } => "AND" in candidate,
+    )!;
     expect(clause.AND[0].OR).toEqual([
       { originalFilename: { contains: "beach", mode: "insensitive" } },
       { altText: { contains: "beach", mode: "insensitive" } },
