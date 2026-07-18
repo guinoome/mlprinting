@@ -366,11 +366,11 @@ export interface FoldersResult {
 }
 
 /** Design doc Decision 1 — computed at read time from the current asset pool and usage join, never stored. */
-export async function getFolders(profileId: string): Promise<FoldersResult> {
-  const [assets, usages] = await Promise.all([
-    listAllAssets(profileId),
-    findUsagesForProfile(profileId),
-  ]);
+export async function getFolders(
+  profileId: string,
+  assets: AssetRow[],
+): Promise<FoldersResult> {
+  const usages = await findUsagesForProfile(profileId);
 
   return {
     byEvent: computeByEvent(

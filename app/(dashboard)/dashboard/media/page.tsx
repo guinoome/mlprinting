@@ -78,11 +78,11 @@ export default async function MediaPage({
       ? searchParams.view
       : "all";
 
-  const [allAssets, folders, quota] = await Promise.all([
+  const [allAssets, quota] = await Promise.all([
     listAssets(profile.id),
-    getFolders(profile.id),
     getQuota(profile.id),
   ]);
+  const folders = await getFolders(profile.id, allAssets);
 
   const assetById = new Map(allAssets.map((asset) => [asset.id, asset]));
   const resolve = (ids: string[]) =>
