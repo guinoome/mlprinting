@@ -1,17 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { useFormState } from "react-dom";
-import { Check, Trash2, Images } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { saveMediaStep } from "../../actions";
-import {
-  uploadMedia,
-  removeMedia,
-  type MediaUploadState,
-} from "../../media-actions";
+import { removeMedia } from "../../media-actions";
 import { useAutosave } from "../use-autosave";
 import { SaveIndicator } from "../save-indicator";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,30 +13,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileDrop } from "@/components/ui/file-drop";
-import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { AssetGrid } from "@/components/media/asset-grid";
+import { UploadDropzone } from "@/components/media/upload-dropzone";
+import type { MediaAssetSummary } from "@/components/media/asset-card";
 import { notify } from "@/lib/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 /**
- * Media — Ph3.md §7.
+ * Media — Ph3.md §7. Now browses the full Media Library (search included)
+ * rather than the flat list Phase 3 shipped — Ph4.md's "Connect to the
+ * Invitation Media Library."
  *
- * The library is the customer's whole set of uploads; the slots are references
- * into it. That shape is the spec's: §7 says "Do not duplicate uploaded assets"
- * and "Capture Once, Reuse Everywhere", so one photo can be the cover AND a
- * couple photo, and choosing it twice stores two references, not two files.
- *
- * Ph4 replaces the picker below with the real Media Library — folders, search,
- * processing. The assignment model does not change, which is why it is worth
- * getting right now.
+ * The library is the customer's whole set of uploads; the slots are
+ * references into it. §7: "Do not duplicate uploaded assets" — one photo can
+ * be the cover AND a couple photo, and choosing it twice stores two
+ * references, not two files.
  */
-
-export interface AssetSummary {
-  id: string;
-  url: string | null;
-  altText: string | null;
-  originalFilename: string;
-}
 
 export type Slot = "COVER" | "COUPLE" | "FAMILY" | "LOGO";
 
@@ -83,22 +70,20 @@ const SLOTS: {
   },
 ];
 
-const uploadInitial: MediaUploadState = {};
-
 export function MediaStep({
   invitationId,
   assets: initialAssets,
   initialAssignments,
 }: {
   invitationId: string;
-  assets: AssetSummary[];
+  assets: MediaAssetSummary[];
   initialAssignments: Assignment[];
 }) {
+  const router = useRouter();
   const [assignments, setAssignments] =
     React.useState<Assignment[]>(initialAssignments);
   const [activeSlot, setActiveSlot] = React.useState<Slot>("COVER");
-  const [uploadState, uploadAction] = useFormState(uploadMedia, uploadInitial);
-  const [removeState, removeAction] = useFormState(removeMedia, uploadInitial);
+  const [query, setQuery] = React.useState("");
 
   const save = React.useCallback(async () => {
     const formData = new FormData();
@@ -108,24 +93,6 @@ export function MediaStep({
   }, [invitationId, assignments]);
 
   const autosave = useAutosave({ save });
-
-  React.useEffect(() => {
-    if (uploadState.error) {
-      notify.error({ title: "Upload failed", description: uploadState.error });
-    }
-  }, [uploadState.error]);
-
-  React.useEffect(() => {
-    if (removeState.error) {
-      // Ph4.md §11 — name what is using it rather than just refusing.
-      notify.error({
-        title: "Cannot delete that image",
-        description: removeState.usedBy?.length
-          ? `${removeState.error} Used by: ${removeState.usedBy.join(", ")}.`
-          : removeState.error,
-      });
-    }
-  }, [removeState.error, removeState.usedBy]);
 
   function toggle(assetId: string, slot: Slot) {
     const definition = SLOTS.find((s) => s.id === slot)!;
@@ -139,7 +106,6 @@ export function MediaStep({
           (a) => !(a.assetId === assetId && a.slot === slot),
         );
 
-      // A single-slot choice replaces rather than stacks: there is one cover.
       const cleared = definition.single
         ? current.filter((a) => a.slot !== slot)
         : current;
@@ -149,8 +115,39 @@ export function MediaStep({
     autosave.markDirty();
   }
 
-  const assignedTo = (assetId: string) =>
-    assignments.filter((a) => a.assetId === assetId).map((a) => a.slot);
+  async function handleRemove(asset: MediaAssetSummary) {
+    const formData = new FormData();
+    formData.set("assetId", asset.id);
+    const result = await removeMedia({}, formData);
+
+    if (result.error) {
+      // Ph4.md §11 — name what is using it rather than just refusing.
+      notify.error({
+        title: "Cannot delete that image",
+        description: result.usedBy?.length
+          ? `${result.error} Used by: ${result.usedBy.join(", ")}.`
+          : result.error,
+      });
+      return;
+    }
+
+    setAssignments((current) => current.filter((a) => a.assetId !== asset.id));
+    router.refresh();
+  }
+
+  const filteredAssets = React.useMemo(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return initialAssets;
+    return initialAssets.filter(
+      (asset) =>
+        asset.originalFilename.toLowerCase().includes(term) ||
+        asset.tags.some((tag) => tag.includes(term)),
+    );
+  }, [initialAssets, query]);
+
+  const assignedIdsForActiveSlot = assignments
+    .filter((a) => a.slot === activeSlot)
+    .map((a) => a.assetId);
 
   return (
     <>
@@ -168,15 +165,7 @@ export function MediaStep({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form
-              action={uploadAction}
-              className="flex flex-col gap-3 sm:flex-row sm:items-end"
-            >
-              <FileDrop name="file" kind="image" className="flex-1" />
-              <Button type="submit" variant="outline">
-                Upload
-              </Button>
-            </form>
+            <UploadDropzone onUploaded={() => router.refresh()} />
           </CardContent>
         </Card>
 
@@ -184,7 +173,8 @@ export function MediaStep({
           <CardHeader>
             <CardTitle className="text-base">Assign photos</CardTitle>
             <CardDescription>
-              Pick a slot, then tap the photos that belong in it.
+              Pick a slot, then tap the photos that belong in it — search your
+              whole library if you have more than a few.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -227,80 +217,28 @@ export function MediaStep({
               {SLOTS.find((s) => s.id === activeSlot)!.description}
             </p>
 
-            {initialAssets.length === 0 ? (
-              <EmptyState
-                icon={<Images />}
-                title="No photos yet"
-                description="Upload one above to get started."
-              />
-            ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {initialAssets.map((asset) => {
-                  const slots = assignedTo(asset.id);
-                  const inActiveSlot = slots.includes(activeSlot);
+            <Input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search your photos by filename or tag"
+              aria-label="Search your photos"
+            />
 
-                  return (
-                    <div key={asset.id} className="group relative">
-                      <button
-                        type="button"
-                        onClick={() => toggle(asset.id, activeSlot)}
-                        aria-pressed={inActiveSlot}
-                        className={cn(
-                          "relative block w-full overflow-hidden rounded-lg border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                          inActiveSlot
-                            ? "border-foreground"
-                            : "border-transparent hover:border-border",
-                        )}
-                      >
-                        {asset.url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={asset.url}
-                            alt={asset.altText ?? asset.originalFilename}
-                            className="aspect-square w-full bg-muted object-cover"
-                          />
-                        ) : (
-                          <div className="flex aspect-square w-full items-center justify-center bg-muted text-xs text-muted-foreground">
-                            Preview unavailable
-                          </div>
-                        )}
-
-                        {inActiveSlot ? (
-                          <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-foreground text-background">
-                            <Check className="size-3" aria-hidden="true" />
-                          </span>
-                        ) : null}
-                      </button>
-
-                      {/* Reference count, not decoration: it is the visible proof
-                          of Capture Once, Reuse Everywhere. */}
-                      {slots.length > 0 ? (
-                        <p className="mt-1 truncate text-[10px] text-muted-foreground">
-                          Used in {slots.length}{" "}
-                          {slots.length === 1 ? "slot" : "slots"}
-                        </p>
-                      ) : null}
-
-                      <form
-                        action={removeAction}
-                        className="absolute left-1.5 top-1.5"
-                      >
-                        <input type="hidden" name="assetId" value={asset.id} />
-                        <Button
-                          type="submit"
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 bg-background/80 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
-                          aria-label={`Delete ${asset.originalFilename}`}
-                        >
-                          <Trash2 className="size-3.5 text-destructive" />
-                        </Button>
-                      </form>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <AssetGrid
+              assets={filteredAssets}
+              selectedIds={assignedIdsForActiveSlot}
+              onSelect={(asset) => toggle(asset.id, activeSlot)}
+              onRemove={handleRemove}
+              emptyTitle={
+                initialAssets.length === 0 ? "No photos yet" : "No matches"
+              }
+              emptyDescription={
+                initialAssets.length === 0
+                  ? "Upload one above to get started."
+                  : "Try a different search term."
+              }
+            />
           </CardContent>
         </Card>
       </div>

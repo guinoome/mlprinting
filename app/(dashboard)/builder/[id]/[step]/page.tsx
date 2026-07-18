@@ -204,9 +204,10 @@ export default async function BuilderStepPage({
             invitationId={draft!.id}
             assets={assets.map((asset) => ({
               id: asset.id,
-              url: thumbnailUrl(asset),
+              thumbnailUrl: thumbnailUrl(asset),
               altText: asset.altText,
               originalFilename: asset.originalFilename,
+              tags: asset.tags,
             }))}
             initialAssignments={draft!.media
               .filter((link) => link.slot !== "MUSIC")
