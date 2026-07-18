@@ -170,19 +170,26 @@ export function MediaLibraryBrowser({
           {Array.from(
             { length: pagination.totalPages },
             (_, index) => index + 1,
-          ).map((page) => (
-            <Link
-              key={page}
-              href={`${routes.dashboard.media}?view=all&page=${page}`}
-              className={
-                page === pagination.page
-                  ? "rounded-md bg-muted px-3 py-1.5 font-medium"
-                  : "rounded-md px-3 py-1.5 text-muted-foreground hover:bg-muted/60"
-              }
-            >
-              {page}
-            </Link>
-          ))}
+          ).map((page) => {
+            const params = new URLSearchParams({ view: "all" });
+            if (searchDefaults.q) params.set("q", searchDefaults.q);
+            if (searchDefaults.sort) params.set("sort", searchDefaults.sort);
+            params.set("page", String(page));
+
+            return (
+              <Link
+                key={page}
+                href={`${routes.dashboard.media}?${params.toString()}`}
+                className={
+                  page === pagination.page
+                    ? "rounded-md bg-muted px-3 py-1.5 font-medium"
+                    : "rounded-md px-3 py-1.5 text-muted-foreground hover:bg-muted/60"
+                }
+              >
+                {page}
+              </Link>
+            );
+          })}
         </div>
       ) : null}
 
