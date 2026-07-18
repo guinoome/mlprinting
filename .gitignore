@@ -40,3 +40,6 @@ yarn-error.log*
 
 # local PGlite database (scripts/local-db.ts)
 /.pglite/
+
+# local git worktrees (superpowers:using-git-worktrees)
+/.worktrees/
