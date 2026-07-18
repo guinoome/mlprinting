@@ -34,7 +34,7 @@ export async function writeAssetObjects(
 
   for (const write of writes) {
     const filename = write.path.split("/").pop() ?? "asset";
-    const file = new File([new Uint8Array(write.buffer)], filename, {
+    const file = new File([write.buffer as BlobPart], filename, {
       type: write.contentType,
     });
 
