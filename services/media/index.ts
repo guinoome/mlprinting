@@ -1,181 +1,291 @@
 import "server-only";
 
-import { prisma, isDatabaseConfigured } from "@/lib/db";
 import { logger } from "@/lib/logger";
-import {
-  uploadFile,
-  removeFile,
-  signedUrl,
-  BUCKETS,
-} from "@/services/upload/storage";
+import { isDatabaseConfigured } from "@/lib/db";
 import { extensionOf } from "@/services/upload";
-import type { UploadFailure } from "@/services/upload";
+import { BUCKETS } from "@/services/upload/storage";
+import { processImage } from "./processing";
+import { assetObjectPath, hasVariants } from "./paths";
+import { writeAssetObjects, removeAssetObjects } from "./storage";
+import {
+  insertAsset,
+  findAssetById,
+  searchAssets as repoSearchAssets,
+  listAllAssets,
+  findUsagesForProfile,
+  bumpVersionAndUpdate,
+  updateAssetMeta as repoUpdateAssetMeta,
+  deleteAssetRow,
+  findBlockingUsages,
+  getQuota as repoGetQuota,
+} from "./repository";
+import { computeByEvent, computeByType } from "./folders";
+import { parseMediaCriteria } from "./criteria";
+import type { MediaCriteria, RawSearchParams } from "./criteria";
+import type { AssetRow, MediaVariant } from "./types";
 
 /**
- * Media service — the seam Ph4's Invitation Media Library will own.
- *
- * WHY THIS EXISTS IN PHASE 3
- *
- * Ph3.md §7 says "Connect to the Invitation Media Library" and the Success
- * Criteria require "Upload media" — but the Library is Phase 4. Phase 3 cannot
- * be built without somewhere to put a cover photo, and inventing a private
- * store would give Ph4 something to unpick rather than something to build on.
- *
- * So this is the minimum the Library will own, shaped to the contract Ph4.md
- * already specifies:
- *
- *   §15  "The Media Library should never depend on these consumers. Instead,
- *        other modules depend on the Media Library."  → this lives in services/,
- *        imports no feature, and features call it.
- *   §9   "Avoid duplicate uploads. Multiple invitation sections may reference
- *        the same asset."                              → assets are records;
- *                                                        invitations join to them.
- *   §10  "Replace an asset while preserving references." → callers hold an id,
- *                                                          never a URL.
- *   §11  "Prevent deleting assets still referenced."     → deletion checks usage.
- *
- * WHAT PHASE 4 ADDS: folders, image processing and variants, an asset browser,
- * search, storage quotas, and the usage UI. None of that changes this contract —
- * which is the point of writing it down now.
+ * Media service — Ph4's Invitation Media Library (Ph4.md §15: "other modules
+ * depend on the Media Library," never the reverse). Extends the seam Phase 3
+ * introduced (see git history for services/media/index.ts's Phase 3 version)
+ * with folders, search, image processing, versioned replace, and storage
+ * quota, per docs/superpowers/specs/2026-07-18-phase4-media-library-design.md.
  */
+
+export type { AssetRow, MediaVariant, AssetUsage } from "./types";
+export type {
+  MediaCriteria,
+  RawSearchParams,
+  MediaSort,
+  MediaKindFilter,
+} from "./criteria";
+export {
+  parseMediaCriteria,
+  MEDIA_SORTS,
+  MEDIA_KINDS,
+  DEFAULT_MEDIA_SORT,
+  DEFAULT_MEDIA_PAGE_SIZE,
+} from "./criteria";
+export type { ByEventView, ByTypeView, EventFolder } from "./folders";
+export type { Quota, QuotaByEvent } from "./repository";
+export { hasVariants, assetObjectPath } from "./paths";
+
+/**
+ * Proxy URL for one variant of one asset — never a Supabase signed URL
+ * (design doc Decision 4: signed URLs rotate on every mint, which defeats
+ * immutable caching for a grid of thumbnails).
+ */
+export function assetVariantUrl(
+  asset: { id: string; version: number },
+  variant: MediaVariant = "original",
+): string {
+  return `/api/media/${asset.id}/${asset.version}/${variant}`;
+}
+
+/** The right-sized URL for a grid thumbnail, falling back to the original when no variants exist. */
+export function thumbnailUrl(asset: {
+  id: string;
+  version: number;
+  width: number | null;
+}): string {
+  return assetVariantUrl(asset, hasVariants(asset) ? "thumbnail" : "original");
+}
+
+/** The right-sized URL for a detail view or builder preview, falling back to the original when no variants exist. */
+export function previewUrl(asset: {
+  id: string;
+  version: number;
+  width: number | null;
+}): string {
+  return assetVariantUrl(asset, hasVariants(asset) ? "preview" : "original");
+}
+
+function objectPathsFor(
+  profileId: string,
+  assetId: string,
+  version: number,
+  originalExtension: string,
+  includeVariants: boolean,
+): string[] {
+  return [
+    assetObjectPath(profileId, assetId, version, "original", originalExtension),
+    ...(includeVariants
+      ? [
+          assetObjectPath(profileId, assetId, version, "thumbnail", originalExtension),
+          assetObjectPath(profileId, assetId, version, "preview", originalExtension),
+        ]
+      : []),
+  ];
+}
 
 export interface CreateAssetInput {
   profileId: string;
   file: File;
   altText?: string;
+  tags?: string[];
 }
 
 export type CreateAssetResult =
-  { ok: true; assetId: string } | { ok: false; error: string };
+  | { ok: true; assetId: string }
+  | { ok: false; error: string };
 
 /**
- * Store a file and record it as an asset.
- *
- * Path is derived from the owner's id, never from anything the caller supplies:
- * the prefix is what Supabase's row-level security matches on, so a
- * caller-chosen path would be a caller-chosen access policy.
- * See docs/deployment-workflow.md for the bucket policies.
+ * Store a file and record it as an asset — design doc's processing pipeline.
+ * Runs `sharp` to generate thumbnail/preview variants; degrades to
+ * original-only when the input can't be decoded (Decision 4). Path is derived
+ * from the owner's id and a fresh random asset id, never from anything the
+ * caller supplies — same reasoning as Phase 3's version of this function.
  */
 export async function createAsset({
   profileId,
   file,
   altText,
+  tags = [],
 }: CreateAssetInput): Promise<CreateAssetResult> {
   if (!isDatabaseConfigured()) {
     return { ok: false, error: "Media is not available on this deployment." };
   }
 
-  // A random object name, not the original filename. Two customers uploading
-  // "cover.jpg" must not collide, and a filename is attacker-influenced input
-  // that has no business shaping a storage path.
+  const assetId = crypto.randomUUID();
   const extension = extensionOf(file.name);
-  const objectName = `${crypto.randomUUID()}${extension}`;
-  const path = `${profileId}/${objectName}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const processed = await processImage(buffer);
 
-  const uploaded = await uploadFile({
-    bucket: BUCKETS.media,
-    path,
-    file,
-    kind: "image",
-  });
+  const writes = [
+    {
+      variant: "original" as const,
+      path: assetObjectPath(profileId, assetId, 1, "original", extension),
+      buffer,
+      contentType: file.type,
+    },
+    ...(processed
+      ? [
+          {
+            variant: "thumbnail" as const,
+            path: assetObjectPath(profileId, assetId, 1, "thumbnail", extension),
+            buffer: processed.thumbnail.buffer,
+            contentType: processed.thumbnail.contentType,
+          },
+          {
+            variant: "preview" as const,
+            path: assetObjectPath(profileId, assetId, 1, "preview", extension),
+            buffer: processed.preview.buffer,
+            contentType: processed.preview.contentType,
+          },
+        ]
+      : []),
+  ];
 
-  if ("code" in uploaded) {
-    return { ok: false, error: (uploaded as UploadFailure).message };
+  const written = await writeAssetObjects(writes);
+  if (!written.ok) {
+    await removeAssetObjects(written.written);
+    return { ok: false, error: written.error };
   }
 
   try {
-    const asset = await prisma.mediaAsset.create({
-      data: {
-        profileId,
-        bucket: BUCKETS.media,
-        storagePath: uploaded.path,
-        kind: "IMAGE",
-        mimeType: uploaded.contentType,
-        bytes: uploaded.bytes,
-        originalFilename: file.name.slice(0, 200),
-        altText: altText?.trim() || null,
-      },
-      select: { id: true },
+    const asset = await insertAsset({
+      profileId,
+      bucket: BUCKETS.media,
+      storagePath: writes[0].path,
+      kind: "IMAGE",
+      mimeType: file.type,
+      bytes: file.size,
+      originalFilename: file.name.slice(0, 200),
+      altText: altText?.trim() || null,
+      tags,
+      width: processed?.width ?? null,
+      height: processed?.height ?? null,
     });
 
     return { ok: true, assetId: asset.id };
   } catch (error) {
-    // The bytes landed but the record did not. Remove the orphan rather than
-    // leave a file nothing points at and nobody can find.
+    // The bytes landed but the record did not. Remove every object just
+    // written rather than leave storage holding an orphan nothing points at.
     logger.report(error, { at: "createAsset", profileId });
-    await removeFile(BUCKETS.media, uploaded.path);
-    return { ok: false, error: "Could not save that image. Please try again." };
+    await removeAssetObjects(writes.map((w) => w.path));
+    return {
+      ok: false,
+      error: "Could not save that image. Please try again.",
+    };
   }
 }
 
-/** A customer's assets, newest first. Ph4 replaces this with the browser (§7) and search (§8). */
-export async function listAssets(profileId: string, limit = 60) {
-  if (!isDatabaseConfigured()) return [];
-
-  try {
-    return await prisma.mediaAsset.findMany({
-      where: { profileId },
-      orderBy: { createdAt: "desc" },
-      take: limit,
-      select: {
-        id: true,
-        bucket: true,
-        storagePath: true,
-        altText: true,
-        originalFilename: true,
-        bytes: true,
-        width: true,
-        height: true,
-      },
-    });
-  } catch (error) {
-    logger.report(error, { at: "listAssets", profileId });
-    return [];
-  }
-}
+export type ReplaceAssetResult = { ok: true } | { ok: false; error: string };
 
 /**
- * A viewable URL for an asset.
- *
- * Signed and short-lived: the media bucket is private, and a permanent link to a
- * customer's family photos is a public one with extra characters. Callers must
- * not cache the result past its expiry.
+ * Replace an asset in place — design doc Decision 2. Same id, new bytes,
+ * version incremented. The new version's objects are written and the row is
+ * confirmed updated *before* the previous version's objects are removed —
+ * never the reverse, per the design doc's error-handling cross-reference.
  */
-export async function assetUrl(
-  asset: { bucket: string; storagePath: string },
-  expiresInSeconds = 3600,
-): Promise<string | null> {
-  return signedUrl(
-    asset.bucket as "media" | "avatars",
-    asset.storagePath,
-    expiresInSeconds,
-  );
-}
+export async function replaceAsset(
+  profileId: string,
+  assetId: string,
+  file: File,
+): Promise<ReplaceAssetResult> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: "Media is not available on this deployment." };
+  }
 
-/** Resolve URLs for a set of assets in one pass. */
-export async function assetUrls(
-  assets: { id: string; bucket: string; storagePath: string }[],
-): Promise<Map<string, string>> {
-  const entries = await Promise.all(
-    assets.map(async (asset) => [asset.id, await assetUrl(asset)] as const),
-  );
+  const existing = await findAssetById(profileId, assetId);
+  if (!existing) return { ok: false, error: "That image no longer exists." };
 
-  return new Map(
-    entries.filter(
-      (entry): entry is readonly [string, string] => entry[1] !== null,
-    ),
+  const nextVersion = existing.version + 1;
+  const extension = extensionOf(file.name);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const processed = await processImage(buffer);
+
+  const writes = [
+    {
+      variant: "original" as const,
+      path: assetObjectPath(profileId, assetId, nextVersion, "original", extension),
+      buffer,
+      contentType: file.type,
+    },
+    ...(processed
+      ? [
+          {
+            variant: "thumbnail" as const,
+            path: assetObjectPath(profileId, assetId, nextVersion, "thumbnail", extension),
+            buffer: processed.thumbnail.buffer,
+            contentType: processed.thumbnail.contentType,
+          },
+          {
+            variant: "preview" as const,
+            path: assetObjectPath(profileId, assetId, nextVersion, "preview", extension),
+            buffer: processed.preview.buffer,
+            contentType: processed.preview.contentType,
+          },
+        ]
+      : []),
+  ];
+
+  const written = await writeAssetObjects(writes);
+  if (!written.ok) {
+    await removeAssetObjects(written.written);
+    return { ok: false, error: written.error };
+  }
+
+  try {
+    await bumpVersionAndUpdate(assetId, {
+      bucket: BUCKETS.media,
+      storagePath: writes[0].path,
+      mimeType: file.type,
+      bytes: file.size,
+      originalFilename: file.name.slice(0, 200),
+      width: processed?.width ?? null,
+      height: processed?.height ?? null,
+    });
+  } catch (error) {
+    logger.report(error, { at: "replaceAsset", profileId, assetId });
+    await removeAssetObjects(writes.map((w) => w.path));
+    return {
+      ok: false,
+      error: "Could not replace that image. Please try again.",
+    };
+  }
+
+  // Only now — new objects written, row confirmed updated — remove the
+  // previous version's objects.
+  const previousPaths = objectPathsFor(
+    profileId,
+    assetId,
+    existing.version,
+    extensionOf(existing.originalFilename),
+    hasVariants(existing),
   );
+  await removeAssetObjects(previousPaths);
+
+  return { ok: true };
 }
 
 export type DeleteAssetResult =
-  { ok: true } | { ok: false; error: string; usedBy?: string[] };
+  | { ok: true }
+  | { ok: false; error: string; usedBy?: string[] };
 
 /**
- * Delete an asset — Ph4.md §11 (Delete Protection).
- *
- * Refuses while anything still references it, and names what. The schema's
- * `onDelete: Restrict` would raise a foreign-key error anyway; this turns that
- * into an answer the customer can act on. Ph4 builds the dialog around it.
+ * Delete an asset — Ph4.md §11 (Delete Protection). Extends Phase 3's version
+ * of this function to remove up to three storage objects instead of one.
  */
 export async function deleteAsset(
   profileId: string,
@@ -184,35 +294,20 @@ export async function deleteAsset(
   if (!isDatabaseConfigured())
     return { ok: false, error: "Media is not available." };
 
+  const asset = await findAssetById(profileId, assetId);
+  if (!asset) return { ok: false, error: "That image no longer exists." };
+
+  const usedBy = await findBlockingUsages(assetId);
+  if (usedBy.length > 0) {
+    return {
+      ok: false,
+      error: "That image is still used by an invitation.",
+      usedBy,
+    };
+  }
+
   try {
-    // Scoped to the owner: this is the check that stops one customer deleting
-    // another's photo by id.
-    const asset = await prisma.mediaAsset.findFirst({
-      where: { id: assetId, profileId },
-      select: { id: true, bucket: true, storagePath: true },
-    });
-    if (!asset) return { ok: false, error: "That image no longer exists." };
-
-    const usages = await prisma.invitationMedia.findMany({
-      where: { assetId },
-      select: { invitation: { select: { title: true } } },
-      take: 10,
-    });
-
-    if (usages.length > 0) {
-      return {
-        ok: false,
-        error: "That image is still used by an invitation.",
-        usedBy: usages.map((usage) => usage.invitation.title),
-      };
-    }
-
-    await prisma.mediaAsset.delete({ where: { id: asset.id } });
-    // Storage last: an orphaned row pointing at a missing file renders broken,
-    // while an orphaned file costs a few kilobytes and no user ever sees it.
-    await removeFile(asset.bucket as "media" | "avatars", asset.storagePath);
-
-    return { ok: true };
+    await deleteAssetRow(asset.id);
   } catch (error) {
     logger.report(error, { at: "deleteAsset", profileId, assetId });
     return {
@@ -220,4 +315,81 @@ export async function deleteAsset(
       error: "Could not delete that image. Please try again.",
     };
   }
+
+  // Row deleted last-but-storage-removed-last-of-all would leave a dangling
+  // row if storage cleanup crashed; row-then-storage means the worst case is
+  // an orphaned file, which costs kilobytes and is invisible to any user.
+  const paths = objectPathsFor(
+    profileId,
+    assetId,
+    asset.version,
+    extensionOf(asset.originalFilename),
+    hasVariants(asset),
+  );
+  await removeAssetObjects(paths);
+
+  return { ok: true };
+}
+
+export async function getAsset(
+  profileId: string,
+  assetId: string,
+): Promise<AssetRow | null> {
+  return findAssetById(profileId, assetId);
+}
+
+/** A customer's assets, newest first, unpaginated — used by the builder's media step and by folder computation, which both need the whole pool. */
+export async function listAssets(profileId: string): Promise<AssetRow[]> {
+  return listAllAssets(profileId);
+}
+
+export interface SearchAssetsResult {
+  assets: AssetRow[];
+  totalCount: number;
+  criteria: MediaCriteria;
+}
+
+/** Ph4.md §8 — filename, tags, media type, upload date, and event, via services/media/criteria.ts + query.ts. */
+export async function searchAssets(
+  profileId: string,
+  rawParams: RawSearchParams,
+): Promise<SearchAssetsResult> {
+  const criteria = parseMediaCriteria(rawParams);
+  const { assets, totalCount } = await repoSearchAssets(profileId, criteria);
+  return { assets, totalCount, criteria };
+}
+
+export interface FoldersResult {
+  byEvent: ReturnType<typeof computeByEvent>;
+  byType: ReturnType<typeof computeByType>;
+}
+
+/** Design doc Decision 1 — computed at read time from the current asset pool and usage join, never stored. */
+export async function getFolders(profileId: string): Promise<FoldersResult> {
+  const [assets, usages] = await Promise.all([
+    listAllAssets(profileId),
+    findUsagesForProfile(profileId),
+  ]);
+
+  return {
+    byEvent: computeByEvent(
+      assets.map((asset) => asset.id),
+      usages,
+    ),
+    byType: computeByType(
+      assets.map((asset) => ({ id: asset.id, tags: asset.tags })),
+    ),
+  };
+}
+
+export async function getQuota(profileId: string) {
+  return repoGetQuota(profileId);
+}
+
+export async function updateAssetMeta(
+  profileId: string,
+  assetId: string,
+  data: { altText?: string | null; tags?: string[] },
+): Promise<AssetRow | null> {
+  return repoUpdateAssetMeta(profileId, assetId, data);
 }

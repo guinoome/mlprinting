@@ -42,6 +42,8 @@ const FULL_INCLUDE = {
           storagePath: true,
           altText: true,
           originalFilename: true,
+          version: true,
+          width: true,
         },
       },
     },
