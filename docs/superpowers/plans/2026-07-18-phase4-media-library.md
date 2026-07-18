@@ -3549,10 +3549,16 @@ export function MediaLibraryBrowser({
           {Array.from(
             { length: pagination.totalPages },
             (_, index) => index + 1,
-          ).map((page) => (
+          ).map((page) => {
+            const pageParams = new URLSearchParams({ view: "all" });
+            if (searchDefaults.q) pageParams.set("q", searchDefaults.q);
+            pageParams.set("sort", searchDefaults.sort);
+            pageParams.set("page", String(page));
+
+            return (
             <Link
               key={page}
-              href={`${routes.dashboard.media}?view=all&page=${page}`}
+              href={`${routes.dashboard.media}?${pageParams.toString()}`}
               className={
                 page === pagination.page
                   ? "rounded-md bg-muted px-3 py-1.5 font-medium"
@@ -3561,7 +3567,8 @@ export function MediaLibraryBrowser({
             >
               {page}
             </Link>
-          ))}
+            );
+          })}
         </div>
       ) : null}
 
