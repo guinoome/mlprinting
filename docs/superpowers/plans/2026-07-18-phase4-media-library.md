@@ -1399,6 +1399,7 @@ const ASSET_SELECT = {
 } as const;
 
 export interface InsertAssetInput {
+  id: string;
   profileId: string;
   bucket: string;
   storagePath: string;
@@ -1843,6 +1844,7 @@ export async function createAsset({
 
   try {
     const asset = await insertAsset({
+      id: assetId,
       profileId,
       bucket: BUCKETS.media,
       storagePath: writes[0].path,
