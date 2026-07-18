@@ -164,6 +164,7 @@ export async function createAsset({
 
   try {
     const asset = await insertAsset({
+      id: assetId,
       profileId,
       bucket: BUCKETS.media,
       storagePath: writes[0].path,

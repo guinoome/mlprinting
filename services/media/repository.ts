@@ -36,6 +36,7 @@ const ASSET_SELECT = {
 } as const;
 
 export interface InsertAssetInput {
+  id: string;
   profileId: string;
   bucket: string;
   storagePath: string;
