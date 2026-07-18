@@ -184,6 +184,8 @@ export async function deleteAssetRow(assetId: string): Promise<void> {
 
 /** Invitation titles referencing this asset — Ph4.md §11's delete-protection message. */
 export async function findBlockingUsages(assetId: string): Promise<string[]> {
+  if (!isDatabaseConfigured()) return [];
+
   const usages = await prisma.invitationMedia.findMany({
     where: { assetId },
     select: { invitation: { select: { title: true } } },
