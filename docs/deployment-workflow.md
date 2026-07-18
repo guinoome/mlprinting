@@ -122,13 +122,25 @@ work.
 ### 6. Run the database migration
 
 ```bash
-pnpm prisma:migrate   # tables
-pnpm prisma:seed      # the template catalog
+pnpm prisma:deploy   # applies committed migrations, non-interactive
+pnpm prisma:seed     # the template catalog
 ```
+
+Use `prisma:deploy` here, not `prisma:migrate`. The migrations are already committed
+files (`prisma/migrations/`) — `deploy` applies them as-is and never prompts.
+`prisma:migrate` (`migrate dev`) is for *authoring* new migrations locally against a
+dev database, and can stop to ask a question if it sees anything it reads as drift;
+against a real database reached from a non-interactive shell, that prompt has no way
+to be answered and the command just hangs.
 
 The migration creates the identity tables (`profiles`, `preferences`) and the
 template catalog. Until it runs, sign-in succeeds and the dashboard then fails to
 load a profile.
+
+Both commands read `DATABASE_URL` from `.env.local` via `prisma.config.ts` — Prisma's
+own built-in env loading only ever reads a file literally named `.env`, which is not
+what step 5 above (or `development-workflow.md`) has you create. `prisma.config.ts`
+bridges that gap; you do not need a separate `.env` file.
 
 The seed populates the catalog. It is idempotent — every write upserts on a slug,
 so running it twice changes nothing. Without it the marketplace renders an honest
