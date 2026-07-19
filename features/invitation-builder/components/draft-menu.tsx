@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { MoreVertical, Trash2, Pencil } from "lucide-react";
+import { MoreVertical, Trash2, Pencil, Globe, Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,9 +27,11 @@ import Link from "next/link";
 export function DraftMenu({
   invitationId,
   title,
+  status,
 }: {
   invitationId: string;
   title: string;
+  status: string;
 }) {
   const [pending, startTransition] = React.useTransition();
 
@@ -68,6 +70,23 @@ export function DraftMenu({
             Open and rename
           </Link>
         </DropdownMenuItem>
+
+        {status === "COMPLETED" ? (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href={routes.dashboard.eventWebsite(invitationId)}>
+                <Globe aria-hidden="true" />
+                Manage website
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={routes.dashboard.eventRsvps(invitationId)}>
+                <Users aria-hidden="true" />
+                View RSVPs
+              </Link>
+            </DropdownMenuItem>
+          </>
+        ) : null}
 
         <DropdownMenuItem
           onSelect={onDelete}
