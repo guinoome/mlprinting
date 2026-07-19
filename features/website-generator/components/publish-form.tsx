@@ -82,7 +82,20 @@ export function PublishForm({
               />
             ) : null}
 
-            <form action={runUnpublish}>
+            {/* Confirm first, same as deleting a draft (see
+                features/invitation-builder/components/draft-menu.tsx). Taking a
+                live site down is reversible — the slug is kept, so republishing
+                restores the same URL and any QR code already printed — but a
+                misclick that darkens a site mid-event is still worth a beat. */}
+            <form
+              action={runUnpublish}
+              onSubmit={(event) => {
+                const confirmed = window.confirm(
+                  "Take your website offline? Guests will no longer be able to view it. You can republish anytime — the web address stays yours.",
+                );
+                if (!confirmed) event.preventDefault();
+              }}
+            >
               <input type="hidden" name="invitationId" value={invitationId} />
               <Button type="submit" variant="outline">
                 Unpublish
