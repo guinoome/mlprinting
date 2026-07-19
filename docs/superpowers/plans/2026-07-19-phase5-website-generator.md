@@ -1547,9 +1547,15 @@ function Section({
 }
 
 export function EventSite({
+  invitationId,
   model,
   countdownTarget,
 }: {
+  // Accepted but unused in this task's render body — Task 10 wires it into
+  // <RsvpForm invitationId={invitationId} />. Kept in the destructured params
+  // (not only the type) so Task 10's edit compiles without touching this
+  // signature. An accepted-but-unused destructured prop is not a lint error
+  // in this codebase's config.
   invitationId: string;
   model: PreviewModel;
   countdownTarget: Date | null;
