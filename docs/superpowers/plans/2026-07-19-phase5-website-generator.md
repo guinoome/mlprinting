@@ -1390,7 +1390,12 @@ export async function GET(
   const url = `${env.app.url}${routes.publicEvent(params.slug)}`;
   const png = await generateQrPng(url);
 
-  return new Response(png, {
+  // Wrapped in Uint8Array to satisfy Response's BodyInit type: this repo's
+  // @types/node types Buffer generically in a way that doesn't structurally
+  // match BodyInit. Behaviour-preserving — Buffer is a Uint8Array subclass,
+  // so this copies the same bytes, no reinterpretation. (Same class of fix as
+  // Phase 4's media route.)
+  return new Response(new Uint8Array(png), {
     headers: {
       "Content-Type": "image/png",
       // Immutable is safe: the slug is stable once published (design doc
