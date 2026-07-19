@@ -391,6 +391,12 @@ git commit -m "feat(website): add public event, publish, and RSVP routes + featu
 - Delete: `features/invitation-builder/preview/model.test.ts`
 - Modify: `features/invitation-builder/components/steps/preview-step.tsx` (one import line)
 - Modify: `app/(dashboard)/builder/[id]/[step]/page.tsx` (one import line)
+- Modify: `features/invitation-builder/preview/invitation-preview.tsx` (one import line —
+  also relatively imports the moved file; easy to miss since it lives in the same
+  directory as `model.ts` rather than reaching across features like the other two)
+- Modify: `lib/invitation/preview-model.test.ts` (its own internal `from "./model"`
+  import must become `from "./preview-model"`, since the sibling file is renamed, not
+  just relocated, as part of the move)
 
 `features/invitation-builder/preview/model.ts`'s own doc comment already says this
 phase should import `toPreviewModel` — but doing so from its current location would be
@@ -444,17 +450,50 @@ to:
 import { toPreviewModel } from "@/lib/invitation/preview-model";
 ```
 
-- [ ] **Step 4: Run the full suite**
+- [ ] **Step 4: Update `invitation-preview.tsx`'s import and the relocated test's own import**
+
+In `features/invitation-builder/preview/invitation-preview.tsx`, change:
+
+```typescript
+import { shows, type PreviewModel, type PreviewSurface } from "./model";
+```
+
+to:
+
+```typescript
+import {
+  shows,
+  type PreviewModel,
+  type PreviewSurface,
+} from "@/lib/invitation/preview-model";
+```
+
+In `lib/invitation/preview-model.test.ts`, change its own internal import from:
+
+```typescript
+} from "./model";
+```
+
+to:
+
+```typescript
+} from "./preview-model";
+```
+
+This is the one line inside the relocated test file that legitimately changes as part
+of the move — the sibling file was renamed (`model.ts` → `preview-model.ts`), not just
+relocated to a same-named file in a new directory.
+
+- [ ] **Step 5: Run the full suite**
 
 ```bash
 pnpm typecheck && pnpm test
 ```
 
-Expected: both exit 0. The relocated test file's 26 tests still run and pass, just from
-their new path — no test content changed, so the count is unchanged from before this
-task.
+Expected: both exit 0. The relocated test file's 25 tests still run and pass, just from
+their new path — no test *behavior* changed, only the one import line above.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add -A
