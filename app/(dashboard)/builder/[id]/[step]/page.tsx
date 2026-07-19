@@ -17,7 +17,7 @@ import { MediaStep } from "@/features/invitation-builder/components/steps/media-
 import { PersonalizeStep } from "@/features/invitation-builder/components/steps/personalize-step";
 import { PreviewStep } from "@/features/invitation-builder/components/steps/preview-step";
 import { toPreviewModel } from "@/features/invitation-builder/preview/model";
-import { listAssets, assetUrls } from "@/services/media";
+import { listAssets, thumbnailUrl, previewUrl } from "@/services/media";
 import { DESIGN_DEFAULTS } from "@/lib/config/design-vocabulary";
 
 /**
@@ -196,17 +196,18 @@ export default async function BuilderStepPage({
 
       case "media": {
         const assets = await listAssets(profile!.id);
-        // Signed URLs, resolved server-side. The client never sees a storage path.
-        const urls = await assetUrls(assets);
+        // Proxy URLs, built from id+version — no signed URL ever reaches the
+        // client (design doc Decision 4).
 
         return (
           <MediaStep
             invitationId={draft!.id}
             assets={assets.map((asset) => ({
               id: asset.id,
-              url: urls.get(asset.id) ?? null,
+              thumbnailUrl: thumbnailUrl(asset),
               altText: asset.altText,
               originalFilename: asset.originalFilename,
+              tags: asset.tags,
             }))}
             initialAssignments={draft!.media
               .filter((link) => link.slot !== "MUSIC")
@@ -241,19 +242,15 @@ export default async function BuilderStepPage({
         );
 
       case "preview": {
-        const urls = await assetUrls(draft!.media.map((link) => link.asset));
-
         // Group resolved URLs by slot for the view model.
         const mediaUrls: Partial<
           Record<"COVER" | "COUPLE" | "FAMILY" | "LOGO", string[]>
         > = {};
         for (const link of draft!.media) {
           if (link.slot === "MUSIC") continue;
-          const url = urls.get(link.assetId);
-          if (!url) continue;
 
           const slot = link.slot as "COVER" | "COUPLE" | "FAMILY" | "LOGO";
-          (mediaUrls[slot] ??= []).push(url);
+          (mediaUrls[slot] ??= []).push(previewUrl(link.asset));
         }
 
         const model = toPreviewModel({

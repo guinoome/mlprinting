@@ -372,6 +372,10 @@ enum MediaKind {
   IMAGE
   DOCUMENT
   AUDIO
+  /// Ph4.md §1/§4 mark video future-ready, same treatment as MediaSlot.MUSIC in
+  /// Phase 3. No processing pipeline exists behind this value yet — Decision 4
+  /// in the Ph4 design doc scopes upload to images only this phase.
+  VIDEO
 }
 
 /// An uploaded asset — Ph4's Media Library owns this concept (Ph4.md §15).
@@ -402,7 +406,19 @@ model MediaAsset {
   /// Accessibility text. Nullable because it is supplied later in the flow, but
   /// the website and PDF generators both require it before publishing.
   altText          String?
-  /// Intrinsic dimensions, when known. Null for audio and documents.
+  /// Free-text organizational labels — Ph4.md §6 metadata, §8 search, and the
+  /// "by type" virtual folder view (design doc Decision 1) all read this one
+  /// field. Not validated against a fixed vocabulary; unlike Template.tags this
+  /// is customer-authored, not curated catalog data.
+  tags             String[] @default([])
+  /// Bumped on every Replace Asset (Ph4.md §10). Embedded in served URLs so a
+  /// stale cached URL is provably stale rather than silently wrong — see the
+  /// design doc's "Why the version belongs in the URL path".
+  version          Int      @default(1)
+  /// Intrinsic dimensions, when known. Null for audio, documents, and any image
+  /// whose thumbnail/preview generation failed (design doc Decision 4). This is
+  /// also the sole signal that variants exist for this asset — see
+  /// services/media/paths.ts `hasVariants`.
   width            Int?
   height           Int?
 
