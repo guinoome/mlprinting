@@ -36,6 +36,12 @@ identical to every access check and to a guest (the route is not live either way
 difference is UI copy ("Publish" vs. "Republish"), which the UI derives from whether `slug` is
 already set. No enum, no extra state to keep consistent.
 
+**Publishing requires `status === "COMPLETED"`** (Ph3.md's `InvitationStatus`) — enforced inside the
+publish Server Action itself, not just by where the "Manage website" button appears in the UI. A
+`DRAFT` must never become guest-visible, and a UI-only gate is bypassable; the action re-checks
+status server-side before setting `isPublished: true`, same "gate at the boundary" posture as every
+other validated write in this codebase.
+
 ### 3. RSVP scope — collect and show, no guest identity
 
 New model `RsvpResponse` (`invitationId`, `guestName`, `attending: Boolean`, `guestCount: Int
