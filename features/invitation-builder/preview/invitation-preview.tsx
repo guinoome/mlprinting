@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Monitor, Smartphone, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { shows, type PreviewModel, type PreviewSurface } from "./model";
+import { shows, type PreviewModel, type PreviewSurface } from "@/lib/invitation/preview-model";
 
 /**
  * The live preview — Ph3.md §10.
