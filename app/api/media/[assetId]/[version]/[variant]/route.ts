@@ -1,6 +1,11 @@
 import { type NextRequest } from "next/server";
 import { getProfile } from "@/lib/auth/session";
-import { getAsset, hasVariants, assetObjectPath } from "@/services/media";
+import {
+  getAsset,
+  getPublicAsset,
+  hasVariants,
+  assetObjectPath,
+} from "@/services/media";
 import { extensionOf } from "@/services/upload";
 import { signedUrl } from "@/services/upload/storage";
 
@@ -29,12 +34,16 @@ export async function GET(
   }
   const variant = params.variant as Variant;
 
+  // Two ways in: the caller owns this asset (dashboard, media library, the
+  // builder's own preview), or it's used by a currently published invitation
+  // (a guest viewing the live site — design doc Decision 4). Neither check
+  // reveals which reason failed; both dead ends return the same 404.
   const profile = await getProfile();
-  if (!profile) return new Response("Unauthorized", { status: 401 });
+  const asset = profile
+    ? ((await getAsset(profile.id, params.assetId)) ??
+      (await getPublicAsset(params.assetId)))
+    : await getPublicAsset(params.assetId);
 
-  // Scoped to the caller: this is what stops one customer requesting another's
-  // photo by guessing an id, same reasoning as deleteAsset's ownership check.
-  const asset = await getAsset(profile.id, params.assetId);
   if (!asset) return new Response("Not found", { status: 404 });
 
   const requestedVersion = Number.parseInt(params.version, 10);
