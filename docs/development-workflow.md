@@ -39,6 +39,14 @@ pnpm prisma:generate            # regenerate client after schema edits
 pnpm prisma:migrate             # create + apply a dev migration
 ```
 
+`prisma generate` also runs automatically on `pnpm install`, via the
+`postinstall` script. That is what keeps a deployed build honest: Vercel
+installs from a clean slate, and without it the build type-checks against
+whatever client happened to be cached — which is how a schema change can pass
+locally and then fail, or worse, deploy against a client that silently doesn't
+know about a column. You still need `prisma:generate` by hand after editing
+`schema.prisma` mid-session, since no install happens then.
+
 ## Daily loop
 
 ```bash
