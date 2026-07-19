@@ -1,6 +1,7 @@
 import type { PreviewModel } from "@/lib/invitation/preview-model";
 import { shows } from "@/lib/invitation/preview-model";
 import { Countdown } from "./countdown";
+import { RsvpForm } from "./rsvp-form";
 
 /**
  * The public website's render — Ph5.md. Mirrors
@@ -30,6 +31,7 @@ function Section({
 }
 
 export function EventSite({
+  invitationId,
   model,
   countdownTarget,
 }: {
@@ -231,14 +233,21 @@ export function EventSite({
         </Section>
       ) : null}
 
-      {shows(model, "rsvp", Boolean(model.rsvpLine)) ? (
-        <Section>
-          <p
-            className="text-center text-sm font-medium"
-            style={{ color: style.accent }}
-          >
-            {model.rsvpLine}
-          </p>
+      {shows(model, "rsvp", true) ? (
+        // Unlike the in-app preview (which only shows a deadline sentence),
+        // the public site always shows the form when the section isn't
+        // switched off — a way to respond is useful even with no stated
+        // deadline, so "has content" is the form itself, not model.rsvpLine.
+        <Section title="RSVP">
+          {model.rsvpLine ? (
+            <p
+              className="mb-4 text-center text-sm font-medium"
+              style={{ color: style.accent }}
+            >
+              {model.rsvpLine}
+            </p>
+          ) : null}
+          <RsvpForm invitationId={invitationId} accentColor={style.accent} />
         </Section>
       ) : null}
 
