@@ -1,7 +1,16 @@
 "use server";
 
 import { z } from "zod";
-import { createRsvp, invitationAcceptsRsvps } from "./repository";
+import { revalidatePath } from "next/cache";
+import { getProfile } from "@/lib/auth/session";
+import { routes } from "@/lib/config";
+import { normalizeSlug, validateSlug } from "./slug";
+import {
+  createRsvp,
+  invitationAcceptsRsvps,
+  publishInvitation,
+  unpublishInvitation,
+} from "./repository";
 
 /**
  * RSVP submission — Ph5.md §3. Intentionally unauthenticated: guests have no
@@ -62,4 +71,50 @@ export async function submitRsvp(
   if (!result.ok) return { error: result.error };
 
   return { success: true };
+}
+
+export interface PublishFormState {
+  error?: string;
+}
+
+/**
+ * Publish — design doc Decision 2's constraint re-checked here, not just in
+ * the UI: COMPLETED status and slug validity/availability are enforced by
+ * `publishInvitation` itself (Task 6), this action only shapes the form
+ * input into what that function expects.
+ */
+export async function publishAction(
+  _prev: PublishFormState,
+  formData: FormData,
+): Promise<PublishFormState> {
+  const profile = await getProfile();
+  if (!profile) return { error: "Please sign in again." };
+
+  const invitationId = String(formData.get("invitationId") ?? "");
+  const slug = normalizeSlug(String(formData.get("slug") ?? ""));
+
+  const failure = validateSlug(slug);
+  if (failure) return { error: failure.message };
+
+  const result = await publishInvitation(profile.id, invitationId, slug);
+  if (!result.ok) return { error: result.error };
+
+  revalidatePath(routes.dashboard.eventWebsite(invitationId));
+  revalidatePath(routes.dashboard.events);
+  return {};
+}
+
+export async function unpublishAction(
+  _prev: PublishFormState,
+  formData: FormData,
+): Promise<PublishFormState> {
+  const profile = await getProfile();
+  if (!profile) return { error: "Please sign in again." };
+
+  const invitationId = String(formData.get("invitationId") ?? "");
+  const result = await unpublishInvitation(profile.id, invitationId);
+  if (!result.ok) return { error: result.error };
+
+  revalidatePath(routes.dashboard.eventWebsite(invitationId));
+  return {};
 }
