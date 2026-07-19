@@ -10,10 +10,11 @@ import { extensionOf } from "@/services/upload";
 import { signedUrl } from "@/services/upload/storage";
 
 /**
- * Authenticated media serving — design doc Decision 4. Mirrors
- * app/api/placeholder/[surface]/[seed]/route.ts's shape, but every response
- * here requires a session and an ownership check, because unlike placeholder
- * art this serves a customer's own private photos.
+ * Dual-path media serving — design doc Decision 4. Mirrors
+ * app/api/placeholder/[surface]/[seed]/route.ts's shape. Serves media via two
+ * authorization paths: (1) owned-by-authenticated-session (dashboard, library,
+ * builder preview), or (2) publicly-visible-via-published-invitation (guests
+ * viewing the live site). No single authorization check applies to all paths.
  *
  * Never Edge: this calls services/upload/storage.ts, which reaches Supabase
  * via lib/supabase/server.ts's cookie-based client — a Node API.
@@ -88,8 +89,9 @@ export async function GET(
     headers: {
       "Content-Type": contentType,
       // Version is embedded in the URL path, so this specific triple's bytes
-      // never change — safe to cache forever, per-user (`private`, since this
-      // is not public content like the placeholder-art route).
+      // never change — safe to cache forever, per-user. Use `private` (not
+      // `public`) because an asset could later be unpublished: CDN caching
+      // to a shared cache would be wrong even if currently public.
       "Cache-Control": "private, max-age=31536000, immutable",
       "X-Content-Type-Options": "nosniff",
     },
