@@ -10,6 +10,8 @@ import { writeAssetObjects, removeAssetObjects } from "./storage";
 import {
   insertAsset,
   findAssetById,
+  findAssetByIdUnscoped,
+  isAssetPublic,
   searchAssets as repoSearchAssets,
   listAllAssets,
   findUsagesForProfile,
@@ -337,6 +339,17 @@ export async function getAsset(
   assetId: string,
 ): Promise<AssetRow | null> {
   return findAssetById(profileId, assetId);
+}
+
+/**
+ * An asset if — and only if — it's referenced by at least one currently
+ * published invitation. Not scoped to any session; this is the guest-facing
+ * counterpart to `getAsset`, which is scoped to a profile.
+ */
+export async function getPublicAsset(assetId: string): Promise<AssetRow | null> {
+  const isPublic = await isAssetPublic(assetId);
+  if (!isPublic) return null;
+  return findAssetByIdUnscoped(assetId);
 }
 
 /** A customer's assets, newest first, unpaginated — used by the builder's media step and by folder computation, which both need the whole pool. */

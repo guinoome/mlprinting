@@ -16,7 +16,7 @@ import { ContentStep } from "@/features/invitation-builder/components/steps/cont
 import { MediaStep } from "@/features/invitation-builder/components/steps/media-step";
 import { PersonalizeStep } from "@/features/invitation-builder/components/steps/personalize-step";
 import { PreviewStep } from "@/features/invitation-builder/components/steps/preview-step";
-import { toPreviewModel } from "@/features/invitation-builder/preview/model";
+import { toPreviewModel } from "@/lib/invitation/preview-model";
 import { listAssets, thumbnailUrl, previewUrl } from "@/services/media";
 import { DESIGN_DEFAULTS } from "@/lib/config/design-vocabulary";
 

@@ -5,7 +5,7 @@ import {
   formatTime,
   shows,
   type PreviewInput,
-} from "./model";
+} from "./preview-model";
 
 function input(over: Partial<PreviewInput> = {}): PreviewInput {
   return {

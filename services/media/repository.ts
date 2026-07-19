@@ -65,6 +65,49 @@ export async function findAssetById(
   });
 }
 
+/**
+ * The same fetch as `findAssetById`, without the `profileId` scope — for the
+ * one case where ownership isn't the question: a guest viewing a published
+ * invitation's photo has no profile to scope by. Only call this after
+ * confirming public visibility (`isAssetPublic`) or ownership some other way —
+ * this function alone proves nothing about who may see the result.
+ */
+export async function findAssetByIdUnscoped(
+  assetId: string,
+): Promise<AssetRow | null> {
+  if (!isDatabaseConfigured()) return null;
+
+  try {
+    return await prisma.mediaAsset.findUnique({
+      where: { id: assetId },
+      select: ASSET_SELECT,
+    });
+  } catch (error) {
+    logger.report(error, { at: "findAssetByIdUnscoped", assetId });
+    return null;
+  }
+}
+
+/**
+ * True when at least one currently-published invitation references this
+ * asset — design doc Decision 4 (guest media access). Publish state is the
+ * boundary, not session ownership, for exactly this one query.
+ */
+export async function isAssetPublic(assetId: string): Promise<boolean> {
+  if (!isDatabaseConfigured()) return false;
+
+  try {
+    const usage = await prisma.invitationMedia.findFirst({
+      where: { assetId, invitation: { isPublished: true } },
+      select: { assetId: true },
+    });
+    return usage !== null;
+  } catch (error) {
+    logger.report(error, { at: "isAssetPublic", assetId });
+    return false;
+  }
+}
+
 export async function searchAssets(
   profileId: string,
   criteria: MediaCriteria,

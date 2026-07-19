@@ -13,6 +13,24 @@ Phase 10.
 
 ### Added
 
+- Phase 5 — Website Generator.
+  - A public, guest-facing event website at a customer-chosen web address
+    (`/e/<slug>`) — no account needed to view it. Publish state
+    (`Invitation.isPublished`) is the actual access boundary; the slug is
+    memorable, not a security token.
+  - The same view-model contract Phase 3 built for the in-app preview
+    (`toPreviewModel`) now renders the real site too — relocated to
+    `lib/invitation/` so a second feature could use it without a cross-feature
+    import, rather than duplicating the resolution logic.
+  - RSVP (§3): guests respond without an account; the customer sees every
+    response on a new dashboard page.
+  - Countdown, a Google Maps link per venue, a full gallery, and a QR code for
+    the published URL — all derived from data the Ph1-4 schema already has, no
+    new invitation-content fields.
+  - Ph4's media-serving route now serves a photo to an anonymous guest when it
+    belongs to a currently published invitation, alongside its existing
+    session-ownership check — one route, one set of storage objects, for both
+    the dashboard and the public site.
 - Phase 4 — Invitation Media Library.
   - Computed virtual folders (Ph4.md §2, §9): assets group "By Event" and "By
     Type" as read-time views over the existing asset pool and usage join —

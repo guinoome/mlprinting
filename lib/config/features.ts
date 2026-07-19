@@ -47,6 +47,10 @@ export const features = {
   get payments() {
     return flag("NEXT_PUBLIC_FEATURE_PAYMENTS");
   },
+  /** Ph5 — Website Generator */
+  get websiteGenerator() {
+    return flag("NEXT_PUBLIC_FEATURE_WEBSITE_GENERATOR");
+  },
   /** Allow self-service registration. On by default; a kill switch, not a phase gate. */
   get registration() {
     return flag("NEXT_PUBLIC_FEATURE_REGISTRATION", true);

@@ -1,14 +1,20 @@
 import { type NextRequest } from "next/server";
 import { getProfile } from "@/lib/auth/session";
-import { getAsset, hasVariants, assetObjectPath } from "@/services/media";
+import {
+  getAsset,
+  getPublicAsset,
+  hasVariants,
+  assetObjectPath,
+} from "@/services/media";
 import { extensionOf } from "@/services/upload";
 import { signedUrl } from "@/services/upload/storage";
 
 /**
- * Authenticated media serving — design doc Decision 4. Mirrors
- * app/api/placeholder/[surface]/[seed]/route.ts's shape, but every response
- * here requires a session and an ownership check, because unlike placeholder
- * art this serves a customer's own private photos.
+ * Dual-path media serving — design doc Decision 4. Mirrors
+ * app/api/placeholder/[surface]/[seed]/route.ts's shape. Serves media via two
+ * authorization paths: (1) owned-by-authenticated-session (dashboard, library,
+ * builder preview), or (2) publicly-visible-via-published-invitation (guests
+ * viewing the live site). No single authorization check applies to all paths.
  *
  * Never Edge: this calls services/upload/storage.ts, which reaches Supabase
  * via lib/supabase/server.ts's cookie-based client — a Node API.
@@ -29,12 +35,16 @@ export async function GET(
   }
   const variant = params.variant as Variant;
 
+  // Two ways in: the caller owns this asset (dashboard, media library, the
+  // builder's own preview), or it's used by a currently published invitation
+  // (a guest viewing the live site — design doc Decision 4). Neither check
+  // reveals which reason failed; both dead ends return the same 404.
   const profile = await getProfile();
-  if (!profile) return new Response("Unauthorized", { status: 401 });
+  const asset = profile
+    ? ((await getAsset(profile.id, params.assetId)) ??
+      (await getPublicAsset(params.assetId)))
+    : await getPublicAsset(params.assetId);
 
-  // Scoped to the caller: this is what stops one customer requesting another's
-  // photo by guessing an id, same reasoning as deleteAsset's ownership check.
-  const asset = await getAsset(profile.id, params.assetId);
   if (!asset) return new Response("Not found", { status: 404 });
 
   const requestedVersion = Number.parseInt(params.version, 10);
@@ -79,8 +89,9 @@ export async function GET(
     headers: {
       "Content-Type": contentType,
       // Version is embedded in the URL path, so this specific triple's bytes
-      // never change — safe to cache forever, per-user (`private`, since this
-      // is not public content like the placeholder-art route).
+      // never change — safe to cache forever, per-user. Use `private` (not
+      // `public`) because an asset could later be unpublished: CDN caching
+      // to a shared cache would be wrong even if currently public.
       "Cache-Control": "private, max-age=31536000, immutable",
       "X-Content-Type-Options": "nosniff",
     },

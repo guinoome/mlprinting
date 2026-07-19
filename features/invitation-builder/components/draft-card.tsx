@@ -70,7 +70,11 @@ export function DraftCard({
 
             {/* Above the card link's overlay, or it would be unclickable. */}
             <div className="relative z-10">
-              <DraftMenu invitationId={draft.id} title={draft.title} />
+              <DraftMenu
+                invitationId={draft.id}
+                title={draft.title}
+                status={draft.status}
+              />
             </div>
           </div>
 

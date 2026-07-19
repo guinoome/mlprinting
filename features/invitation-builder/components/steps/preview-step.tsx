@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useFormState } from "react-dom";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { PreviewPane } from "../../preview/invitation-preview";
-import type { PreviewModel } from "../../preview/model";
+import type { PreviewModel } from "@/lib/invitation/preview-model";
 import { completeDraft, type SaveState } from "../../actions";
 import type { StepIssue } from "../../completeness";
 import { Button } from "@/components/ui/button";

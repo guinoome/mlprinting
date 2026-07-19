@@ -26,6 +26,12 @@ export const routes = {
   builderNew: "/builder/new",
   builderStep: (id: string, step: string) => `/builder/${id}/${step}`,
 
+  /**
+   * The public event website — Ph5.md. No auth: guests have no ML-DEP account.
+   * `slug` is the customer-chosen identifier from Invitation.slug.
+   */
+  publicEvent: (slug: string) => `/e/${slug}`,
+
   dashboard: {
     root: "/dashboard",
     events: "/dashboard/events",
@@ -33,6 +39,10 @@ export const routes = {
     media: "/dashboard/media",
     notifications: "/dashboard/notifications",
     account: "/dashboard/account",
+    /** Publish control — Ph5.md's "Manage website" surface. */
+    eventWebsite: (id: string) => `/dashboard/events/${id}/website`,
+    /** RSVP list — Ph5.md §3. */
+    eventRsvps: (id: string) => `/dashboard/events/${id}/rsvps`,
   },
 
   admin: {
