@@ -492,6 +492,17 @@ model Invitation {
   /// the order workflow is Ph7.
   completedAt DateTime?
 
+  // --- Public website (Ph5.md) ---
+  /// Public website identifier, chosen by the customer at publish time — never
+  /// during the builder. Doubles as the access-control boundary alongside
+  /// isPublished; there is no separate opaque id underneath it.
+  slug        String?  @unique
+  /// The single guest-visibility boundary. "Never published" and "unpublished"
+  /// are identical to every access check and to a guest (the route is not live
+  /// either way) — the only difference is UI copy, derived from whether slug
+  /// is already set. No enum, no extra state to keep consistent.
+  isPublished Boolean  @default(false)
+
   profile         Profile                    @relation(fields: [profileId], references: [id], onDelete: Cascade)
   template        Template?                  @relation(fields: [templateId], references: [id], onDelete: SetNull)
   hosts           InvitationHost[]
@@ -501,6 +512,7 @@ model Invitation {
   program         ProgramItem[]
   personalization InvitationPersonalization?
   media           InvitationMedia[]
+  rsvps           RsvpResponse[]
 
   @@index([profileId, status, updatedAt])
   @@index([templateId])
@@ -678,4 +690,25 @@ model InvitationMedia {
   @@index([invitationId, slot, sortOrder])
   @@index([assetId])
   @@map("invitation_media")
+}
+
+/// A guest's response — Ph5.md §3. No guest accounts, no edit-after-submit: a
+/// second submission from the same guest is a second row, not an upsert. The
+/// customer's RSVP list can show both — deduping by name is unreliable (two
+/// invited "Maria Santos" are not the same guest) and deliberately not
+/// attempted.
+model RsvpResponse {
+  id           String   @id @default(uuid()) @db.Uuid
+  invitationId String   @db.Uuid
+
+  guestName  String
+  attending  Boolean
+  guestCount Int      @default(1)
+  message    String?
+  createdAt  DateTime @default(now())
+
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId, createdAt])
+  @@map("rsvp_responses")
 }
