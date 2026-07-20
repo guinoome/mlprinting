@@ -8,6 +8,7 @@ import {
 } from "@/services/media";
 import { extensionOf } from "@/services/upload";
 import { signedUrl } from "@/services/upload/storage";
+import { features } from "@/lib/config";
 
 /**
  * Dual-path media serving — design doc Decision 4. Mirrors
@@ -39,11 +40,18 @@ export async function GET(
   // builder's own preview), or it's used by a currently published invitation
   // (a guest viewing the live site — design doc Decision 4). Neither check
   // reveals which reason failed; both dead ends return the same 404.
+  // The public path exists only to serve photos on a published event website,
+  // so it is gated on the same flag that gates the website. The owned path is
+  // deliberately not: the dashboard, media library and builder preview all
+  // need a customer's own images whether or not the website generator is on.
+  const publicAsset = features.websiteGenerator
+    ? await getPublicAsset(params.assetId)
+    : null;
+
   const profile = await getProfile();
   const asset = profile
-    ? ((await getAsset(profile.id, params.assetId)) ??
-      (await getPublicAsset(params.assetId)))
-    : await getPublicAsset(params.assetId);
+    ? ((await getAsset(profile.id, params.assetId)) ?? publicAsset)
+    : publicAsset;
 
   if (!asset) return new Response("Not found", { status: 404 });
 

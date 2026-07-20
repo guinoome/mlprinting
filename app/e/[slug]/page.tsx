@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPublishedInvitation } from "@/features/website-generator/repository";
@@ -9,6 +10,15 @@ import { features } from "@/lib/config";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Next calls generateMetadata and the page component separately, and both need
+ * the same invitation. React's cache() dedupes them to one query per request.
+ * Without it every guest visit costs two identical round trips — and this is
+ * the one route in the product that guests hit in bursts, when a link is
+ * shared to a group chat.
+ */
+const loadInvitation = cache(getPublishedInvitation);
 
 /**
  * The public event website — Ph5.md. No auth: guests have no ML-DEP account.
@@ -23,7 +33,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   if (!features.websiteGenerator) return {};
 
-  const invitation = await getPublishedInvitation(params.slug);
+  const invitation = await loadInvitation(params.slug);
   if (!invitation) return {};
 
   const title = invitation.eventTitle?.trim() || invitation.title;
@@ -42,6 +52,12 @@ export async function generateMetadata({
     openGraph: cover
       ? { title, images: [{ url: previewUrl(cover.asset) }] }
       : { title },
+    // noindex applies to PUBLISHED sites too, and that is deliberate — not an
+    // oversight to "fix" later. The design makes the slug memorable rather than
+    // secret, so it is semi-guessable by construction. Publishing means "guests
+    // I sent the link to can open this", not "put my wedding in Google". If a
+    // customer ever wants a discoverable site, that is an explicit opt-in
+    // stored on the invitation, never the default.
     robots: { index: false, follow: false },
   };
 }
@@ -53,7 +69,7 @@ export default async function PublicEventPage({
 }) {
   if (!features.websiteGenerator) notFound();
 
-  const invitation = await getPublishedInvitation(params.slug);
+  const invitation = await loadInvitation(params.slug);
   if (!invitation) notFound();
 
   const mediaUrls: Partial<

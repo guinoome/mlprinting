@@ -28,7 +28,7 @@ export function zonedInstant(
   const guessUtc = Date.UTC(year, month, day, hours, minutes);
 
   try {
-    const parts = new Intl.DateTimeFormat("en-US", {
+    const formatter = new Intl.DateTimeFormat("en-US", {
       timeZone,
       hourCycle: "h23",
       year: "numeric",
@@ -37,19 +37,34 @@ export function zonedInstant(
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-    }).formatToParts(new Date(guessUtc));
+    });
 
-    const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
-    const renderedAsUtc = Date.UTC(
-      Number(map.year),
-      Number(map.month) - 1,
-      Number(map.day),
-      Number(map.hour),
-      Number(map.minute),
-      Number(map.second),
-    );
+    /** How far this zone's rendering of `instant` sits from the instant itself. */
+    const offsetAt = (instant: number): number => {
+      const map = Object.fromEntries(
+        formatter.formatToParts(new Date(instant)).map((p) => [p.type, p.value]),
+      );
+      const renderedAsUtc = Date.UTC(
+        Number(map.year),
+        Number(map.month) - 1,
+        Number(map.day),
+        Number(map.hour),
+        Number(map.minute),
+        Number(map.second),
+      );
+      return renderedAsUtc - instant;
+    };
 
-    return new Date(guessUtc - (renderedAsUtc - guessUtc));
+    // Correct twice, not once. The offset must be measured at the CORRECTED
+    // instant: on a DST transition date the first guess and the answer sit on
+    // opposite sides of the change, so a single pass lands an hour out — a
+    // countdown that hits zero an hour late, on the day of the event.
+    //
+    // Two passes is enough for every real zone. Offsets change by at most an
+    // hour or two, which never carries the second guess across a further
+    // transition, and the third pass would be a no-op.
+    const corrected = guessUtc - offsetAt(guessUtc);
+    return new Date(guessUtc - offsetAt(corrected));
   } catch {
     // A bad zone must not crash the countdown — same graceful-fallback
     // posture as preview-model.ts's formatDate.

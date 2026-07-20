@@ -16,12 +16,49 @@ function required(name: string, value: string | undefined): string {
   return value;
 }
 
+/**
+ * A URL variable, validated and normalised.
+ *
+ * Format matters more here than it looks. `env.app.url` is fed to `new URL()`
+ * for OG `metadataBase` and is concatenated into every QR code. A scheme-less
+ * value — what you get by pasting a domain out of a hosting dashboard — either
+ * throws deep inside page rendering or, worse, silently produces QR codes that
+ * scan to nothing. Both failures surface long after the deploy, on a guest's
+ * phone. Failing here, with the variable's name in the message, is the whole
+ * point.
+ *
+ * The trailing slash is stripped so callers can concatenate a path without
+ * producing a double slash.
+ */
+function urlVar(name: string, value: string): string {
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error(
+      `Invalid ${name}: "${value}" is not a URL. ` +
+        `It needs a scheme — for example https://mlprinting.vercel.app`,
+    );
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error(
+      `Invalid ${name}: "${value}" must use http or https, not ${parsed.protocol}`,
+    );
+  }
+
+  return value.replace(/\/+$/, "");
+}
+
 export const env = {
   supabase: {
     get url() {
-      return required(
+      return urlVar(
         "NEXT_PUBLIC_SUPABASE_URL",
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        required(
+          "NEXT_PUBLIC_SUPABASE_URL",
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+        ),
       );
     },
     get anonKey() {
@@ -33,7 +70,10 @@ export const env = {
   },
   app: {
     get url() {
-      return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      const value = process.env.NEXT_PUBLIC_APP_URL;
+      // Unset is fine and expected in local dev; malformed is not.
+      if (!value) return "http://localhost:3000";
+      return urlVar("NEXT_PUBLIC_APP_URL", value);
     },
   },
 } as const;

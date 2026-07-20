@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { getProfile } from "@/lib/auth/session";
-import { routes } from "@/lib/config";
+import { features, routes } from "@/lib/config";
 import { normalizeSlug, validateSlug } from "./slug";
 import {
   createRsvp,
@@ -41,6 +41,13 @@ export async function submitRsvp(
   _prev: RsvpFormState,
   formData: FormData,
 ): Promise<RsvpFormState> {
+  // Server Actions are reachable by POST regardless of what the page rendered,
+  // so the flag has to be enforced here and not only on the page that shows
+  // the form.
+  if (!features.websiteGenerator) {
+    return { error: "This invitation is not accepting responses." };
+  }
+
   const invitationId = String(formData.get("invitationId") ?? "");
 
   const accepts = await invitationAcceptsRsvps(invitationId);
