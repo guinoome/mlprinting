@@ -7,7 +7,7 @@ import { CheckCircle2, AlertCircle } from "lucide-react";
 import { PreviewPane } from "../../preview/invitation-preview";
 import type { PreviewModel } from "@/lib/invitation/preview-model";
 import { completeDraft, type SaveState } from "../../actions";
-import type { StepIssue } from "../../completeness";
+import type { StepIssue } from "@/lib/invitation/completeness";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { routes } from "@/lib/config";

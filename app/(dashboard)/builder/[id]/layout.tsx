@@ -8,7 +8,7 @@ import { getDraft, snapshotOf } from "@/features/invitation-builder/repository";
 import {
   incompleteSteps,
   completionPercent,
-} from "@/features/invitation-builder/completeness";
+} from "@/lib/invitation/completeness";
 import { StepNav } from "@/features/invitation-builder/components/step-nav";
 import { DraftTitle } from "@/features/invitation-builder/components/draft-title";
 

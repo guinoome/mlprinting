@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { routes } from "@/lib/config";
 import { getDraft, snapshotOf } from "@/features/invitation-builder/repository";
 import { isBuilderStep, getStep } from "@/features/invitation-builder/steps";
-import { completionErrors } from "@/features/invitation-builder/completeness";
+import { completionErrors } from "@/lib/invitation/completeness";
 import { setCurrentStep } from "@/features/invitation-builder/actions";
 import { StepFrame } from "@/features/invitation-builder/components/step-frame";
 import { TemplateStep } from "@/features/invitation-builder/components/steps/template-step";
