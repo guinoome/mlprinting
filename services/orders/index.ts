@@ -43,3 +43,12 @@ export {
   assignItem,
   addNote,
 } from "./repository";
+export type { CustomerOrder } from "./customer";
+export {
+  canCustomerReview,
+  revisionNumberFrom,
+  listOrdersForCustomer,
+  getOrderForCustomer,
+  approveItem,
+  requestRevision,
+} from "./customer";
