@@ -32,6 +32,19 @@ server-only and must never appear in client code.
 
 `.env.local` is gitignored. Keep it that way.
 
+### Fonts
+
+`assets/fonts/` holds the SIL OFL typefaces the print engine embeds, committed
+to the repository. There is no install step — `pnpm install` does not fetch
+them, and nothing should.
+
+They must be **static** cuts, never variable fonts. pdf-lib embeds a variable
+font's default instance, so a bold face mapped to a variable file prints at
+regular weight — invisible on screen, obvious on paper, after the press run.
+After adding any font, check `head -c 4 file.ttf | xxd -p` reads `00010000`: a
+failed download saves an HTML error page under a `.ttf` name, and it is large
+enough that a size check does not catch it. See [print-pipeline.md](print-pipeline.md).
+
 ### Database
 
 ```bash
