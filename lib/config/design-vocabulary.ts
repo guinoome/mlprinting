@@ -32,6 +32,19 @@ export interface DesignOption {
 export interface ColorThemeOption extends DesignOption {
   /** Swatch preview only — the record stores the slug. */
   swatch: { background: string; foreground: string; accent: string };
+  /**
+   * Press values — Ph6.md §4. Authored, not converted: an uncalibrated
+   * hex→CMYK conversion is a guess, and this palette is fixed and small
+   * enough to state exactly. Tune these to ML Printing's own press without
+   * touching any drawing code.
+   *
+   * Components are 0–1, matching pdf-lib's cmyk().
+   */
+  cmyk: {
+    background: [number, number, number, number];
+    foreground: [number, number, number, number];
+    accent: [number, number, number, number];
+  };
 }
 
 /** Ph3.md §6 — Color Theme. */
@@ -42,42 +55,86 @@ export const COLOR_THEMES: ColorThemeOption[] = [
     description:
       "Warm ivory with gold. The safest choice, and the most formal.",
     swatch: { background: "#f5efe8", foreground: "#3f3a35", accent: "#c9a227" },
+    // Foreground is K-only despite the slightly warm hex: neutral dark text
+    // built from four inks misregisters on press and prints visibly fuzzy at
+    // invitation sizes.
+    cmyk: {
+      background: [0, 0.02, 0.05, 0.04],
+      foreground: [0, 0, 0, 0.78],
+      accent: [0, 0.19, 0.81, 0.21],
+    },
   },
   {
     slug: "blush-rose",
     name: "Blush Rose",
     description: "Soft pink with muted rose. Reads gentle and romantic.",
     swatch: { background: "#f7eef0", foreground: "#4a3a3f", accent: "#c98c9c" },
+    cmyk: {
+      background: [0, 0.04, 0.03, 0.03],
+      foreground: [0, 0.22, 0.15, 0.71],
+      accent: [0, 0.3, 0.22, 0.21],
+    },
   },
   {
     slug: "sage-garden",
     name: "Sage Garden",
     description: "Muted green with stone. Suits gardens and daytime events.",
     swatch: { background: "#eef2f0", foreground: "#2f3a37", accent: "#7fa295" },
+    cmyk: {
+      background: [0.02, 0, 0.01, 0.05],
+      foreground: [0.19, 0, 0.05, 0.77],
+      accent: [0.22, 0, 0.08, 0.36],
+    },
   },
   {
     slug: "midnight-navy",
     name: "Midnight Navy",
     description: "Deep navy with gold. Built for evening receptions.",
     swatch: { background: "#1f2937", foreground: "#f5efe8", accent: "#c9a227" },
+    // The background is deliberately a rich four-ink dark, not K-only. It is a
+    // large flood fill, where four-ink coverage gives depth — the opposite of
+    // the rule that governs small text.
+    cmyk: {
+      background: [0.44, 0.25, 0, 0.78],
+      foreground: [0, 0.02, 0.05, 0.04],
+      accent: [0, 0.19, 0.81, 0.21],
+    },
   },
   {
     slug: "burgundy-velvet",
     name: "Burgundy Velvet",
     description: "Deep red with cream. Traditional and warm.",
     swatch: { background: "#f8f4f2", foreground: "#4a2328", accent: "#8c2f39" },
+    cmyk: {
+      background: [0, 0.02, 0.02, 0.03],
+      foreground: [0, 0.53, 0.46, 0.71],
+      accent: [0, 0.66, 0.59, 0.45],
+    },
   },
   {
     slug: "coral-fiesta",
     name: "Coral Fiesta",
     description: "Bright coral and yellow. Loud on purpose.",
     swatch: { background: "#fff7ed", foreground: "#43302b", accent: "#e2725b" },
+    cmyk: {
+      background: [0, 0.03, 0.07, 0],
+      foreground: [0, 0.28, 0.36, 0.74],
+      accent: [0, 0.5, 0.6, 0.11],
+    },
   },
   {
     slug: "monochrome",
     name: "Monochrome",
     description: "Black on white. Nothing to distract from the words.",
     swatch: { background: "#ffffff", foreground: "#1a1a1a", accent: "#666666" },
+    // Every value K-only. A "black" built from four inks is the classic way to
+    // ruin a monochrome card: it misregisters and reads grey-brown, not black.
+    // Background is no ink at all — the paper is the white.
+    cmyk: {
+      background: [0, 0, 0, 0],
+      foreground: [0, 0, 0, 1],
+      accent: [0, 0, 0, 0.6],
+    },
   },
 ];
 
@@ -100,8 +157,8 @@ export const TYPOGRAPHY_SETS: TypographyOption[] = [
     name: "Classic Serif",
     description: "Traditional and formal. The default for weddings.",
     preview: {
-      heading: "Georgia, 'Times New Roman', serif",
-      body: "Georgia, 'Times New Roman', serif",
+      heading: "'Crimson Text', Georgia, 'Times New Roman', serif",
+      body: "'Crimson Text', Georgia, 'Times New Roman', serif",
     },
   },
   {
@@ -109,8 +166,8 @@ export const TYPOGRAPHY_SETS: TypographyOption[] = [
     name: "Modern Sans",
     description: "Clean and contemporary. Reads well at small sizes.",
     preview: {
-      heading: "'Helvetica Neue', Arial, sans-serif",
-      body: "'Helvetica Neue', Arial, sans-serif",
+      heading: "Lato, 'Helvetica Neue', Arial, sans-serif",
+      body: "Lato, 'Helvetica Neue', Arial, sans-serif",
     },
   },
   {
@@ -119,8 +176,8 @@ export const TYPOGRAPHY_SETS: TypographyOption[] = [
     description:
       "A script heading over a plain body. Formal without being fussy.",
     preview: {
-      heading: "'Brush Script MT', 'Segoe Script', cursive",
-      body: "Georgia, serif",
+      heading: "'Great Vibes', 'Brush Script MT', 'Segoe Script', cursive",
+      body: "'Crimson Text', Georgia, serif",
     },
   },
   {
@@ -129,8 +186,8 @@ export const TYPOGRAPHY_SETS: TypographyOption[] = [
     description:
       "Serif headings, sans body. Magazine-like and highly readable.",
     preview: {
-      heading: "Georgia, serif",
-      body: "'Helvetica Neue', Arial, sans-serif",
+      heading: "Spectral, Georgia, serif",
+      body: "Lato, 'Helvetica Neue', Arial, sans-serif",
     },
   },
 ];
