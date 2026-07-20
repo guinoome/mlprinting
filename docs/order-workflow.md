@@ -90,8 +90,24 @@ npx prisma migrate diff --from-migrations ./prisma/migrations \
 **Never `prisma migrate dev`** — it is broken against this project's local
 database.
 
+## Customer side (7b)
+
+`features/orders/` and `services/orders/customer.ts` are the customer-facing
+half. They reuse the same engine through a narrower, ownership-scoped door:
+every read and action filters on `order.profileId`, the same pattern as
+`getGenerationForOwner`, so a signed-in customer can only ever touch their own
+order. A customer may act on an item only while it is in `CUSTOMER_REVIEW` —
+`canCustomerReview` is the single gate, and the server re-checks it inside the
+transaction so a stale page cannot approve something already moved on.
+
+Approval is `CUSTOMER_REVIEW → APPROVED` (Ph7.md §6, locking for production);
+requesting changes is `CUSTOMER_REVIEW → REVISION` with a description. Revisions
+are **not a separate model**: a revision is an audited transition with a
+description, which `OrderEvent` already stores, and the revision number (§5) is
+derived by counting prior `REVISION` events for the item. Avoiding a new table
+also kept 7b shippable without a migration.
+
 ## Not here
 
-Customer-facing order views, proof review and approval screens are **7b**.
 Notifications, search and reporting are **7d**. Payment and deployment
 automation are later phases.

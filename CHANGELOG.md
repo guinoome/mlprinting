@@ -13,6 +13,16 @@ Phase 10.
 
 ### Added
 
+- Phase 7b — Customer Order Experience.
+  - `/dashboard/orders` lists a customer's own orders; `/dashboard/orders/[id]`
+    shows each deliverable's progress and its proof — the print PDF or the live
+    website.
+  - For an item awaiting review, the customer can approve it (locking it for
+    production) or request changes with a description; the request is recorded
+    in the order's audit trail as a numbered revision.
+  - Every read and action is scoped to the signed-in customer through the
+    order's owner; no new tables — revisions ride the existing event trail.
+
 - Phase 7c — Internal Production Workflow.
   - `Order` and `OrderItem`: one commercial engagement with any number of
     deliverables, so a reprint or a later website is not a duplicated order.
