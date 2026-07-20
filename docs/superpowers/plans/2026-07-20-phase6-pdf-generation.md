@@ -45,11 +45,12 @@ prisma/
   migrations/<ts>_phase6_pdf_generation/migration.sql (create)
 
 assets/fonts/                                     (create — committed .ttf files, SIL OFL)
-  Lora-Regular.ttf, Lora-Bold.ttf, Lora-Italic.ttf
-  Inter-Regular.ttf, Inter-Bold.ttf
-  PlayfairDisplay-Regular.ttf, PlayfairDisplay-Bold.ttf
+  CrimsonText-Regular.ttf, CrimsonText-Bold.ttf, CrimsonText-Italic.ttf
+  Lato-Regular.ttf, Lato-Bold.ttf, Lato-Italic.ttf
+  Spectral-Regular.ttf, Spectral-Bold.ttf
   GreatVibes-Regular.ttf
-  OFL.txt                                         (the licence, shipped with the fonts)
+  OFL-crimsontext.txt, OFL-lato.txt, OFL-spectral.txt, OFL-greatvibes.txt
+                                                  (one licence per family, as OFL requires)
 
 lib/config/
   design-vocabulary.ts   (modify — CMYK per theme, print font families per pairing)
@@ -359,13 +360,21 @@ git commit -m "feat(pdf): add the print-file dashboard route"
 ### Task 4: Fonts — commit SIL OFL files and the loader
 
 **Files:**
-- Create: `assets/fonts/*.ttf` (8 files) and `assets/fonts/OFL.txt`
+- Create: `assets/fonts/*.ttf` (9 files) and four per-family `assets/fonts/OFL-*.txt`
 - Create: `services/pdf/fonts.ts`
 
 Deliverable 5 requires embedded fonts with licensing compliance. The current vocabulary
 names Georgia, Helvetica Neue and Brush Script MT — system fonts that cannot legally be
 embedded in a distributed PDF. These four families are SIL Open Font License, which
 explicitly permits embedding and commercial use.
+
+**The families are Crimson Text, Lato, Spectral and Great Vibes — not Lora, Inter and
+Playfair Display.** Those three now ship from `google/fonts` as *variable* fonts only
+(`Lora[wght].ttf`, `Inter[opsz,wght].ttf`, `PlayfairDisplay[wght].ttf`); there are no
+static `-Regular` / `-Bold` files to fetch. That matters beyond a broken URL: pdf-lib
+embeds a variable font's **default instance**, so a "Bold" face would silently render at
+Regular weight — invisible in review, obvious on paper, after the print run. The four
+families below still ship real static cuts, verified by download.
 
 **Interfaces:**
 - Produces: `PrintFontFamily`, `fontFilesFor(typographySlug)`, `loadFontBytes(file)` —
@@ -378,24 +387,39 @@ Download from Google Fonts (all SIL OFL) into `assets/fonts/`:
 ```bash
 mkdir -p assets/fonts
 cd assets/fonts
-curl -sL -o Lora-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/lora/static/Lora-Regular.ttf"
-curl -sL -o Lora-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/lora/static/Lora-Bold.ttf"
-curl -sL -o Lora-Italic.ttf "https://github.com/google/fonts/raw/main/ofl/lora/static/Lora-Italic.ttf"
-curl -sL -o Inter-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Regular.ttf"
-curl -sL -o Inter-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Bold.ttf"
-curl -sL -o PlayfairDisplay-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/playfairdisplay/static/PlayfairDisplay-Regular.ttf"
-curl -sL -o PlayfairDisplay-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/playfairdisplay/static/PlayfairDisplay-Bold.ttf"
-curl -sL -o GreatVibes-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/greatvibes/GreatVibes-Regular.ttf"
-curl -sL -o OFL.txt "https://github.com/google/fonts/raw/main/ofl/lora/OFL.txt"
+B="https://github.com/google/fonts/raw/main/ofl"
+for f in \
+  crimsontext/CrimsonText-Regular.ttf \
+  crimsontext/CrimsonText-Bold.ttf \
+  crimsontext/CrimsonText-Italic.ttf \
+  lato/Lato-Regular.ttf \
+  lato/Lato-Bold.ttf \
+  lato/Lato-Italic.ttf \
+  spectral/Spectral-Regular.ttf \
+  spectral/Spectral-Bold.ttf \
+  greatvibes/GreatVibes-Regular.ttf ; do
+  curl -sL -o "$(basename $f)" "$B/$f"
+done
+for d in crimsontext lato spectral greatvibes; do
+  curl -sL -o "OFL-$d.txt" "$B/$d/OFL.txt"
+done
 cd ../..
-ls -la assets/fonts
 ```
 
-Expected: 8 `.ttf` files, each well over 10 KB, plus `OFL.txt`. **If any file is under
-5 KB it is an HTML error page, not a font** — check the URL and re-fetch before
-continuing. Static-variant paths on Google Fonts do change; if a URL 404s, browse
-`https://github.com/google/fonts/tree/main/ofl/<family>` and take the correct path rather
-than guessing.
+- [ ] **Step 1b: Verify every file is actually a font — do not skip this**
+
+```bash
+cd assets/fonts
+for f in *.ttf; do printf "%-30s %s\n" "$f" "$(head -c 4 "$f" | xxd -p)"; done
+cd ../..
+```
+
+Expected: **all nine print `00010000`**, the TrueType magic number. Anything else — most
+commonly `0a0a0a0a`, which is `<!DOCTYPE`, a GitHub 404 page saved under a `.ttf` name — 
+means that download failed. A 404 page is roughly 311 KB, so a size check alone does not
+catch it; two "different" families arriving at byte-identical sizes is the tell. Re-fetch
+any file that fails and re-run this check before continuing. A silently-corrupt font here
+surfaces as an unreadable PDF several tasks later, with nothing pointing back to this step.
 
 - [ ] **Step 2: Write `services/pdf/fonts.ts`**
 
@@ -434,32 +458,37 @@ export interface PrintFontSet {
  */
 const FONT_SETS: Record<string, PrintFontSet> = {
   "classic-serif": {
-    headingRegular: "Lora-Regular.ttf",
-    headingBold: "Lora-Bold.ttf",
-    bodyRegular: "Lora-Regular.ttf",
-    bodyBold: "Lora-Bold.ttf",
-    bodyItalic: "Lora-Italic.ttf",
+    headingRegular: "CrimsonText-Regular.ttf",
+    headingBold: "CrimsonText-Bold.ttf",
+    bodyRegular: "CrimsonText-Regular.ttf",
+    bodyBold: "CrimsonText-Bold.ttf",
+    bodyItalic: "CrimsonText-Italic.ttf",
   },
   "modern-sans": {
-    headingRegular: "Inter-Regular.ttf",
-    headingBold: "Inter-Bold.ttf",
-    bodyRegular: "Inter-Regular.ttf",
-    bodyBold: "Inter-Bold.ttf",
-    bodyItalic: "Inter-Regular.ttf",
+    headingRegular: "Lato-Regular.ttf",
+    headingBold: "Lato-Bold.ttf",
+    bodyRegular: "Lato-Regular.ttf",
+    bodyBold: "Lato-Bold.ttf",
+    bodyItalic: "Lato-Italic.ttf",
   },
   "elegant-script": {
+    // Great Vibes ships one weight only. Mapping bold to the same file is
+    // deliberate: a script face has no bold cut, and faking one by embedding
+    // the regular under a "bold" name would be a lie the renderer acts on.
     headingRegular: "GreatVibes-Regular.ttf",
     headingBold: "GreatVibes-Regular.ttf",
-    bodyRegular: "Lora-Regular.ttf",
-    bodyBold: "Lora-Bold.ttf",
-    bodyItalic: "Lora-Italic.ttf",
+    bodyRegular: "CrimsonText-Regular.ttf",
+    bodyBold: "CrimsonText-Bold.ttf",
+    bodyItalic: "CrimsonText-Italic.ttf",
   },
   "editorial-mix": {
-    headingRegular: "PlayfairDisplay-Regular.ttf",
-    headingBold: "PlayfairDisplay-Bold.ttf",
-    bodyRegular: "Inter-Regular.ttf",
-    bodyBold: "Inter-Bold.ttf",
-    bodyItalic: "Inter-Regular.ttf",
+    headingRegular: "Spectral-Regular.ttf",
+    headingBold: "Spectral-Bold.ttf",
+    bodyRegular: "Lato-Regular.ttf",
+    bodyBold: "Lato-Bold.ttf",
+    // Spectral and Crimson Text both ship italics; Lato's is the one that
+    // pairs with the body face above.
+    bodyItalic: "Lato-Italic.ttf",
   },
 };
 
@@ -594,27 +623,30 @@ Replace each pairing's `preview` block:
 ```typescript
 // classic-serif
     preview: {
-      heading: "Lora, Georgia, serif",
-      body: "Lora, Georgia, serif",
+      heading: "'Crimson Text', Georgia, serif",
+      body: "'Crimson Text', Georgia, serif",
     },
 // modern-sans
     preview: {
-      heading: "Inter, 'Helvetica Neue', Arial, sans-serif",
-      body: "Inter, 'Helvetica Neue', Arial, sans-serif",
+      heading: "Lato, 'Helvetica Neue', Arial, sans-serif",
+      body: "Lato, 'Helvetica Neue', Arial, sans-serif",
     },
 // elegant-script
     preview: {
       heading: "'Great Vibes', 'Brush Script MT', cursive",
-      body: "Lora, Georgia, serif",
+      body: "'Crimson Text', Georgia, serif",
     },
 // editorial-mix
     preview: {
-      heading: "'Playfair Display', Georgia, serif",
-      body: "Inter, 'Helvetica Neue', Arial, sans-serif",
+      heading: "Spectral, Georgia, serif",
+      body: "Lato, 'Helvetica Neue', Arial, sans-serif",
     },
 ```
 
-The old system fonts stay as fallbacks so nothing breaks before webfonts load.
+The first family in each stack must be the same one `FONT_SETS` embeds for that slug
+(Task 4). This is the point of the step: the on-screen preview and the printed card should
+not be set in different typefaces. The old system fonts stay behind them as fallbacks so
+nothing breaks before webfonts load.
 
 - [ ] **Step 4: Verify**
 
@@ -3231,7 +3263,9 @@ clipped on the press.
 - **3 mm bleed, 5 mm safe margin, 300 DPI.** Media size is trim + 6 mm. An image under
   200 DPI at its placed size blocks generation; 200–300 warns.
 - **Fonts must be embeddable.** Every typeface here is SIL OFL and ships in `assets/fonts/`
-  alongside `assets/fonts/OFL.txt`. System fonts are not an option: most are not licensed
+  alongside a per-family `assets/fonts/OFL-*.txt`. Static cuts only — a variable font
+  embeds at its default weight, so "bold" would print as regular. System fonts are not an
+  option either: most are not licensed
   for embedding. `@pdf-lib/fontkit` must be registered on the document or pdf-lib refuses
   custom TTFs outright.
 - **A blank back is not printed.** It costs money at the press and reads as a mistake.
