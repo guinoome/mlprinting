@@ -1,7 +1,7 @@
 import { type NextRequest } from "next/server";
 import { getPublishedInvitation } from "@/features/website-generator/repository";
 import { generateQrPng } from "@/lib/qr";
-import { routes } from "@/lib/config";
+import { features, routes } from "@/lib/config";
 import { env } from "@/lib/env";
 
 /**
@@ -19,6 +19,14 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { slug: string } },
 ) {
+  // The flag gates every guest-facing surface of this phase, routes included.
+  // Checking it only on the page would leave this endpoint answering after the
+  // feature was switched off — a flag that turns off the front door and leaves
+  // a window open is not a kill switch.
+  if (!features.websiteGenerator) {
+    return new Response("Not found", { status: 404 });
+  }
+
   const invitation = await getPublishedInvitation(params.slug);
   if (!invitation) return new Response("Not found", { status: 404 });
 
