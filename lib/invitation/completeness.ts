@@ -1,4 +1,4 @@
-import { BUILDER_STEPS } from "./steps";
+import { BUILDER_STEPS } from "@/features/invitation-builder/steps";
 
 /**
  * Is this invitation finishable? — Ph3.md §9, and the §Success Criteria's

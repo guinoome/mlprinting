@@ -13,6 +13,39 @@ Phase 10.
 
 ### Added
 
+- Phase 6 — PDF Generation.
+  - Press-ready PDF export of an invitation: true CMYK throughout, 3 mm bleed,
+    5 mm safe margin, crop marks, 300 DPI images, embedded fonts. Available at
+    `/dashboard/events/<id>/print` behind `NEXT_PUBLIC_FEATURE_PDF_GENERATION`.
+  - Two-sided card — event details on the front, names and practical details on
+    the back. When every back section is hidden or empty the document is a
+    single page: a blank back costs money at the press and reads as a mistake.
+  - Pre-flight validation blocks generation on missing required fields, text
+    that will not fit at the chosen size, an unmapped typography, and photos
+    under 200 DPI at their placed size; 200–300 DPI warns but proceeds.
+  - Version history — every generated file is kept and stays downloadable.
+    `PdfGeneration` rows are append-only and record the generator version, the
+    template version at generation time, and the validation report.
+  - Files are stored in the private `media` bucket and served only through an
+    ownership-checked route; a print file has no public audience.
+  - Colour is authored per theme in `lib/config/design-vocabulary.ts` rather
+    than converted from hex — an uncalibrated conversion is a guess that only
+    reveals itself once the job is printed. Neutral dark text is K-only.
+
+### Changed
+
+- Print typefaces are Crimson Text, Lato, Spectral and Great Vibes (all SIL
+  OFL, committed under `assets/fonts/`), replacing the vocabulary's previous
+  system fonts, which cannot legally be embedded in a distributed PDF. The
+  on-screen preview stacks now lead with the same families, so the preview and
+  the printed card are set in one typeface.
+- `completeness.ts` moved from `features/invitation-builder/` to
+  `lib/invitation/` so print and the builder can share it without a
+  feature-to-feature import.
+- `vitest.config.ts` aliases `server-only` to its `empty.js`, and
+  `.eslintrc.json` sets `root: true` so a nested git worktree does not load the
+  parent repository's config.
+
 - Phase 5 — Website Generator.
   - A public, guest-facing event website at a customer-chosen web address
     (`/e/<slug>`) — no account needed to view it. Publish state

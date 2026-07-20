@@ -1,7 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { MoreVertical, Trash2, Pencil, Globe, Users } from "lucide-react";
+import {
+  MoreVertical,
+  Trash2,
+  Pencil,
+  Globe,
+  Users,
+  Printer,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteDraft } from "../actions";
 import { notify } from "@/lib/hooks/use-toast";
-import { routes } from "@/lib/config";
+import { routes, features } from "@/lib/config";
 import Link from "next/link";
 
 /**
@@ -85,6 +92,14 @@ export function DraftMenu({
                 View RSVPs
               </Link>
             </DropdownMenuItem>
+            {features.pdfGeneration ? (
+              <DropdownMenuItem asChild>
+                <Link href={routes.dashboard.eventPrint(invitationId)}>
+                  <Printer aria-hidden="true" />
+                  Print file
+                </Link>
+              </DropdownMenuItem>
+            ) : null}
           </>
         ) : null}
 

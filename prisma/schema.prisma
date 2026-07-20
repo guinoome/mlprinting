@@ -513,6 +513,7 @@ model Invitation {
   personalization InvitationPersonalization?
   media           InvitationMedia[]
   rsvps           RsvpResponse[]
+  pdfGenerations  PdfGeneration[]
 
   @@index([profileId, status, updatedAt])
   @@index([templateId])
@@ -711,4 +712,54 @@ model RsvpResponse {
 
   @@index([invitationId, createdAt])
   @@map("rsvp_responses")
+}
+
+enum PdfPageSize {
+  FIVE_BY_SEVEN
+  A5
+  A6
+}
+
+enum PdfGenerationStatus {
+  PENDING
+  READY
+  FAILED
+}
+
+/// One generated print file — Ph6.md §11 (traceability), §12 (version history).
+///
+/// Rows are appended, never overwritten: a superseded file stays downloadable,
+/// which is what "preserve previous versions when required" asks for. The
+/// engine never touches customer data — this table is the only thing it writes.
+model PdfGeneration {
+  id           String @id @default(uuid()) @db.Uuid
+  invitationId String @db.Uuid
+
+  /// Increments per invitation. What a human means by "version 3".
+  version  Int
+  pageSize PdfPageSize
+  status   PdfGenerationStatus @default(PENDING)
+
+  /// Null until status is READY.
+  storagePath String?
+  bytes       Int?
+
+  /// Ph6.md §11. generatorVersion is a constant exported by services/pdf,
+  /// bumped by hand when a layout change would alter output for unchanged
+  /// input — that is what makes "reproducible from the same inputs" checkable.
+  /// templateVersion copies Template.version at generation time.
+  generatorVersion String
+  templateVersion  String?
+
+  /// The report as returned at generation time (Ph6.md §9, §15), so a failed
+  /// attempt still explains itself later rather than only in a log.
+  validationReport Json?
+  error            String?
+
+  createdAt DateTime @default(now())
+
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId, createdAt])
+  @@map("pdf_generations")
 }

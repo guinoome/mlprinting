@@ -43,6 +43,8 @@ export const routes = {
     eventWebsite: (id: string) => `/dashboard/events/${id}/website`,
     /** RSVP list — Ph5.md §3. */
     eventRsvps: (id: string) => `/dashboard/events/${id}/rsvps`,
+    /** Print file — Ph6.md's PDF generation surface. */
+    eventPrint: (id: string) => `/dashboard/events/${id}/print`,
   },
 
   admin: {

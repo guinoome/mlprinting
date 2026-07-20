@@ -4,7 +4,7 @@ import { cache } from "react";
 import type { Prisma } from "@prisma/client";
 import { prisma, isDatabaseConfigured } from "@/lib/db";
 import { logger } from "@/lib/logger";
-import type { CompletenessSnapshot } from "./completeness";
+import type { CompletenessSnapshot } from "@/lib/invitation/completeness";
 
 /**
  * Invitation reads — Ph3.md §11, §12.

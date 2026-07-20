@@ -3,7 +3,7 @@ import Image from "next/image";
 import { CalendarDays, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { routes } from "@/lib/config";
-import { completionPercent, type CompletenessSnapshot } from "../completeness";
+import { completionPercent, type CompletenessSnapshot } from "@/lib/invitation/completeness";
 import { DraftMenu } from "./draft-menu";
 
 /**

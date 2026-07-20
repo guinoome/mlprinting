@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger";
 import { routes } from "@/lib/config";
 import { assertOwnership } from "./repository";
 import { resolveStep } from "./steps";
-import { completionErrors } from "./completeness";
+import { completionErrors } from "@/lib/invitation/completeness";
 import {
   draftTitleSchema,
   eventStepSchema,
