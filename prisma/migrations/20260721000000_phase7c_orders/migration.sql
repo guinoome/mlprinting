@@ -1,4 +1,3 @@
-◇ injected env (11) from .env.local // tip: ⌁ auth for agents [www.vestauth.com]
 -- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('INQUIRY', 'QUOTATION', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'ARCHIVED', 'CANCELLED');
 
