@@ -13,6 +13,19 @@ Phase 10.
 
 ### Added
 
+- Phase 7c — Internal Production Workflow.
+  - `Order` and `OrderItem`: one commercial engagement with any number of
+    deliverables, so a reprint or a later website is not a duplicated order.
+  - A kanban board at `/admin/production` covering every in-flight deliverable,
+    with assignment, priority and due dates; `/admin/bookings` lists orders.
+  - Status transitions are enforced from a table and audited: every change
+    writes an `OrderEvent` in the same transaction, and an order's status
+    follows its items without anyone maintaining it by hand.
+  - Human-facing booking references, `ML-2026-0042`, sequenced per year from
+    the highest existing reference rather than a row count.
+  - All internal surfaces are staff-only and return 404 rather than redirect,
+    enforced in Server Actions as well as page loads.
+
 - Phase 6 — PDF Generation.
   - Press-ready PDF export of an invitation: true CMYK throughout, 3 mm bleed,
     5 mm safe margin, crop marks, 300 DPI images, embedded fonts. Available at
