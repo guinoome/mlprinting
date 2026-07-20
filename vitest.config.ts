@@ -21,6 +21,20 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./", import.meta.url)),
+      /**
+       * `server-only` throws on import, to fail a CLIENT bundle at build time.
+       * Vitest runs in Node — the very environment these modules are written
+       * for — so that guard is inverted here and makes any server module
+       * untestable. React ships `empty.js` for exactly this substitution: it is
+       * what the package's own "react-server" export condition resolves to.
+       *
+       * The build-time protection is unaffected. Next still resolves the real
+       * module, so importing a server module from a client component still
+       * fails the build.
+       */
+      "server-only": fileURLToPath(
+        new URL("./node_modules/server-only/empty.js", import.meta.url),
+      ),
     },
   },
 });
