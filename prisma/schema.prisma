@@ -51,6 +51,12 @@ model Profile {
   invitations Invitation[]
   mediaAssets MediaAsset[]
 
+  orders         Order[]      @relation("OrderCustomer")
+  assignedOrders Order[]      @relation("OrderAssignee")
+  assignedItems  OrderItem[]  @relation("OrderItemAssignee")
+  orderEvents    OrderEvent[] @relation("OrderEventActor")
+  orderNotes     OrderNote[]  @relation("OrderNoteAuthor")
+
   @@index([role])
   @@map("profiles")
 }
@@ -514,6 +520,7 @@ model Invitation {
   media           InvitationMedia[]
   rsvps           RsvpResponse[]
   pdfGenerations  PdfGeneration[]
+  orders          Order[]
 
   @@index([profileId, status, updatedAt])
   @@index([templateId])
@@ -759,7 +766,170 @@ model PdfGeneration {
   createdAt DateTime @default(now())
 
   invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
 
   @@index([invitationId, createdAt])
   @@map("pdf_generations")
+}
+
+enum OrderStatus {
+  INQUIRY
+  QUOTATION
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+  CANCELLED
+}
+
+enum OrderItemStatus {
+  PENDING
+  DRAFT_CREATION
+  CUSTOMER_REVIEW
+  REVISION
+  APPROVED
+  IN_PRODUCTION
+  QUALITY_CHECK
+  READY_FOR_RELEASE
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderItemKind {
+  INVITATION_PRINT
+  WEBSITE
+  REPRINT
+  OTHER
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum OrderEventType {
+  STATUS_CHANGE
+  ASSIGNED
+  NOTE_ADDED
+  ITEM_ADDED
+  GENERATED
+}
+
+/// One commercial engagement — Ph7.md §1. What a customer calls "my booking".
+model Order {
+  id        String @id @default(uuid()) @db.Uuid
+  profileId String @db.Uuid
+
+  /// Nullable: Ph7.md §2 starts the lifecycle at Inquiry, which precedes any
+  /// design work, so an order can exist before an invitation does.
+  invitationId String? @db.Uuid
+
+  /// Human-facing booking ID, "ML-2026-0042". Unique across all years.
+  reference String @unique
+
+  status       OrderStatus @default(INQUIRY)
+  assignedToId String?     @db.Uuid
+  dueDate      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile    Profile     @relation("OrderCustomer", fields: [profileId], references: [id], onDelete: Cascade)
+  assignedTo Profile?    @relation("OrderAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  invitation Invitation? @relation(fields: [invitationId], references: [id], onDelete: SetNull)
+
+  items  OrderItem[]
+  events OrderEvent[]
+  notes  OrderNote[]
+
+  @@index([status, createdAt])
+  @@index([profileId])
+  @@index([assignedToId])
+  @@map("orders")
+}
+
+/// One deliverable — a print run, a website, a reprint. This is what the
+/// production board moves. Splitting deliverables out is what makes reprints
+/// and staged delivery representable without duplicating an order.
+model OrderItem {
+  id      String @id @default(uuid()) @db.Uuid
+  orderId String @db.Uuid
+
+  kind     OrderItemKind
+  status   OrderItemStatus @default(PENDING)
+  quantity Int             @default(1)
+
+  assignedToId String?   @db.Uuid
+  dueDate      DateTime?
+  priority     Priority  @default(NORMAL)
+
+  /// Set for print items once a file exists — Phase 6's PdfGeneration.
+  pdfGenerationId String? @db.Uuid
+
+  /// Ph7.md §7's per-task note, e.g. "stock arrives Tuesday". Shows on the
+  /// board card. Distinct from OrderNote, which is order-level commentary.
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  assignedTo    Profile?       @relation("OrderItemAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  pdfGeneration PdfGeneration? @relation(fields: [pdfGenerationId], references: [id], onDelete: SetNull)
+
+  events OrderEvent[]
+
+  @@index([status, priority])
+  @@index([orderId])
+  @@index([assignedToId])
+  @@map("order_items")
+}
+
+/// Append-only audit trail — Ph7.md §12. Never updated, never deleted.
+model OrderEvent {
+  id          String  @id @default(uuid()) @db.Uuid
+  orderId     String  @db.Uuid
+  orderItemId String? @db.Uuid
+
+  /// Null means the system did it rather than a person.
+  actorId String? @db.Uuid
+
+  type OrderEventType
+
+  /// Strings, not enums: this one table records transitions of two different
+  /// status enums, and two nullable enum column pairs would be worse.
+  fromStatus String?
+  toStatus   String?
+
+  message String?
+
+  createdAt DateTime @default(now())
+
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  actor     Profile?   @relation("OrderEventActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([orderId, createdAt])
+  @@map("order_events")
+}
+
+/// Staff-only operational notes — Ph7.md §8. Separate from OrderEvent because a
+/// note is authored prose, not a recorded fact, and because 7b will expose
+/// events to customers while these must never be exposed.
+model OrderNote {
+  id       String @id @default(uuid()) @db.Uuid
+  orderId  String @db.Uuid
+  authorId String @db.Uuid
+
+  body String
+
+  createdAt DateTime @default(now())
+
+  order  Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  author Profile @relation("OrderNoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@map("order_notes")
 }
