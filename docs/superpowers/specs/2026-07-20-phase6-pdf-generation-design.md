@@ -71,6 +71,11 @@ already asks the architecture to support front/back.
 Sections the customer switched off in the builder (`PreviewModel.hidden` / `shows()`)
 stay off in print, exactly as on the website.
 
+**When the back would be empty** — every back-side section hidden or unfilled — the
+document is emitted as a **single page**, not a blank second side. A blank back is a real
+cost at the press and reads as a mistake. The validation report warns when this happens so
+the customer is not surprised by a one-sided card.
+
 ### 4. Open-licensed fonts, replacing the current vocabulary
 
 Deliverable 5 requires embedded fonts with licensing compliance. The current vocabulary
@@ -135,6 +140,11 @@ model PdfGeneration {
   bytes       Int?
 
   /// Ph6.md §11 — production traceability, also embedded in the PDF itself.
+  /// generatorVersion is a constant exported by services/pdf (e.g. "6.0.0"),
+  /// bumped by hand whenever a layout change would alter output for unchanged
+  /// input. That is what makes "reproducible from the same inputs" checkable:
+  /// same invitation + same generator version should yield the same document.
+  /// templateVersion copies Template.version at generation time.
   generatorVersion String
   templateVersion  String?
 
@@ -198,9 +208,14 @@ So the layout functions take two inputs: the resolved text model, and the raw as
 ### Page geometry
 
 Trim sizes: 5×7in = 360×504pt; A5 = 419.53×595.28pt; A6 = 297.64×419.53pt (72pt/inch).
-Bleed 3mm (≈8.5pt) on all edges; safe margin 5mm inside trim. Crop marks drawn in the
-bleed area, configurable per Deliverable 3. Nothing meaningful is placed outside the safe
-area; background fills extend to full bleed.
+Bleed 3mm (≈8.5pt) on all edges; safe margin 5mm inside trim. Nothing meaningful is
+placed outside the safe area; background fills extend to full bleed.
+
+Crop marks are "configurable" per Deliverable 3, which this design reads concretely as: a
+boolean option on the generate request, defaulting to **on**, surfaced as a checkbox on
+the Print file page. Some presses impose their own marks and reject files that arrive
+with marks already drawn — hence an option rather than a constant, but on by default
+because that is the common case.
 
 ### Image pipeline
 
