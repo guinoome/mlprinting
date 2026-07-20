@@ -3192,12 +3192,52 @@ a venue, go to its Print file page, and generate one. Download it and check, in 
 2. **Page size** is trim + 6 mm — 3 mm bleed on every edge. For 5×7 that is 133 × 184 mm.
 3. **Two pages**, unless every back section is hidden or empty; then one.
 4. **Crop marks** sit outside the trim box and never cross into the artwork.
-5. **Colour is CMYK, not RGB.** Verify it, do not assume it:
-   ```bash
-   node -e "const s=require('fs').readFileSync(process.argv[1],'latin1');console.log('DeviceCMYK:',s.includes('DeviceCMYK'),'| DeviceRGB:',s.includes('DeviceRGB'))" <downloaded>.pdf
+5. **Colour is CMYK, not RGB.** Verify it, do not assume it — and do **not** grep the raw
+   file for `/DeviceCMYK`. That check produces a false negative on a real card, which was
+   confirmed empirically during Task 12: pdf-lib writes vector and text colour as `k` / `K`
+   **content-stream operators**, not as a named colourspace, and those streams are
+   Flate-compressed. `/DeviceCMYK` appears only in an image XObject's dictionary, so a
+   text-only card shows `DeviceCMYK: false` while being perfectly correct.
+
+   Decompress the streams and count colour operators instead. Save as `cmyk-verify.mjs` at
+   the repo root (module resolution fails elsewhere in this project) and run it against the
+   downloaded file:
+
+   ```javascript
+   import { readFileSync } from "node:fs";
+   import zlib from "node:zlib";
+
+   const buf = readFileSync(process.argv[2]);
+   const txt = buf.toString("latin1");
+   let idx = 0, all = "";
+   while (true) {
+     const s = txt.indexOf("stream", idx);
+     if (s === -1) break;
+     if (txt.slice(s - 3, s) === "end") { idx = s + 6; continue; }
+     let b = s + 6;
+     if (txt[b] === "\r") b++;
+     if (txt[b] === "\n") b++;
+     const e = txt.indexOf("endstream", b);
+     if (e === -1) break;
+     const raw = buf.subarray(b, e);
+     try { all += zlib.inflateSync(raw).toString("latin1") + "\n"; }
+     catch { all += raw.toString("latin1") + "\n"; }
+     idx = e + 9;
+   }
+   const c = (re) => (all.match(re) || []).length;
+   console.log({
+     cmykFill: c(/[\d.]+ [\d.]+ [\d.]+ [\d.]+ k\b/g),
+     cmykStroke: c(/[\d.]+ [\d.]+ [\d.]+ [\d.]+ K\b/g),
+     rgb: c(/[\d.]+ [\d.]+ [\d.]+ rg\b/g) + c(/[\d.]+ [\d.]+ [\d.]+ RG\b/g),
+     gray: c(/\n[\d.]+ [gG]\b/g),
+     imageColourSpace: txt.includes("DeviceCMYK") ? "DeviceCMYK" : (txt.includes("DeviceRGB") ? "DeviceRGB" : "none"),
+   });
    ```
-   Expected: `DeviceCMYK: true`. A `DeviceRGB: true` means something drew in RGB — find it
-   before shipping. A press converts RGB silently and the colour shifts.
+
+   Expected: `cmykFill` greater than zero, `rgb` and `gray` both **zero**. If the card has a
+   photo, `imageColourSpace` must be `DeviceCMYK`. Any non-zero `rgb` or `gray` means
+   something drew outside the CMYK path — find it before shipping. A press converts RGB
+   silently and the colour shifts.
 6. **Fonts are embedded.** Document Properties → Fonts: every entry reads "Embedded
    Subset". A font that is not embedded is the most common reason a print job comes back
    wrong.
