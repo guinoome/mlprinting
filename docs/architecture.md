@@ -232,6 +232,7 @@ Phase 1 delivers four seams later phases plug into rather than reinvent:
 | Uploads (Ph1 §8) | `services/upload/` | Ph4 Media Library, Ph1 avatars |
 | Recommendations (Ph2 §8) | `services/recommendations/` | Ph2 marketplace; Ph3 builder |
 | Print engine (Ph6) | `services/pdf/` | `features/pdf-generation/` alone — see [print-pipeline.md](print-pipeline.md) |
+| Order engine (Ph7c) | `services/orders/` | `features/production/` alone — see [order-workflow.md](order-workflow.md) |
 
 Two shapes worth keeping:
 
