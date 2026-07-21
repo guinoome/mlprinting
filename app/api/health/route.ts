@@ -15,11 +15,19 @@ export async function GET() {
   // Safe diagnostic: the first 15 chars are at most "postgresql://po" —
   // the password only begins around char 22, so this never leaks it.
   // JSON.stringify exposes a hidden leading space, quote, or BOM.
+  // Mask the password (between the scheme's user ':' and the '@'), then show
+  // the whole shape so a structural malformation is visible without the secret.
+  const masked = raw.replace(/(:\/\/[^:@/]+:)[^@]*(@)/, "$1***$2");
   const diag = {
     rawLength: raw.length,
-    firstChars: JSON.stringify(raw.slice(0, 15)),
     startsOk:
       raw.startsWith("postgresql://") || raw.startsWith("postgres://"),
+    // Only reveal if a password was actually masked out, or there's no '@' to
+    // leak — never expose an unmasked value.
+    urlShape:
+      masked !== raw || !raw.includes("@")
+        ? JSON.stringify(masked)
+        : "(withheld: userinfo could not be masked)",
   };
   // The resolved URL is what Prisma actually connects with — after the direct
   // host is rerouted to the pooler (lib/db-url.ts).
