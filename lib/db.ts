@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { resolveDatabaseUrl } from "./db-url";
 
 /**
  * Prisma client singleton.
@@ -17,7 +18,12 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createClient(): PrismaClient {
+  // Reroute Supabase's IPv6-only direct host to the IPv4 pooler when needed
+  // (see lib/db-url.ts). A URL that is already pooled, or a local database,
+  // passes through untouched.
+  const url = resolveDatabaseUrl(process.env.DATABASE_URL);
   return new PrismaClient({
+    ...(url ? { datasources: { db: { url } } } : {}),
     log:
       process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
   });
