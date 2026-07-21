@@ -23,6 +23,10 @@ export {
 } from "./status";
 export { deriveOrderStatus } from "./derive";
 export { formatReference, parseReference, nextReference } from "./reference";
+export type { OrderSearchCriteria } from "./search";
+export { parseOrderSearch, buildOrderSearchWhere } from "./search";
+export type { OrderReport } from "./reporting";
+export { summarise, ACTIVE_ORDER_STATUSES } from "./reporting";
 export type {
   OrderRow,
   OrderItemRow,
@@ -35,6 +39,8 @@ export type {
 export {
   listBoardItems,
   listOrders,
+  searchOrders,
+  getOrderReport,
   getOrder,
   createOrder,
   addItem,

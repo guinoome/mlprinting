@@ -16,6 +16,15 @@ import {
 } from "./status";
 import { deriveOrderStatus } from "./derive";
 import { nextReference } from "./reference";
+import {
+  buildOrderSearchWhere,
+  type OrderSearchCriteria,
+} from "./search";
+import {
+  summarise,
+  type OrderReport,
+  type StatusCounts,
+} from "./reporting";
 
 /**
  * Order persistence — Ph7.md §1, §2, §12.
@@ -88,6 +97,56 @@ export async function listOrders(): Promise<OrderWithItems[]> {
   } catch (error) {
     logger.report(error, { at: "listOrders" });
     return [];
+  }
+}
+
+/** Staff order search — Ph7.md §13. The WHERE clause is built and tested in search.ts. */
+export async function searchOrders(
+  criteria: OrderSearchCriteria,
+): Promise<OrderWithItems[]> {
+  if (!isDatabaseConfigured()) return [];
+
+  try {
+    return await prisma.order.findMany({
+      where: buildOrderSearchWhere(criteria),
+      include: ORDER_INCLUDE,
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    logger.report(error, { at: "searchOrders" });
+    return [];
+  }
+}
+
+/**
+ * Operational report — Ph7.md §14. Two grouped counts rather than loading every
+ * row; the shaping (what "active", "workload" mean) lives in reporting.ts where
+ * it is tested.
+ */
+export async function getOrderReport(): Promise<OrderReport> {
+  const empty = summarise({ orderStatusCounts: {}, itemStatusCounts: {} });
+  if (!isDatabaseConfigured()) return empty;
+
+  try {
+    const [orderGroups, itemGroups] = await Promise.all([
+      prisma.order.groupBy({ by: ["status"], _count: { _all: true } }),
+      prisma.orderItem.groupBy({ by: ["status"], _count: { _all: true } }),
+    ]);
+
+    const orderStatusCounts: StatusCounts<OrderStatusValue> = {};
+    for (const group of orderGroups) {
+      orderStatusCounts[group.status as OrderStatusValue] = group._count._all;
+    }
+
+    const itemStatusCounts: StatusCounts<OrderItemStatusValue> = {};
+    for (const group of itemGroups) {
+      itemStatusCounts[group.status as OrderItemStatusValue] = group._count._all;
+    }
+
+    return summarise({ orderStatusCounts, itemStatusCounts });
+  } catch (error) {
+    logger.report(error, { at: "getOrderReport" });
+    return empty;
   }
 }
 
