@@ -41,7 +41,13 @@ function decodeSafely(value: string): string {
 }
 
 export function toPoolerUrl(databaseUrl: string, poolerHost: string): string {
-  const match = databaseUrl.match(DIRECT);
+  // Collapse an accidentally-doubled scheme — "postgresql://postgresql://…" —
+  // into one before matching. Easy to produce when hand-editing the value.
+  const normalized = databaseUrl.replace(
+    /^(postgres(?:ql)?:\/\/)+/,
+    "postgresql://",
+  );
+  const match = normalized.match(DIRECT);
   // Not Supabase's direct host — a pooler URL, a local database, anything else.
   // Use exactly as given.
   if (!match) return databaseUrl;

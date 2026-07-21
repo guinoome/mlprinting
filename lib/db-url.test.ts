@@ -18,6 +18,17 @@ describe("toPoolerUrl", () => {
     expect(u.pathname).toBe("/postgres");
   });
 
+  it("collapses an accidentally doubled scheme prefix", () => {
+    const out = toPoolerUrl(
+      "postgresql://postgresql://postgres:pw@db.abc123.supabase.co:5432/postgres",
+      HOST,
+    );
+    const u = new URL(out);
+    expect(u.hostname).toBe(HOST);
+    expect(u.username).toBe("postgres.abc123");
+    expect(u.password).toBe("pw");
+  });
+
   it("forces the correct username even if the URL had 'postgresql'", () => {
     // The real bug in production: username was 'postgresql', not 'postgres'.
     const out = toPoolerUrl(
