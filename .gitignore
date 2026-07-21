@@ -43,3 +43,6 @@ yarn-error.log*
 
 # local git worktrees (superpowers:using-git-worktrees)
 /.worktrees/
+
+# skills CLI: symlinks are regenerated locally via `npx skills install`
+.claude/skills/
