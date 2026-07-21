@@ -104,9 +104,9 @@ In Vercel → Project → Settings → Environment Variables, add every variable
 | Variable | Exposure |
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Public |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Secret — server only** |
-| `DATABASE_URL` | **Secret — server only** |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public (legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` still accepted) |
+| `SUPABASE_SECRET_KEY` | **Secret — server only** (unused today) |
+| `DATABASE_URL` | **Secret — server only.** Must be the Supabase **pooler** URI (`…pooler.supabase.com:6543…?pgbouncer=true`); the direct `db.<ref>.supabase.co` host is IPv6-only and unreachable from Vercel. |
 | `NEXT_PUBLIC_APP_URL` | Public — the deployment URL |
 | `NEXT_PUBLIC_FEATURE_*` | Public — leave unset; each turns on with its phase |
 

@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isSupabaseConfigured } from "@/lib/env";
+import { env, isSupabaseConfigured } from "@/lib/env";
 import { isProtectedRoute } from "@/lib/auth/roles";
 import type { CookiesToSet } from "./types";
 
@@ -18,8 +18,8 @@ export async function updateSession(request: NextRequest) {
   if (!isSupabaseConfigured()) return response;
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    env.supabase.url,
+    env.supabase.publishableKey,
     {
       cookies: {
         getAll() {

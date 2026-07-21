@@ -22,13 +22,22 @@ then:
 | Variable | Where to find it |
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API → `anon` `public` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → `service_role` |
-| `DATABASE_URL` | Supabase → Settings → Database → Connection string (URI) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase → Settings → API Keys → `sb_publishable_…` |
+| `SUPABASE_SECRET_KEY` | Supabase → Settings → API Keys → `sb_secret_…` (unused today) |
+| `DATABASE_URL` | Supabase → Settings → Database → **Connection pooling** → Transaction URI |
+
+Supabase's new key system replaces the legacy `anon` / `service_role` JWTs with
+`sb_publishable_…` / `sb_secret_…`. The app prefers the new variable names and
+falls back to `NEXT_PUBLIC_SUPABASE_ANON_KEY` if only the legacy key is set, so
+either works during the transition.
+
+`DATABASE_URL` must be the **pooler** connection (`…pooler.supabase.com:6543…?pgbouncer=true`),
+not the direct `db.<ref>.supabase.co` host. The direct host is IPv6-only and is
+unreachable from serverless platforms like Vercel; the pooler is IPv4.
 
 `NEXT_PUBLIC_*` variables reach the browser — never put a secret behind that
-prefix. The `service_role` key bypasses row-level security entirely; it is
-server-only and must never appear in client code.
+prefix. The publishable key is safe there by design; the secret key bypasses
+row-level security and must never appear in client code.
 
 `.env.local` is gitignored. Keep it that way.
 

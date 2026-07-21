@@ -62,15 +62,43 @@ describe("env.supabase.url", () => {
   });
 });
 
+describe("env.supabase.publishableKey", () => {
+  it("prefers the new publishable key", () => {
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_new";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "legacy_anon";
+    expect(env.supabase.publishableKey).toBe("sb_publishable_new");
+  });
+
+  it("falls back to the legacy anon key during migration", () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "legacy_anon";
+    expect(env.supabase.publishableKey).toBe("legacy_anon");
+  });
+
+  it("throws, naming both variables, when neither is set", () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    expect(() => env.supabase.publishableKey).toThrow(/PUBLISHABLE_KEY/);
+  });
+});
+
 describe("isSupabaseConfigured", () => {
-  it("is false when either variable is absent", () => {
+  it("is false when the URL is absent", () => {
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "key";
     expect(isSupabaseConfigured()).toBe(false);
   });
 
-  it("is true when both are present", () => {
+  it("is true with the URL and the new publishable key", () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://gunylc.supabase.co";
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_x";
+    expect(isSupabaseConfigured()).toBe(true);
+  });
+
+  it("is true with the URL and only the legacy anon key", () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://gunylc.supabase.co";
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "key";
     expect(isSupabaseConfigured()).toBe(true);
   });

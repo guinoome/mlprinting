@@ -61,10 +61,20 @@ export const env = {
         ),
       );
     },
-    get anonKey() {
+    /**
+     * The public client key — Supabase's new `sb_publishable_…` key, or the
+     * legacy `anon` JWT it replaces.
+     *
+     * Prefers the new variable and falls back to the old one, so the app keeps
+     * working whether the deployment has migrated its Supabase keys yet or not.
+     * Both are safe in the browser (that is the whole point of a publishable
+     * key); the fallback is a transition convenience, not a secret risk.
+     */
+    get publishableKey() {
       return required(
-        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or legacy NEXT_PUBLIC_SUPABASE_ANON_KEY)",
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       );
     },
   },
@@ -82,6 +92,7 @@ export const env = {
 export function isSupabaseConfigured(): boolean {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   );
 }

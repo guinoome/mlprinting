@@ -6,5 +6,5 @@ import { env } from "@/lib/env";
  * Uses the anon key — safe to expose; row-level security enforces access.
  */
 export function createClient() {
-  return createBrowserClient(env.supabase.url, env.supabase.anonKey);
+  return createBrowserClient(env.supabase.url, env.supabase.publishableKey);
 }

@@ -10,7 +10,7 @@ import type { CookiesToSet } from "./types";
 export function createClient() {
   const cookieStore = cookies();
 
-  return createServerClient(env.supabase.url, env.supabase.anonKey, {
+  return createServerClient(env.supabase.url, env.supabase.publishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
