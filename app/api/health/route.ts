@@ -12,6 +12,15 @@ function hostOf(url: string): string {
 
 export async function GET() {
   const raw = process.env.DATABASE_URL ?? "";
+  // Safe diagnostic: the first 15 chars are at most "postgresql://po" —
+  // the password only begins around char 22, so this never leaks it.
+  // JSON.stringify exposes a hidden leading space, quote, or BOM.
+  const diag = {
+    rawLength: raw.length,
+    firstChars: JSON.stringify(raw.slice(0, 15)),
+    startsOk:
+      raw.startsWith("postgresql://") || raw.startsWith("postgres://"),
+  };
   // The resolved URL is what Prisma actually connects with — after the direct
   // host is rerouted to the pooler (lib/db-url.ts).
   const resolved = resolveDatabaseUrl(raw) ?? "";
@@ -25,12 +34,14 @@ export async function GET() {
       usingPooler,
       rerouted: hostOf(raw) !== host,
       templateCount: count,
+      ...diag,
     });
   } catch (error) {
     return Response.json({
       ok: false,
       host,
       usingPooler,
+      ...diag,
       name: (error as Error).name,
       message: (error as Error).message.slice(0, 300),
     });
