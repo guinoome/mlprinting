@@ -1,29 +1,27 @@
 import type { Metadata } from "next";
 import { ClipboardList } from "lucide-react";
 import { requireStaff } from "@/lib/auth/require-staff";
-import { listOrders } from "@/services/orders";
+import { searchOrders, parseOrderSearch } from "@/services/orders";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { routes } from "@/lib/config";
+import { OrderSearch } from "@/features/orders/components/order-search";
+import { ORDER_STATUS_LABELS as STATUS_LABELS } from "@/features/orders/labels";
 
 export const metadata: Metadata = {
   title: "Bookings",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  INQUIRY: "Inquiry",
-  QUOTATION: "Quotation",
-  CONFIRMED: "Confirmed",
-  IN_PROGRESS: "In progress",
-  COMPLETED: "Completed",
-  ARCHIVED: "Archived",
-  CANCELLED: "Cancelled",
-};
-
-export default async function AdminBookingsPage() {
+export default async function AdminBookingsPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; status?: string };
+}) {
   await requireStaff();
 
-  const orders = await listOrders();
+  const criteria = parseOrderSearch(searchParams);
+  const orders = await searchOrders(criteria);
+  const filtered = Boolean(criteria.q || criteria.status.length > 0);
 
   return (
     <div className="space-y-6 p-6">
@@ -41,11 +39,17 @@ export default async function AdminBookingsPage() {
         </p>
       </header>
 
+      <OrderSearch />
+
       {orders.length === 0 ? (
         <EmptyState
           icon={<ClipboardList aria-hidden="true" />}
-          title="No bookings yet"
-          description="Orders appear here once they are created."
+          title={filtered ? "No matching bookings" : "No bookings yet"}
+          description={
+            filtered
+              ? "Try a different reference, customer, or status."
+              : "Orders appear here once they are created."
+          }
         />
       ) : (
         <div className="overflow-x-auto">
