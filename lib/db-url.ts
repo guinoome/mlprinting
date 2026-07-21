@@ -1,54 +1,60 @@
 /**
- * Connection-string adapter — routes around an infrastructure limitation.
+ * Connection-string adapter — routes around an infrastructure limitation and
+ * normalises a hand-edited URL.
  *
- * Supabase's direct database host, `db.<ref>.supabase.co`, is IPv6-only.
- * Serverless platforms like Vercel are IPv4-only, so Prisma there fails with
- * "Can't reach database server". The fix is to connect through Supabase's
- * pooler (Supavisor), which is IPv4 — but that means a different host, port and
- * username.
+ * Two problems it solves, both seen in production:
  *
- * Rather than depend on every deployment getting a hand-edited `DATABASE_URL`
- * exactly right, this rewrites the direct host to the pooler at runtime,
- * carrying the existing password across untouched. A deployment can still set
- * `DATABASE_URL` straight to a pooler URL — anything that is not the direct
- * host is passed through unchanged, so this is a safety net, not an override.
+ * 1. Supabase's direct host `db.<ref>.supabase.co` is IPv6-only, and serverless
+ *    platforms (Vercel) are IPv4-only, so Prisma there can't reach it. The fix
+ *    is Supabase's pooler (IPv4) — a different host, port and username.
  *
- * Pure and side-effect free, so the rewrite is unit-tested. It never reads or
- * logs the password; it only moves it from one URL to another via the URL API.
+ * 2. A `DATABASE_URL` entered by hand is easy to get slightly wrong: the wrong
+ *    username (`postgresql` instead of `postgres`), or a password with a raw
+ *    `#`, `/`, `?` or space that isn't percent-encoded and so breaks URL
+ *    parsing. `new URL()` throws or misparses on those.
+ *
+ * So this does NOT use `new URL()`. It matches the direct-host shape by pattern
+ * — anchored on the known `db.<ref>.supabase.co` host, which lets the password
+ * contain any character unambiguously — then rebuilds a correct pooler URL:
+ * fixed `postgres.<ref>` username, a freshly percent-encoded password, the
+ * pooler host and port. Anything that is not the direct host (already pooled, a
+ * local database) is returned untouched.
+ *
+ * Pure and side-effect free; it never logs the password, only moves it.
  */
 
-/** The pooler host for this project, overridable if Supabase ever moves it. */
 export const DEFAULT_POOLER_HOST = "aws-1-ap-south-1.pooler.supabase.com";
 
-const DIRECT_HOST = /^db\.([a-z0-9]+)\.supabase\.co$/;
+// scheme :// user : password @ db.<ref>.supabase.co [:port] [/db] [?params]
+// The password group is greedy and anchored on the known host, so ':' or '@'
+// inside the password does not confuse it.
+const DIRECT =
+  /^postgres(?:ql)?:\/\/[^:/@]*:(.*)@db\.([a-z0-9]+)\.supabase\.co(?::\d+)?(\/[^?]*)?(?:\?.*)?$/;
+
+/** Decode a possibly-encoded password without throwing on a stray '%'. */
+function decodeSafely(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
 
 export function toPoolerUrl(databaseUrl: string, poolerHost: string): string {
-  let url: URL;
-  try {
-    url = new URL(databaseUrl);
-  } catch {
-    // Not a URL we can parse — hand it back and let Prisma report the problem.
-    return databaseUrl;
-  }
-
-  const match = url.hostname.match(DIRECT_HOST);
-  // Only the IPv6-only direct host needs rerouting. A pooler host, a local
-  // database, anything else — use exactly as given.
+  const match = databaseUrl.match(DIRECT);
+  // Not Supabase's direct host — a pooler URL, a local database, anything else.
+  // Use exactly as given.
   if (!match) return databaseUrl;
 
-  const ref = match[1];
-  url.hostname = poolerHost;
-  url.port = "6543";
-  // Transaction-pooler auth requires the project ref in the username.
-  url.username = `postgres.${ref}`;
-  // Prisma needs this against a transaction-mode pooler; connection_limit=1 is
-  // the serverless recommendation (one connection per function instance).
-  url.searchParams.set("pgbouncer", "true");
-  if (!url.searchParams.has("connection_limit")) {
-    url.searchParams.set("connection_limit", "1");
-  }
+  const [, rawPassword, ref, path = "/postgres"] = match;
+  // Normalise the password to a correctly-encoded form, whether it arrived raw
+  // (with a literal '#') or already encoded (with '%23').
+  const password = encodeURIComponent(decodeSafely(rawPassword));
 
-  return url.toString();
+  return (
+    `postgresql://postgres.${ref}:${password}@${poolerHost}:6543${path}` +
+    `?pgbouncer=true&connection_limit=1`
+  );
 }
 
 /** The URL Prisma should actually connect with, given the environment. */

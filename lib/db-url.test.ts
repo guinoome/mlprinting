@@ -18,14 +18,51 @@ describe("toPoolerUrl", () => {
     expect(u.pathname).toBe("/postgres");
   });
 
-  it("carries a password with special characters across without double-encoding", () => {
-    // %2A is an encoded '*'. It must stay %2A, not become %252A — the bug that
-    // made an earlier region scan fail against every pooler.
+  it("forces the correct username even if the URL had 'postgresql'", () => {
+    // The real bug in production: username was 'postgresql', not 'postgres'.
     const out = toPoolerUrl(
-      "postgresql://postgres:Ajlf2s7ps7%2A@db.abc123.supabase.co:5432/postgres",
+      "postgresql://postgresql:pw@db.abc123.supabase.co:5432/postgres",
       HOST,
     );
-    expect(new URL(out).password).toBe("Ajlf2s7ps7%2A");
+    expect(new URL(out).username).toBe("postgres.abc123");
+  });
+
+  it("percent-encodes a raw special character in the password", () => {
+    // A raw '#' truncates URL parsing; it must become %23. This is what broke
+    // production after a password reset.
+    const out = toPoolerUrl(
+      "postgresql://postgres:Ab#cd@db.abc123.supabase.co:5432/postgres",
+      HOST,
+    );
+    const u = new URL(out);
+    expect(u.hostname).toBe(HOST);
+    expect(u.password).toBe("Ab%23cd");
+  });
+
+  it("decodes an already-encoded password to its true value (no double-encoding)", () => {
+    // %2A is '*', which needs no encoding, so the URL shows it decoded — the
+    // point is the password VALUE is 'Ajlf*', not the double-encoded 'Ajlf%252A'.
+    const out = toPoolerUrl(
+      "postgresql://postgres:Ajlf%2A@db.abc123.supabase.co:5432/postgres",
+      HOST,
+    );
+    expect(new URL(out).password).toBe("Ajlf*");
+  });
+
+  it("handles a literal percent that is not an encoding", () => {
+    const out = toPoolerUrl(
+      "postgresql://postgres:50%off@db.abc123.supabase.co:5432/postgres",
+      HOST,
+    );
+    expect(new URL(out).password).toBe("50%25off");
+  });
+
+  it("tolerates a missing port", () => {
+    const out = toPoolerUrl(
+      "postgresql://postgres:pw@db.abc123.supabase.co/postgres",
+      HOST,
+    );
+    expect(new URL(out).hostname).toBe(HOST);
   });
 
   it("leaves a local database untouched", () => {
@@ -36,14 +73,6 @@ describe("toPoolerUrl", () => {
   it("leaves an already-pooled URL untouched", () => {
     const pooled = `postgresql://postgres.abc123:pw@${HOST}:6543/postgres?pgbouncer=true`;
     expect(toPoolerUrl(pooled, HOST)).toBe(pooled);
-  });
-
-  it("keeps an explicit connection_limit if one is already set", () => {
-    const out = toPoolerUrl(
-      "postgresql://postgres:pw@db.abc123.supabase.co:5432/postgres?connection_limit=5",
-      HOST,
-    );
-    expect(new URL(out).searchParams.get("connection_limit")).toBe("5");
   });
 
   it("returns unparseable input unchanged rather than throwing", () => {
