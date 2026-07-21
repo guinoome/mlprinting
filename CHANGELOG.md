@@ -13,6 +13,17 @@ Phase 10.
 
 ### Added
 
+- Phase 7d — Order Search, Reporting and Notifications.
+  - Staff can search bookings by reference, customer or status at
+    `/admin/bookings`; the filter lives in the URL, so a view is shareable.
+  - `/admin/reports` shows the operational snapshot — active bookings, pending
+    approvals, production workload, completed orders, and a per-status
+    breakdown — from two grouped counts rather than a table scan.
+  - `/dashboard/notifications` surfaces a "needs your attention" feed derived
+    from the customer's own orders. No new tables: search and reporting are
+    query-only, and notifications are derived, so the whole sub-project ships
+    without a migration.
+
 - Phase 7b — Customer Order Experience.
   - `/dashboard/orders` lists a customer's own orders; `/dashboard/orders/[id]`
     shows each deliverable's progress and its proof — the print PDF or the live

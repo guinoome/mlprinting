@@ -107,7 +107,25 @@ description, which `OrderEvent` already stores, and the revision number (§5) is
 derived by counting prior `REVISION` events for the item. Avoiding a new table
 also kept 7b shippable without a migration.
 
+## Search, reporting and notifications (7d)
+
+All three are **migration-free** — deliberately, so they ship without touching a
+schema the production pipeline currently cannot deploy.
+
+- **Search** (§13): `parseOrderSearch` and `buildOrderSearchWhere` in `search.ts`
+  are pure and tested; `searchOrders` in the repository runs the built clause.
+  The staff bookings page filters on reference, customer and status through URL
+  query params, so a filtered view is shareable.
+- **Reporting** (§14): `reporting.ts`'s `summarise` shapes two grouped counts
+  into the operational figures — active bookings, pending approvals, production
+  workload, completed. What each figure *means* is pinned by a test, not buried
+  in a query. `/admin/reports` renders it.
+- **Notifications** (§9): `features/orders/notifications.ts` derives a
+  "needs your attention" feed from the customer's own orders — items awaiting
+  review, orders just completed. Nothing is stored, so there is nothing to keep
+  in sync and no table to migrate; when extensible channels (email, SMS) arrive
+  they read the same derivation.
+
 ## Not here
 
-Notifications, search and reporting are **7d**. Payment and deployment
-automation are later phases.
+Payment and deployment automation are later phases.
