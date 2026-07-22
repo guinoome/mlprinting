@@ -312,6 +312,114 @@ function titleSize(label: string, w: number): number {
   return Math.max(w * 0.05, base - over * (w * 0.0032));
 }
 
+type FigureKind = "gown" | "suit" | "toga";
+
+/**
+ * A faceless human silhouette seen from behind — a person "sample" for the
+ * cover that is no one's likeness, so a model release is never in question.
+ * Built from primitives and filled flat, tinted from the palette so it reads as
+ * a soft presence, not clip art.
+ */
+function personBack(
+  cx: number,
+  groundY: number,
+  h: number,
+  kind: FigureKind,
+  color: string,
+  opacity: number,
+): string {
+  const f = (n: number) => n.toFixed(1);
+  const headR = h * 0.058;
+  const headCy = groundY - h * 0.9;
+  const shoulderY = groundY - h * 0.77;
+  const robe = kind === "gown" || kind === "toga";
+  const parts: string[] = [];
+
+  if (kind === "gown") {
+    // The veil trails behind, drawn first so the gown sits over it.
+    const vHem = h * 0.19;
+    parts.push(
+      `<path d="M ${f(cx - headR)} ${f(headCy)} Q ${f(cx - headR * 2.4)} ${f((headCy + groundY) / 2)} ${f(cx - vHem)} ${f(groundY)} L ${f(cx + vHem)} ${f(groundY)} Q ${f(cx + headR * 2.4)} ${f((headCy + groundY) / 2)} ${f(cx + headR)} ${f(headCy)} Z" fill="${color}" opacity="${(opacity * 0.35).toFixed(2)}"/>`,
+    );
+  }
+
+  // Head and a short tapered neck into the shoulders.
+  parts.push(
+    `<circle cx="${f(cx)}" cy="${f(headCy)}" r="${f(headR)}" fill="${color}" opacity="${opacity}"/>`,
+  );
+  parts.push(
+    `<path d="M ${f(cx - headR * 0.55)} ${f(headCy + headR * 0.45)} L ${f(cx + headR * 0.55)} ${f(headCy + headR * 0.45)} L ${f(cx + headR * 0.7)} ${f(shoulderY)} L ${f(cx - headR * 0.7)} ${f(shoulderY)} Z" fill="${color}" opacity="${opacity}"/>`,
+  );
+
+  if (robe) {
+    // Shoulders taper to a waist, then flare to the hem — a gown or a graduate's robe.
+    const shoulderHalf = h * 0.11;
+    const waistHalf = h * 0.088;
+    const hemHalf = h * 0.23;
+    const waistY = shoulderY + h * 0.2;
+    parts.push(
+      `<path d="M ${f(cx - shoulderHalf)} ${f(shoulderY)} Q ${f(cx - shoulderHalf * 0.85)} ${f(shoulderY + h * 0.1)} ${f(cx - waistHalf)} ${f(waistY)} L ${f(cx - hemHalf)} ${f(groundY)} L ${f(cx + hemHalf)} ${f(groundY)} L ${f(cx + waistHalf)} ${f(waistY)} Q ${f(cx + shoulderHalf * 0.85)} ${f(shoulderY + h * 0.1)} ${f(cx + shoulderHalf)} ${f(shoulderY)} Q ${f(cx)} ${f(shoulderY - h * 0.025)} ${f(cx - shoulderHalf)} ${f(shoulderY)} Z" fill="${color}" opacity="${opacity}"/>`,
+    );
+  } else {
+    // A torso to the hips, then two legs — clearly a suit, not a dress.
+    const shoulderHalf = h * 0.125;
+    const hipHalf = h * 0.093;
+    const torsoBottom = groundY - h * 0.42;
+    const legW = hipHalf * 0.78;
+    parts.push(
+      `<path d="M ${f(cx - shoulderHalf)} ${f(shoulderY)} Q ${f(cx - shoulderHalf * 0.9)} ${f(shoulderY + h * 0.2)} ${f(cx - hipHalf)} ${f(torsoBottom)} L ${f(cx + hipHalf)} ${f(torsoBottom)} Q ${f(cx + shoulderHalf * 0.9)} ${f(shoulderY + h * 0.2)} ${f(cx + shoulderHalf)} ${f(shoulderY)} Q ${f(cx)} ${f(shoulderY - h * 0.025)} ${f(cx - shoulderHalf)} ${f(shoulderY)} Z" fill="${color}" opacity="${opacity}"/>`,
+    );
+    parts.push(
+      `<rect x="${f(cx - hipHalf)}" y="${f(torsoBottom - 1)}" width="${f(legW)}" height="${f(groundY - torsoBottom + 1)}" fill="${color}" opacity="${opacity}"/>`,
+    );
+    parts.push(
+      `<rect x="${f(cx + hipHalf - legW)}" y="${f(torsoBottom - 1)}" width="${f(legW)}" height="${f(groundY - torsoBottom + 1)}" fill="${color}" opacity="${opacity}"/>`,
+    );
+  }
+
+  if (kind === "toga") {
+    const capY = headCy - headR * 1.0;
+    const capW = headR * 2.4;
+    parts.push(
+      `<path d="M ${f(cx - capW)} ${f(capY)} L ${f(cx)} ${f(capY - headR * 0.55)} L ${f(cx + capW)} ${f(capY)} L ${f(cx)} ${f(capY + headR * 0.55)} Z" fill="${color}" opacity="${opacity}"/>`,
+    );
+    parts.push(
+      `<line x1="${f(cx + capW * 0.5)}" y1="${f(capY)}" x2="${f(cx + capW * 0.5)}" y2="${f(capY + headR * 1.8)}" stroke="${color}" stroke-width="${(h * 0.007).toFixed(2)}" opacity="${opacity}"/>`,
+    );
+    parts.push(
+      `<circle cx="${f(cx + capW * 0.5)}" cy="${f(capY + headR * 1.9)}" r="${f(headR * 0.22)}" fill="${color}" opacity="${opacity}"/>`,
+    );
+  }
+  return parts.join("");
+}
+
+/** The silhouette scene for a category, or "" for the abstract-motif families. */
+function figureFor(key: string, cx: number, height: number, p: Palette): string {
+  const groundY = height * 0.92;
+  const fh = height * 0.4;
+  const color = p.accent;
+  const op = 0.5;
+  switch (key) {
+    case "wedding":
+    case "anniversary": {
+      const off = fh * 0.13;
+      return `<g>${personBack(cx - off, groundY, fh, "gown", color, op)}${personBack(cx + off, groundY, fh, "suit", color, op)}</g>`;
+    }
+    case "debut":
+      return `<g>${personBack(cx, groundY, fh * 1.05, "gown", color, op)}</g>`;
+    case "graduation":
+      return `<g>${personBack(cx, groundY, fh, "toga", color, op)}</g>`;
+    case "christening": {
+      const parent = personBack(cx, groundY, fh, "gown", color, op);
+      // A small bundle cradled at the chest, back view — no baby's face either.
+      const bundle = `<ellipse cx="${(cx + fh * 0.04).toFixed(1)}" cy="${(groundY - fh * 0.6).toFixed(1)}" rx="${(fh * 0.06).toFixed(1)}" ry="${(fh * 0.045).toFixed(1)}" fill="${color}" opacity="${(op * 1.25).toFixed(2)}"/>`;
+      return `<g>${parent}${bundle}</g>`;
+    }
+    default:
+      return "";
+  }
+}
+
 /**
  * An elegant invitation cover.
  *
@@ -345,6 +453,24 @@ export function placeholderCover({
   const serif = "Didot, 'Bodoni MT', 'Hoefler Text', Georgia, 'Times New Roman', serif";
   const sans = "'Gill Sans', 'Century Gothic', 'Futura', 'Segoe UI', system-ui, sans-serif";
 
+  // A faceless silhouette grounds the categories where a person is expected and
+  // takes the lower third; the type then moves up and stands in for the motif.
+  const figure = p.dark ? "" : figureFor(key, cx, height, p);
+  const hasFigure = figure !== "";
+  const ink = p.dark ? p.soft : p.ink;
+
+  const eyebrowY = height * (hasFigure ? 0.26 : 0.4);
+  const titleY = height * (hasFigure ? 0.36 : 0.5);
+  const dividerY = hasFigure ? height * 0.43 : height * 0.585;
+  const categoryY = height * (hasFigure ? 0.475 : 0.645);
+
+  const topMotif = hasFigure
+    ? figure
+    : motifFor(family.motif, cx, height * 0.17, width * 1.15, p, glyph, h);
+  const footer = hasFigure
+    ? ""
+    : `<text x="${cx}" y="${height * 0.9}" fill="${ink}" font-family="${serif}" font-size="${width * 0.026}" letter-spacing="${width * 0.006}" text-anchor="middle" opacity="0.55">ML PRINTING</text>`;
+
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="${escapeXml(label)} invitation cover">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
@@ -355,12 +481,12 @@ export function placeholderCover({
   <rect width="${width}" height="${height}" fill="url(#bg)"/>
   <rect x="${frameInset}" y="${frameInset}" width="${width - frameInset * 2}" height="${height - frameInset * 2}" fill="none" stroke="${frameColor}" stroke-width="1.25" opacity="0.75"/>
   <rect x="${frameInset + 6}" y="${frameInset + 6}" width="${width - (frameInset + 6) * 2}" height="${height - (frameInset + 6) * 2}" fill="none" stroke="${frameColor}" stroke-width="0.6" opacity="0.45"/>
-  ${motifFor(family.motif, cx, height * 0.17, width * 1.15, p, glyph, h)}
-  <text x="${cx}" y="${height * 0.4}" fill="${p.dark ? p.soft : p.ink}" font-family="${sans}" font-size="${eyebrowSize}" letter-spacing="${eyebrowSize * 0.28}" text-anchor="middle" opacity="0.72">${escapeXml(family.eyebrow)}</text>
-  <text x="${cx}" y="${height * 0.5}" fill="${p.ink}" font-family="${serif}" font-size="${tSize}" text-anchor="middle" dominant-baseline="middle">${escapeXml(label)}</text>
-  ${divider(cx, height * 0.585, width, p)}
-  <text x="${cx}" y="${height * 0.645}" fill="${p.accent}" font-family="${sans}" font-size="${catSize}" letter-spacing="${catSize * 0.3}" text-anchor="middle" opacity="0.9">${escapeXml((caption ?? "Invitation").toUpperCase())}</text>
-  <text x="${cx}" y="${height * 0.9}" fill="${p.dark ? p.soft : p.ink}" font-family="${serif}" font-size="${width * 0.026}" letter-spacing="${width * 0.006}" text-anchor="middle" opacity="0.55">ML PRINTING</text>
+  ${topMotif}
+  <text x="${cx}" y="${eyebrowY}" fill="${ink}" font-family="${sans}" font-size="${eyebrowSize}" letter-spacing="${eyebrowSize * 0.28}" text-anchor="middle" opacity="0.72">${escapeXml(family.eyebrow)}</text>
+  <text x="${cx}" y="${titleY}" fill="${p.ink}" font-family="${serif}" font-size="${tSize}" text-anchor="middle" dominant-baseline="middle">${escapeXml(label)}</text>
+  ${divider(cx, dividerY, width, p)}
+  <text x="${cx}" y="${categoryY}" fill="${p.accent}" font-family="${sans}" font-size="${catSize}" letter-spacing="${catSize * 0.3}" text-anchor="middle" opacity="0.9">${escapeXml((caption ?? "Invitation").toUpperCase())}</text>
+  ${footer}
 </svg>`;
 }
 
