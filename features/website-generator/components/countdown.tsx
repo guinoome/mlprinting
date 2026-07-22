@@ -26,25 +26,19 @@ export function Countdown({ targetDate }: { targetDate: Date }) {
 
   const units: [string, number][] = [
     ["Days", remaining.days],
-    ["Hours", remaining.hours],
-    ["Minutes", remaining.minutes],
-    ["Seconds", remaining.seconds],
+    ["Hrs", remaining.hours],
+    ["Min", remaining.minutes],
+    ["Sec", remaining.seconds],
   ];
 
   return (
-    <div
-      role="timer"
-      aria-live="off"
-      className="flex justify-center gap-4 text-center sm:gap-6"
-    >
+    <div role="timer" aria-live="off" className="inv-count">
       {units.map(([label, value]) => (
-        <div key={label}>
-          <div className="text-2xl font-semibold tabular-nums sm:text-3xl">
-            {value}
+        <div key={label} className="inv-count-u">
+          <div className="inv-count-v">
+            {String(value).padStart(2, "0")}
           </div>
-          <div className="text-[10px] uppercase tracking-widest opacity-60">
-            {label}
-          </div>
+          <div className="inv-count-l">{label}</div>
         </div>
       ))}
     </div>
