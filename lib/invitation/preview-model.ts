@@ -119,7 +119,9 @@ export interface PreviewInput {
     hiddenSections: string[];
   } | null;
   /** Slot → resolved URLs. The model never resolves storage itself. */
-  mediaUrls: Partial<Record<"COVER" | "COUPLE" | "FAMILY" | "LOGO", string[]>>;
+  mediaUrls: Partial<
+    Record<"COVER" | "COUPLE" | "FAMILY" | "LOGO" | "MUSIC", string[]>
+  >;
 }
 
 /** Resolved design values, ready to hand to a renderer as CSS. */
@@ -167,6 +169,8 @@ export interface PreviewModel {
   rsvpLine: string | null;
   coverImageUrl: string | null;
   galleryUrls: string[];
+  /** Optional background track (customer upload); the public site offers a play toggle. */
+  musicUrl: string | null;
   style: PreviewStyle;
   /** The celebration kind — drives the public site's confetti and hero copy. */
   eventKind: EventKind;
@@ -316,6 +320,7 @@ export function toPreviewModel(input: PreviewInput): PreviewModel {
       ...(input.mediaUrls.COUPLE ?? []),
       ...(input.mediaUrls.FAMILY ?? []),
     ],
+    musicUrl: input.mediaUrls.MUSIC?.[0] ?? null,
 
     eventKind: deriveEventKind(
       input.templateCategory,

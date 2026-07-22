@@ -73,11 +73,10 @@ export default async function PublicEventPage({
   if (!invitation) notFound();
 
   const mediaUrls: Partial<
-    Record<"COVER" | "COUPLE" | "FAMILY" | "LOGO", string[]>
+    Record<"COVER" | "COUPLE" | "FAMILY" | "LOGO" | "MUSIC", string[]>
   > = {};
   for (const link of invitation.media) {
-    if (link.slot === "MUSIC") continue;
-    const slot = link.slot as "COVER" | "COUPLE" | "FAMILY" | "LOGO";
+    const slot = link.slot as "COVER" | "COUPLE" | "FAMILY" | "LOGO" | "MUSIC";
     (mediaUrls[slot] ??= []).push(previewUrl(link.asset));
   }
 

@@ -263,10 +263,12 @@
 }
 .inv-hero-photo {
   position: absolute;
-  inset: 0;
+  top: -20%;
+  left: 0;
   width: 100%;
-  height: 100%;
+  height: 140%;
   object-fit: cover;
+  will-change: transform;
 }
 .inv-hero-scrim {
   position: absolute;
@@ -730,4 +732,92 @@
     rgba(255, 255, 255, 0.35),
     transparent 55%
   );
+}
+.inv-flap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 70%);
+}
+.inv-env-body {
+  box-shadow: 0 34px 80px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* --- Music toggle --- */
+.inv-music {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: var(--inv-accent);
+  color: var(--inv-on-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 56;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+.inv-music.is-playing::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid var(--inv-accent);
+  opacity: 0.5;
+  animation: inv-pulse 1.8s ease-out infinite;
+}
+@keyframes inv-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* --- Animated ornaments: the rule draws out as its section reveals --- */
+.inv-ornament::before,
+.inv-ornament::after {
+  width: 0;
+  transition: width 0.8s 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[data-reveal].vis .inv-ornament::before,
+[data-reveal].vis .inv-ornament::after {
+  width: 48px;
+}
+.inv-hero-rule {
+  animation: inv-rule-grow 1s 0.4s both ease-out;
+}
+@keyframes inv-rule-grow {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 44px;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inv-music.is-playing::after {
+    animation: none;
+    display: none;
+  }
+  .inv-hero-rule {
+    animation: none;
+  }
+  .inv-ornament::before,
+  .inv-ornament::after {
+    width: 48px;
+    transition: none;
+  }
 }

@@ -9,6 +9,7 @@ import { RsvpForm } from "./rsvp-form";
 import { InvitationShell, type ConfettiConfig } from "./invitation-shell";
 import { Typewriter } from "./typewriter";
 import { InvitationActions } from "./invitation-actions";
+import { MusicPlayer } from "./music-player";
 
 /** The hero's opening line, tuned to the celebration. */
 const EYEBROW: Record<EventKind, string> = {
@@ -450,6 +451,8 @@ export function EventSite({
 
           <p className="inv-footer">{coupleLine} · Made with ML Printing</p>
         </main>
+
+        {model.musicUrl ? <MusicPlayer src={model.musicUrl} /> : null}
       </div>
     </InvitationShell>
   );

@@ -139,6 +139,8 @@ export function InvitationShell({
 
   const open = React.useCallback(() => {
     setOpening(true);
+    // Fire synchronously, inside the gesture, so audio autoplay is permitted.
+    window.dispatchEvent(new CustomEvent("invitation:open"));
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (confetti && canvasRef.current && !reduce) {
       // Let the flap start lifting first, then burst.
@@ -186,6 +188,27 @@ export function InvitationShell({
     );
     targets.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
+  }, [opened]);
+
+  // Hero parallax: the cover drifts slower than the scroll. The photo is
+  // oversized (CSS) so the drift never exposes an edge.
+  React.useEffect(() => {
+    if (!opened || !rootRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const photo = rootRef.current.querySelector<HTMLElement>(".inv-hero-photo");
+    if (!photo) return;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        photo.style.transform = `translateY(${window.scrollY * 0.2}px)`;
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
   }, [opened]);
 
   return (
