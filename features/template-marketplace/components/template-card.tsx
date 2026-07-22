@@ -42,6 +42,13 @@ export function TemplateCard({
 }) {
   const isNew = isNewTemplate(template.publishedAt);
 
+  // Cover art is a first-party SVG from /api/placeholder (a pure function of the
+  // URL, already immutable-cached). Routing it through next/image's optimizer
+  // adds a serverless /_next/image hop per card and gains nothing — SVG is not
+  // rasterised. Load it directly. Real raster photos, when they arrive, keep the
+  // optimizer.
+  const isVectorCover = template.coverImageUrl.startsWith("/api/placeholder/");
+
   return (
     <article className="group relative">
       <Link
@@ -63,6 +70,7 @@ export function TemplateCard({
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             loading={priority ? "eager" : "lazy"}
             priority={priority}
+            unoptimized={isVectorCover}
             className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
 
