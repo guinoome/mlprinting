@@ -36,9 +36,20 @@ describe("placeholderCover", () => {
     );
   });
 
-  it("omits the caption element entirely when absent", () => {
+  it("falls back to a neutral category when no caption is given", () => {
     const svg = placeholderCover(base);
-    expect(svg).not.toContain("letter-spacing");
+    // No category supplied → the cover still names itself rather than leaving a
+    // blank line. The '>' anchor avoids matching the 'AN INVITATION' eyebrow.
+    expect(svg).toContain(">INVITATION<");
+  });
+
+  it("keys the visual family off the caption", () => {
+    const wedding = placeholderCover({ ...base, caption: "Wedding" });
+    const corporate = placeholderCover({ ...base, caption: "Corporate" });
+    // Different categories get genuinely different covers, not a recolour.
+    expect(wedding).not.toBe(corporate);
+    expect(wedding).toContain("TOGETHER WITH OUR FAMILIES");
+    expect(corporate).toContain("YOU ARE CORDIALLY INVITED");
   });
 
   it("carries the requested dimensions", () => {
