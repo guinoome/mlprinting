@@ -13,7 +13,9 @@ import { logger } from "@/lib/logger";
  */
 
 const PUBLIC_INCLUDE = {
-  template: { select: { id: true, name: true } },
+  template: {
+    select: { id: true, name: true, category: { select: { slug: true } } },
+  },
   hosts: { orderBy: { sortOrder: "asc" } },
   venues: { orderBy: { sortOrder: "asc" } },
   content: true,

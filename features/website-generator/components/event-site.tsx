@@ -1,8 +1,38 @@
-import type { PreviewModel, PreviewStyle } from "@/lib/invitation/preview-model";
+import type {
+  EventKind,
+  PreviewModel,
+  PreviewStyle,
+} from "@/lib/invitation/preview-model";
 import { shows } from "@/lib/invitation/preview-model";
 import { Countdown } from "./countdown";
 import { RsvpForm } from "./rsvp-form";
-import { InvitationShell } from "./invitation-shell";
+import { InvitationShell, type ConfettiConfig } from "./invitation-shell";
+import { Typewriter } from "./typewriter";
+import { InvitationActions } from "./invitation-actions";
+
+/** The hero's opening line, tuned to the celebration. */
+const EYEBROW: Record<EventKind, string> = {
+  wedding: "Together with our families",
+  debut: "A debut celebration",
+  birthday: "Let's celebrate",
+  christening: "With joyful hearts",
+  anniversary: "Celebrating years together",
+  graduation: "With pride and joy",
+  corporate: "You are cordially invited",
+  general: "You're invited",
+};
+
+/** Confetti shape per celebration — petals for weddings, stars for debuts, and so on. */
+const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"]> = {
+  wedding: "petal",
+  christening: "petal",
+  debut: "star",
+  anniversary: "star",
+  birthday: "rect",
+  graduation: "rect",
+  corporate: "rect",
+  general: "circle",
+};
 
 /**
  * The public invitation — Ph5. A guest opens a shared link (usually on a phone,
@@ -82,6 +112,35 @@ function invVars(style: PreviewStyle): React.CSSProperties {
   } as React.CSSProperties;
 }
 
+/** Festive confetti colours drawn from the theme, with gold and white for sparkle. */
+function confettiColors(style: PreviewStyle): string[] {
+  return [
+    style.accent,
+    mix(style.accent, "#ffffff", 0.4),
+    "#d4af37",
+    mix(style.accent, style.background, 0.35),
+    "#ffffff",
+  ];
+}
+
+/** A Google Calendar "add event" link, so a guest can save the date in one tap. */
+function calendarUrl(
+  title: string,
+  start: Date,
+  location: string | undefined,
+): string {
+  const fmt = (d: Date) =>
+    d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const end = new Date(start.getTime() + 3 * 60 * 60 * 1000);
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${fmt(start)}/${fmt(end)}`,
+  });
+  if (location) params.set("location", location);
+  return `https://www.google.com/calendar/render?${params.toString()}`;
+}
+
 function Section({
   label,
   children,
@@ -129,10 +188,24 @@ export function EventSite({
     ? `${model.dateLine}${model.timeLine ? ` · ${model.timeLine}` : ""}`
     : null;
 
+  const eyebrow = EYEBROW[model.eventKind];
+  const confetti: ConfettiConfig = {
+    colors: confettiColors(style),
+    shape: CONFETTI_SHAPE[model.eventKind],
+  };
+  const calendar = countdownTarget
+    ? calendarUrl(
+        model.title,
+        countdownTarget,
+        model.venues[0]?.address ?? model.venues[0]?.name ?? undefined,
+      )
+    : null;
+
   return (
     <InvitationShell
       monogram={monogram}
       coupleLine={coupleLine}
+      confetti={confetti}
       style={invVars(style)}
     >
       <div
@@ -172,6 +245,7 @@ export function EventSite({
           </div>
 
           <div className="inv-hero-inner">
+            <Typewriter text={eyebrow} className="inv-eyebrow" />
             <h1 className="inv-names">{model.title}</h1>
             {model.subtitle ? (
               <p className="inv-hero-sub">{model.subtitle}</p>
@@ -205,6 +279,12 @@ export function EventSite({
             <Section>
               <div className="inv-ornament" aria-hidden="true" />
               <Countdown targetDate={countdownTarget} />
+            </Section>
+          ) : null}
+
+          {calendar ? (
+            <Section>
+              <InvitationActions title={model.title} calendarUrl={calendar} />
             </Section>
           ) : null}
 

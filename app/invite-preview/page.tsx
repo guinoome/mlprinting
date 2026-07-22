@@ -69,6 +69,7 @@ const model: PreviewModel = {
   coverImageUrl:
     "/api/placeholder/desktop/ivory-lace?label=Maria%20%26%20Jose&caption=Wedding",
   galleryUrls: [],
+  eventKind: "wedding",
   style: {
     background: "#fbf3f2",
     foreground: "#4a3b3e",

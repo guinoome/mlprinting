@@ -23,10 +23,53 @@ import { colorTheme, typography } from "@/lib/config/design-vocabulary";
 
 export type PreviewSurface = "desktop" | "mobile" | "print";
 
+/**
+ * The kind of celebration, used to tune the public invitation's motion and copy
+ * (confetti shape, hero eyebrow). Derived, never stored — so an invitation with
+ * no template still resolves to a sensible "general".
+ */
+export type EventKind =
+  | "wedding"
+  | "debut"
+  | "birthday"
+  | "christening"
+  | "anniversary"
+  | "graduation"
+  | "corporate"
+  | "general";
+
+const EVENT_KINDS: Exclude<EventKind, "general">[] = [
+  "wedding",
+  "debut",
+  "birthday",
+  "christening",
+  "anniversary",
+  "graduation",
+  "corporate",
+];
+
+/** Best-effort event kind from the template category, then the theme and title. */
+export function deriveEventKind(
+  templateCategory: string | null | undefined,
+  eventTheme: string | null | undefined,
+  eventTitle: string | null | undefined,
+): EventKind {
+  const haystack =
+    `${templateCategory ?? ""} ${eventTheme ?? ""} ${eventTitle ?? ""}`.toLowerCase();
+  for (const kind of EVENT_KINDS) {
+    if (haystack.includes(kind)) return kind;
+  }
+  if (/baptism|dedication|christening/.test(haystack)) return "christening";
+  if (/\bwed\b|nuptial/.test(haystack)) return "wedding";
+  return "general";
+}
+
 /** The raw dataset, shaped as the repository returns it. */
 export interface PreviewInput {
   eventTitle: string | null;
   subtitle: string | null;
+  /** Template category slug, when the invitation was built from one — tunes the public site. */
+  templateCategory?: string | null;
   eventDate: Date | null;
   eventTime: string | null;
   timeZone: string;
@@ -125,6 +168,8 @@ export interface PreviewModel {
   coverImageUrl: string | null;
   galleryUrls: string[];
   style: PreviewStyle;
+  /** The celebration kind — drives the public site's confetti and hero copy. */
+  eventKind: EventKind;
   /** Sections the customer switched off — the renderer skips these. */
   hidden: Set<string>;
 }
@@ -271,6 +316,12 @@ export function toPreviewModel(input: PreviewInput): PreviewModel {
       ...(input.mediaUrls.COUPLE ?? []),
       ...(input.mediaUrls.FAMILY ?? []),
     ],
+
+    eventKind: deriveEventKind(
+      input.templateCategory,
+      input.eventTheme,
+      input.eventTitle,
+    ),
 
     style: {
       background: theme.swatch.background,
