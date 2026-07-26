@@ -16,8 +16,8 @@ export default function RegisterPage() {
 
   return (
     <div>
-      <div className="mb-8 space-y-1.5 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="mb-8 space-y-2 text-center">
+        <h1 className="font-serif text-3xl tracking-tight">
           Create your account
         </h1>
         <p className="text-sm text-muted-foreground">

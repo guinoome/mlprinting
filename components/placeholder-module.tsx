@@ -4,25 +4,30 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { Crumb } from "@/components/ui/breadcrumbs";
 
 /**
- * A dashboard section that exists but does nothing yet — Ph1.md §6
- * ("Create placeholders for…", "Business logic comes later").
+ * A section that exists in the navigation but has no functionality yet.
  *
- * Names the phase that fills it in. A placeholder that just says "coming soon"
- * teaches a staff member nothing and teaches a developer less; naming the phase
- * makes the roadmap legible from inside the product, and makes it obvious when
- * one of these has outlived its phase and should have been replaced.
+ * Says plainly that it is not built and what it will do, rather than "coming
+ * soon" — which tells a staff member nothing about whether to wait or to go
+ * and do the job somewhere else.
+ *
+ * It deliberately no longer announces a phase number on screen. Phase numbers
+ * are internal scheduling, they mean nothing to the person reading, and they
+ * go stale: this component was still calling shipped sections "Phase 1
+ * framework" long after those phases landed. The `phase` prop is kept because
+ * the navigation registry tracks it, and because a value that stops being
+ * rendered is one a developer can still grep for.
  */
 export function PlaceholderModule({
   title,
   description,
   icon: Icon,
-  phase,
   breadcrumbs,
 }: {
   title: string;
   description: string;
   icon: LucideIcon;
-  phase: number;
+  /** Accepted and recorded by the navigation registry; not shown to anyone. */
+  phase?: number;
   breadcrumbs?: Crumb[];
 }) {
   return (
@@ -34,8 +39,8 @@ export function PlaceholderModule({
       />
       <EmptyState
         icon={<Icon />}
-        title={`${title} arrives in Phase ${phase}`}
-        description={`This section is part of the Phase 1 framework. Its functionality lands in Phase ${phase} — until then there is deliberately nothing here.`}
+        title={`${title} is not built yet`}
+        description={`${description} It is planned, and this section is where it will live — there is deliberately nothing here until then.`}
       />
     </>
   );

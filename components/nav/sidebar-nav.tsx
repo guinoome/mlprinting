@@ -25,7 +25,7 @@ export function SidebarNav({
 
   return (
     <nav aria-label="Sections" className={cn("flex flex-col gap-1", className)}>
-      {items.map(({ label, href, icon: Icon, phase }) => {
+      {items.map(({ label, href, icon: Icon, built }) => {
         const active = isActiveNav(pathname, href);
 
         return (
@@ -43,11 +43,13 @@ export function SidebarNav({
           >
             <Icon className="size-4 shrink-0" aria-hidden="true" />
             <span className="truncate">{label}</span>
-            {/* Phase 1 ships these sections as shells. The badge is the honest
-                version of a link that looks finished and isn't. */}
-            {phase > 1 ? (
+            {/* The honest version of a link that looks finished and isn't.
+                Reads "Soon" rather than a phase number: this badge sat in the
+                sidebar of every dashboard page saying "Ph3" and "Ph7" long
+                after those shipped, which told the reader nothing true. */}
+            {built === false ? (
               <span className="ml-auto shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                Ph{phase}
+                Soon
               </span>
             ) : null}
           </Link>

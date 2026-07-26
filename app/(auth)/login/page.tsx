@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <div>
-      <div className="mb-8 space-y-1.5 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+      <div className="mb-8 space-y-2 text-center">
+        <h1 className="font-serif text-3xl tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground">
           Sign in to manage your events and orders.
         </p>

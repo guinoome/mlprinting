@@ -23,7 +23,7 @@ export default function AdminPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {adminNav.map(({ label, href, icon: Icon, description, phase }) => (
+        {adminNav.map(({ label, href, icon: Icon, description, built }) => (
           <Link
             key={href}
             href={href}
@@ -35,9 +35,9 @@ export default function AdminPage() {
                   <div className="flex size-9 items-center justify-center rounded-md bg-muted">
                     <Icon className="size-4" aria-hidden="true" />
                   </div>
-                  {phase > 1 ? (
+                  {built === false ? (
                     <span className="rounded border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                      Phase {phase}
+                      Not built yet
                     </span>
                   ) : (
                     <ArrowRight

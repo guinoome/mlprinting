@@ -29,9 +29,18 @@ export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
-  /** The phase that delivers this section's functionality. */
-  phase: number;
   description: string;
+  /**
+   * Set to false for a section that is listed but has nothing behind it yet.
+   *
+   * This replaced a `phase: number`. A phase number was a proxy for "is this
+   * finished?", and it went stale the moment a phase shipped without anyone
+   * editing this file — the admin home was badging shipped sections "Phase 7",
+   * and the customer dashboard was announcing phase numbers to customers. A
+   * boolean states what the UI actually needs to know, and it is wrong in a way
+   * somebody notices.
+   */
+  built?: false;
 }
 
 /** Customer Dashboard — Ph1.md §6. */
@@ -40,35 +49,30 @@ export const customerNav: readonly NavItem[] = [
     label: "My Events",
     href: routes.dashboard.events,
     icon: CalendarDays,
-    phase: 3,
     description: "Events you are planning, and their invitations.",
   },
   {
     label: "My Orders",
     href: routes.dashboard.orders,
     icon: ShoppingBag,
-    phase: 7,
     description: "Print orders, their status, and their history.",
   },
   {
     label: "Media Library",
     href: routes.dashboard.media,
     icon: Images,
-    phase: 4,
     description: "Photos and files you have uploaded, reusable across events.",
   },
   {
     label: "Notifications",
     href: routes.dashboard.notifications,
     icon: Bell,
-    phase: 9,
     description: "Updates about your events, orders, and approvals.",
   },
   {
     label: "Account",
     href: routes.dashboard.account,
     icon: UserCog,
-    phase: 1,
     description: "Your profile, password, and preferences.",
   },
 ];
@@ -79,49 +83,45 @@ export const adminNav: readonly NavItem[] = [
     label: "Bookings",
     href: routes.admin.bookings,
     icon: ClipboardList,
-    phase: 7,
     description: "Incoming bookings and their scheduling.",
   },
   {
     label: "Templates",
+    built: false,
     href: routes.admin.templates,
     icon: LayoutTemplate,
-    phase: 2,
     description: "The invitation template catalogue.",
   },
   {
     label: "Production",
     href: routes.admin.production,
     icon: Factory,
-    phase: 6,
     description: "Print jobs moving through the shop.",
   },
   {
     label: "Customers",
+    built: false,
     href: routes.admin.customers,
     icon: Users,
-    phase: 7,
     description: "Customer accounts and their history.",
   },
   {
     label: "Promotions",
+    built: false,
     href: routes.admin.promotions,
     icon: Megaphone,
-    phase: 9,
     description: "Campaigns, discounts, and their performance.",
   },
   {
     label: "Reports",
     href: routes.admin.reports,
     icon: BarChart3,
-    phase: 9,
     description: "Sales, production, and platform reporting.",
   },
   {
     label: "Settings",
     href: routes.admin.settings,
     icon: Settings,
-    phase: 1,
     description: "Platform configuration and staff access.",
   },
 ];
