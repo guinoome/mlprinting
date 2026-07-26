@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Sparkles } from "lucide-react";
+import { Sparkles, PlayCircle } from "lucide-react";
 import { routes } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { isNewTemplate } from "../query";
@@ -11,9 +11,14 @@ import type { TemplateCard as TemplateCardData } from "../repository";
  * Template card — Ph2.md §2.
  *
  * Every element §2 asks for: cover, name, category, short description, preview,
- * use, favourite. "Preview" is the card itself — the whole card links to the
+ * use, favourite. "Preview" is the card itself — the whole cover links to the
  * preview page, because a separate Preview button next to a clickable card is
  * two controls doing one job.
+ *
+ * The cover link is a stretched anchor over the image rather than a wrapper
+ * around it, so the "See it live" pill and the favourite button can sit on top
+ * as siblings. An anchor inside an anchor is invalid HTML, and the click
+ * handling that makes it "work" anyway is a keyboard trap.
  */
 
 /** Aspect per orientation, so a landscape template is not letterboxed into a portrait frame. */
@@ -51,52 +56,72 @@ export function TemplateCard({
 
   return (
     <article className="group relative">
-      <Link
-        href={routes.template(template.slug)}
-        className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm transition-shadow duration-300 group-hover:shadow-lg",
+          ASPECT[template.orientation],
+        )}
       >
+        <Image
+          src={template.coverImageUrl}
+          alt=""
+          fill
+          // Tells the browser the rendered width per breakpoint so it does not
+          // fetch a 600px image for a 280px slot (Ph2.md §10).
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          loading={priority ? "eager" : "lazy"}
+          priority={priority}
+          unoptimized={isVectorCover}
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+        />
+
+        {/* A scrim only under the pill, and only on hover, so the artwork is
+            never dimmed while the visitor is looking at it. */}
         <div
-          className={cn(
-            "relative overflow-hidden rounded-lg border border-border bg-muted",
-            ASPECT[template.orientation],
-          )}
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          aria-hidden="true"
+        />
+
+        <Link
+          href={routes.template(template.slug)}
+          className="absolute inset-0 z-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          <Image
-            src={template.coverImageUrl}
-            alt=""
-            fill
-            // Tells the browser the rendered width per breakpoint so it does not
-            // fetch a 600px image for a 280px slot (Ph2.md §10).
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-            loading={priority ? "eager" : "lazy"}
-            priority={priority}
-            unoptimized={isVectorCover}
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-          />
+          <span className="sr-only">{template.name}</span>
+        </Link>
 
-          <div className="absolute left-2 top-2 flex flex-wrap gap-1">
-            {template.tier === "PREMIUM" ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-background backdrop-blur">
-                <Sparkles className="size-3" aria-hidden="true" />
-                Premium
-              </span>
-            ) : null}
-            {isNew ? (
-              <span className="rounded-full bg-info/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-info-foreground backdrop-blur">
-                New
-              </span>
-            ) : null}
-          </div>
+        <div className="pointer-events-none absolute left-2 top-2 z-20 flex flex-wrap gap-1">
+          {template.tier === "PREMIUM" ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-background backdrop-blur">
+              <Sparkles className="size-3" aria-hidden="true" />
+              Premium
+            </span>
+          ) : null}
+          {isNew ? (
+            <span className="rounded-full bg-info/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-info-foreground backdrop-blur">
+              New
+            </span>
+          ) : null}
         </div>
-      </Link>
 
-      {/* Outside the Link: a button inside an anchor is invalid HTML, and the
-          click handling that makes it "work" anyway is a keyboard trap. */}
+        {/* The catalogue's strongest argument: the design in motion, one tap
+            away. Keyboard users reach it in the normal tab order — it is not
+            hidden, only visually revealed on hover. */}
+        <Link
+          href={routes.templateLivePreview(template.slug)}
+          target="_blank"
+          rel="noreferrer"
+          className="absolute inset-x-2 bottom-2 z-20 inline-flex items-center justify-center gap-1.5 rounded-full bg-background/95 py-2 text-xs font-medium opacity-0 shadow-sm backdrop-blur transition-opacity duration-300 hover:bg-background focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
+        >
+          <PlayCircle className="size-3.5" aria-hidden="true" />
+          See it live
+        </Link>
+      </div>
+
       {showFavorite ? (
         <FavoriteButton
           slug={template.slug}
           initialFavorited={favorited}
-          className="absolute right-2 top-2"
+          className="absolute right-2 top-2 z-20"
         />
       ) : null}
 

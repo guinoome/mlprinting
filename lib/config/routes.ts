@@ -13,6 +13,12 @@ export const routes = {
   /** Template Marketplace — Ph2. Public: browsing needs no account. */
   templates: "/templates",
   template: (slug: string) => `/templates/${slug}`,
+  /**
+   * The animated invitation a template produces, filled with sample content.
+   * A live demo rather than a screenshot — what the customer is really buying.
+   */
+  templateLivePreview: (slug: string) =>
+    `/invite-preview?template=${encodeURIComponent(slug)}`,
 
   /** Guided Invitation Builder — Ph3. */
   builder: "/builder",

@@ -10,8 +10,13 @@
  */
 
 function flag(name: string, fallback = false): boolean {
-  const value = process.env[name];
-  if (value === undefined) return fallback;
+  const value = process.env[name]?.trim();
+  // A declared-but-empty variable means "not configured", not "off". Scaffolding
+  // an env file from .env.example leaves every key present with a blank value,
+  // and reading that as an explicit `false` silently switched off the whole
+  // marketplace on a fresh checkout — the pages 404'd with nothing to explain
+  // why. Absent and empty are the same state, so they take the same branch.
+  if (value === undefined || value === "") return fallback;
   return value === "true" || value === "1";
 }
 

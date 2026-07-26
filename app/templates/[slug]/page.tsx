@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, X, CalendarDays, User, Tag, CheckCircle2 } from "lucide-react";
+import {
+  Check,
+  X,
+  CalendarDays,
+  User,
+  Tag,
+  CheckCircle2,
+  PlayCircle,
+} from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { ConfigurationRequired } from "@/components/configuration-required";
@@ -192,6 +201,22 @@ export default async function TemplatePreviewPage({
                   />
                 ) : null}
               </div>
+
+              {/* The screenshots above show the design; this shows the thing
+                  itself — the animated invitation, opening envelope and all.
+                  It is the strongest argument the page can make, so it sits
+                  directly under the primary action. */}
+              {template.websiteCompatible ? (
+                <Link
+                  href={routes.templateLivePreview(template.slug)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2.5 text-sm font-medium transition-colors hover:border-foreground/30 hover:bg-muted"
+                >
+                  <PlayCircle className="size-4" aria-hidden="true" />
+                  See it live
+                </Link>
+              ) : null}
 
               {/* Ph2.md §7 — Print / Website Compatibility. */}
               <div className="flex flex-col gap-1.5 border-t border-border pt-4">

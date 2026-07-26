@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { LayoutTemplate, SearchX } from "lucide-react";
-import { PageHeader } from "@/components/page-header";
+import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfigurationRequired } from "@/components/configuration-required";
 import { isDatabaseConfigured } from "@/lib/db";
 import { getProfile } from "@/lib/auth/session";
-import { routes } from "@/lib/config";
+import { routes, branding } from "@/lib/config";
 import {
   parseCriteria,
   buildQueryString,
@@ -74,10 +74,7 @@ export default async function TemplatesPage({
 
   return (
     <>
-      <PageHeader
-        title="Templates"
-        description="Browse the catalogue, preview a design, and pick the one that fits your event."
-      />
+      <CatalogHero categories={categories} activeCategories={criteria.category} />
 
       <div className="flex gap-8">
         {/* Sidebar filters on desktop. The same panel goes in the drawer below. */}
@@ -129,6 +126,79 @@ export default async function TemplatesPage({
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * The catalogue's opening — the shop window.
+ *
+ * A plain page title tells a visitor where they are; this tells them what is on
+ * offer and lets them jump straight to their own occasion, which is the first
+ * thing anyone shopping for an invitation actually wants. The category row is
+ * built from the same live categories the filter panel uses, so it can never
+ * offer an occasion the catalogue does not stock.
+ */
+function CatalogHero({
+  categories,
+  activeCategories,
+}: {
+  categories: { slug: string; name: string }[];
+  /** Category filter is multi-select, so this is the selected set, not one value. */
+  activeCategories: string[];
+}) {
+  const noneActive = activeCategories.length === 0;
+  return (
+    <section className="mb-10 border-b border-border pb-8">
+      <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-muted-foreground">
+        {branding.company} — {branding.location}
+      </p>
+
+      <h1 className="mt-4 max-w-2xl text-balance font-serif text-4xl leading-[1.1] tracking-tight md:text-5xl">
+        Invitations worth opening.
+      </h1>
+
+      <p className="mt-4 max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground md:text-base">
+        Every design here becomes a shareable animated invitation — an envelope
+        that opens, a countdown, and RSVPs that come straight back to you. Print
+        it too, if you like.
+      </p>
+
+      {categories.length > 0 ? (
+        <ul className="mt-6 flex flex-wrap gap-2">
+          <li>
+            <Link
+              href={routes.templates}
+              className={cn(
+                "inline-block rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+                noneActive
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+              )}
+            >
+              All
+            </Link>
+          </li>
+          {categories.map((category) => {
+            const active = activeCategories.includes(category.slug);
+            return (
+              <li key={category.slug}>
+                <Link
+                  href={`${routes.templates}?category=${category.slug}`}
+                  className={cn(
+                    "inline-block rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+                    active
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                  )}
+                >
+                  {category.name}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </section>
   );
 }
 
