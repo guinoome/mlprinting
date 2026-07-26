@@ -263,12 +263,16 @@ const KINDS: Record<EventKind, KindSpec> = {
   },
 };
 
-function sampleModel(kind: EventKind, coverImageUrl: string | null): PreviewModel {
+function sampleModel(
+  kind: EventKind,
+  coverImageUrl: string | null,
+  dates: ReturnType<typeof sampleDates>,
+): PreviewModel {
   const k = KINDS[kind];
   return {
     title: k.title,
     subtitle: k.subtitle,
-    dateLine: "Saturday, 14 February 2026",
+    dateLine: dates.dateLine,
     timeLine: "3:00 PM",
     hosts: k.hosts.map((name, i) => ({
       id: String(i),
@@ -327,8 +331,7 @@ function sampleModel(kind: EventKind, coverImageUrl: string | null): PreviewMode
     closingMessage: k.closing ?? "We can't wait to celebrate with you.",
     dressCode: k.dressCode === undefined ? "Formal" : k.dressCode,
     eventTheme: null,
-    rsvpLine:
-      k.rsvpLine === undefined ? "Kindly reply by 20 January 2026" : k.rsvpLine,
+    rsvpLine: k.rsvpLine === undefined ? dates.rsvpLine : k.rsvpLine,
     coverImageUrl,
     galleryUrls: [],
     musicUrl: "/sample-invitation.wav",
@@ -346,8 +349,31 @@ function sampleModel(kind: EventKind, coverImageUrl: string | null): PreviewMode
   };
 }
 
-/** A fixed date well ahead, so the countdown always has something to count. */
-const TARGET = new Date(Date.UTC(2026, 1, 14, 7, 0, 0));
+/**
+ * The sample's event date, always a few months out.
+ *
+ * Derived from today rather than hard-coded. A fixed date silently expires: this
+ * was pinned to 14 February 2026 and, once that passed, `Countdown` correctly
+ * refused to render a negative countdown — so the sample invitation everyone is
+ * pointed at simply had no countdown on it, on a page whose whole job is to
+ * show what the product does.
+ */
+function sampleDates(now = new Date()) {
+  const eventDate = new Date(now.getTime() + 128 * 86_400_000);
+  const rsvpBy = new Date(eventDate.getTime() - 25 * 86_400_000);
+  const fmt = (d: Date) =>
+    d.toLocaleDateString("en-PH", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  return {
+    eventDate,
+    dateLine: fmt(eventDate),
+    rsvpLine: `Kindly reply by ${fmt(rsvpBy)}`,
+  };
+}
 
 export default async function InvitePreviewPage({
   searchParams,
@@ -374,6 +400,9 @@ export default async function InvitePreviewPage({
   // is gated on publication, and it should stay that way rather than becoming a
   // general "encode any URL" endpoint on our domain. Generating it here keeps
   // the sample's code genuinely scannable: it points at this very page.
+  // Computed per request, which is free here: the page is force-dynamic.
+  const dates = sampleDates();
+
   const sampleUrl = `${env.app.url}/invite-preview${
     slug ? `?template=${encodeURIComponent(slug)}` : ""
   }`;
@@ -382,8 +411,8 @@ export default async function InvitePreviewPage({
   return (
     <EventSite
       invitationId="preview"
-      model={sampleModel(kind, cover)}
-      countdownTarget={TARGET}
+      model={sampleModel(kind, cover, dates)}
+      countdownTarget={dates.eventDate}
       qrSrc={qrSrc}
     />
   );

@@ -105,6 +105,15 @@
    ========================================================================= */
 .inv-reveal-root {
   --inv-on-accent: #fff;
+
+  /*
+   * The invitation sizes itself continuously rather than snapping at two or
+   * three breakpoints, so there is no width where it looks like it was designed
+   * for a different screen. Everything below scales from this gutter and from
+   * clamp() on the type: a phone gets the tight end, a tablet lands genuinely
+   * between, and a desktop gets the open end.
+   */
+  --inv-gutter: clamp(20px, 4.5vw, 44px);
 }
 
 /* --- Envelope intro (the signature: a sealed envelope that opens) --- */
@@ -259,7 +268,7 @@
   justify-content: flex-end;
   text-align: center;
   overflow: hidden;
-  padding: 0 24px 72px;
+  padding: 0 var(--inv-gutter) clamp(56px, 8vh, 104px);
 }
 .inv-hero-photo {
   position: absolute;
@@ -313,7 +322,7 @@
 }
 .inv-names {
   font-family: var(--inv-heading);
-  font-size: clamp(42px, 14vw, 80px);
+  font-size: clamp(40px, 8.4vw, 104px);
   line-height: 1;
   font-weight: 500;
   text-shadow: 0 2px 30px rgba(0, 0, 0, 0.28);
@@ -380,15 +389,18 @@
 
 /* --- Body sections --- */
 .inv-main {
-  max-width: 600px;
+  /* Grows with the screen rather than sitting at one width on every device.
+     Capped so the line length stays readable — an invitation is prose, and
+     prose set 1200px wide is worse than prose set 700px wide. */
+  max-width: clamp(600px, 58vw, 720px);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--inv-gutter);
 }
 .inv-section {
-  margin-top: 72px;
+  margin-top: clamp(52px, 9vw, 96px);
 }
 .inv-section-first {
-  margin-top: 64px;
+  margin-top: clamp(48px, 8vw, 84px);
 }
 .inv-label {
   font-size: 10px;
@@ -418,13 +430,13 @@
 .inv-lead {
   font-family: var(--inv-heading);
   font-style: italic;
-  font-size: 21px;
+  font-size: clamp(18px, 2.9vw, 26px);
   line-height: 1.5;
   text-align: center;
 }
 .inv-couplet {
   font-family: var(--inv-heading);
-  font-size: 28px;
+  font-size: clamp(24px, 3.9vw, 36px);
   text-align: center;
   line-height: 1.3;
 }
@@ -438,8 +450,8 @@
   gap: 12px;
 }
 .inv-count-u {
-  min-width: 62px;
-  padding: 14px 6px;
+  min-width: clamp(58px, 9vw, 82px);
+  padding: clamp(12px, 1.6vw, 18px) 6px;
   border: 1px solid var(--inv-line);
   border-radius: 10px;
   background: var(--inv-surface);
@@ -447,7 +459,7 @@
 }
 .inv-count-v {
   font-family: var(--inv-heading);
-  font-size: 26px;
+  font-size: clamp(22px, 3.6vw, 34px);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -476,7 +488,7 @@
 }
 .inv-venue-n {
   font-family: var(--inv-heading);
-  font-size: 20px;
+  font-size: clamp(18px, 2.9vw, 26px);
   margin-top: 6px;
 }
 .inv-venue-a {
@@ -524,6 +536,12 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+@media (min-width: 900px) {
+  /* Wide enough that three columns leave the photographs looking stranded. */
+  .inv-gallery {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
 .inv-gallery img {
   width: 100%;
   aspect-ratio: 1;
@@ -555,8 +573,8 @@
   text-align: center;
 }
 .inv-qr-img {
-  width: 128px;
-  height: 128px;
+  width: clamp(112px, 17vw, 152px);
+  height: clamp(112px, 17vw, 152px);
   /* The code must stay pure black on white to scan reliably; tinting it to the
      theme is the one piece of this design that would stop it working. */
   background: #fff;
