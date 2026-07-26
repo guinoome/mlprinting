@@ -27,13 +27,17 @@ import { buildWhere, buildOrderBy, buildPagination, totalPages } from "./query";
  * populated by `prisma/seed.ts`, which runs as its own process and cannot reach
  * a cache that lives inside Next.
  *
- * An earlier version of this comment claimed a deploy clears the stale entry.
- * It does not — that is true of the local `.next/cache`, but Vercel's Data
- * Cache is durable and survives a new deployment. Seeding four categories and
- * shipping produced a catalog whose template cards had them (that query is not
- * cached) and whose filter list did not. Hence the short window below rather
- * than an hour: the metadata is still cached, so §10 is still satisfied, but
- * being briefly stale is no longer indistinguishable from being broken.
+ * Do not assume a deploy clears the stale entry. That holds for the local
+ * `.next/cache`, but it did not hold in production: after seeding four
+ * categories and shipping, the live catalog served the new filter list from
+ * some requests and the old one from others within the same minute — the
+ * template cards had them throughout, because that query is not cached. Two
+ * instances, two cache states. The exact eviction behaviour was not pinned
+ * down, and this comment deliberately stops short of claiming it.
+ *
+ * That uncertainty is the argument for the short window below rather than an
+ * hour: whatever the mechanism, a minute of disagreement is a shrug and an
+ * hour of it is a bug report.
  *
  * This tag is the hook for when admin template editing lands: one call, here.
  */

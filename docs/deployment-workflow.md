@@ -153,11 +153,13 @@ process, so it cannot invalidate a cache that lives inside Next. New *templates*
 appear immediately — that query is not cached — but the filter list lags by the
 revalidate window.
 
-Deploying does **not** clear it. That is worth stating plainly because the
-opposite was written here and it was wrong: a new deployment resets the local
-`.next/cache`, but Vercel's Data Cache is durable and survives deploys. Seeding
-four categories and shipping produced a live catalog whose cards listed them and
-whose filters did not.
+**Do not count on a deploy to clear it.** A deployment resets the local
+`.next/cache`, but that is not what was observed in production: after seeding
+four categories and shipping, the live catalogue served the new filter list to
+some requests and the old one to others inside the same minute, while the
+template cards showed the new categories throughout. Two function instances,
+two cache states. The precise eviction behaviour was not pinned down — treat
+"deploy fixes it" as unproven rather than false.
 
 The window is therefore deliberately short (60s) rather than an hour. Locally,
 `rm -rf .next/cache` and restart for an immediate result. When admin template
