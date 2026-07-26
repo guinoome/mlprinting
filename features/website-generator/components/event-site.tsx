@@ -10,6 +10,7 @@ import { InvitationShell, type ConfettiConfig } from "./invitation-shell";
 import { Typewriter } from "./typewriter";
 import { InvitationActions } from "./invitation-actions";
 import { MusicPlayer } from "./music-player";
+import { QrFooter } from "./qr-footer";
 
 /** The hero's opening line, tuned to the celebration. */
 const EYEBROW: Record<EventKind, string> = {
@@ -174,10 +175,17 @@ export function EventSite({
   invitationId,
   model,
   countdownTarget,
+  qrSrc,
 }: {
   invitationId: string;
   model: PreviewModel;
   countdownTarget: Date | null;
+  /**
+   * QR image for this invitation. Every invitation closes with one; it is a
+   * prop rather than something this component builds, because a published site
+   * serves it from a cached route while a sample generates its own.
+   */
+  qrSrc?: string | null;
 }) {
   const { style } = model;
 
@@ -460,6 +468,10 @@ export function EventSite({
             <Section>
               <p className="inv-lead">{model.closingMessage}</p>
             </Section>
+          ) : null}
+
+          {qrSrc ? (
+            <QrFooter src={qrSrc} caption="Scan to open this invitation" />
           ) : null}
 
           <p className="inv-footer">{coupleLine} · Made with ML Printing</p>

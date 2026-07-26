@@ -3,6 +3,8 @@ import type { EventKind, PreviewModel } from "@/lib/invitation/preview-model";
 import { EventSite } from "@/features/website-generator/components/event-site";
 import { getTemplateBySlug } from "@/features/template-marketplace/repository";
 import { isDatabaseConfigured } from "@/lib/db";
+import { generateQrPng } from "@/lib/qr";
+import { env } from "@/lib/env";
 
 /**
  * A live sample invitation — the same renderer a real shared link uses, filled
@@ -302,11 +304,21 @@ export default async function InvitePreviewPage({
     }
   }
 
+  // The sample has no published slug, so it cannot use the QR route — that one
+  // is gated on publication, and it should stay that way rather than becoming a
+  // general "encode any URL" endpoint on our domain. Generating it here keeps
+  // the sample's code genuinely scannable: it points at this very page.
+  const sampleUrl = `${env.app.url}/invite-preview${
+    slug ? `?template=${encodeURIComponent(slug)}` : ""
+  }`;
+  const qrSrc = `data:image/png;base64,${(await generateQrPng(sampleUrl)).toString("base64")}`;
+
   return (
     <EventSite
       invitationId="preview"
       model={sampleModel(kind, cover)}
       countdownTarget={TARGET}
+      qrSrc={qrSrc}
     />
   );
 }

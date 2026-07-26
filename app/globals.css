@@ -537,8 +537,42 @@
   padding: 28px 24px;
   text-align: center;
 }
+/* --- QR block: the last thing on every invitation --- */
+.inv-qr {
+  margin-top: 72px;
+  padding-top: 40px;
+  border-top: 1px solid var(--inv-line);
+}
+.inv-qr-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 26px 20px;
+  border: 1px solid var(--inv-line);
+  border-radius: 14px;
+  background: var(--inv-paper);
+  text-align: center;
+}
+.inv-qr-img {
+  width: 128px;
+  height: 128px;
+  /* The code must stay pure black on white to scan reliably; tinting it to the
+     theme is the one piece of this design that would stop it working. */
+  background: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  display: block;
+}
+.inv-qr-caption {
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
 .inv-footer {
-  margin: 80px 0 40px;
+  margin: 40px 0 40px;
   text-align: center;
   font-size: 10px;
   letter-spacing: 0.3em;
