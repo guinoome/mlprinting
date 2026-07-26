@@ -43,6 +43,23 @@ describe("placeholderCover", () => {
     expect(svg).toContain(">INVITATION<");
   });
 
+  it("matches a family from a display name, not just a slug", () => {
+    // prisma/seed.ts passes the category's DISPLAY NAME ("Baby Shower"), while
+    // the marketplace passes its slug ("baby-shower"). Both must land on the
+    // same family: when they did not, "Memorial" fell through to the
+    // celebratory custom monogram.
+    const bySlug = placeholderCover({ ...base, caption: "baby-shower" });
+    const byName = placeholderCover({ ...base, caption: "Baby Shower" });
+    expect(byName).toContain("A LITTLE ONE IS ON THE WAY");
+    expect(bySlug).toContain("A LITTLE ONE IS ON THE WAY");
+  });
+
+  it("treats 'Memorial' as the funeral family — never the celebratory fallback", () => {
+    const svg = placeholderCover({ ...base, caption: "Memorial" });
+    expect(svg).toContain("IN LOVING MEMORY");
+    expect(svg).not.toContain("AN INVITATION");
+  });
+
   it("keys the visual family off the caption", () => {
     const wedding = placeholderCover({ ...base, caption: "Wedding" });
     const corporate = placeholderCover({ ...base, caption: "Corporate" });

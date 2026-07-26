@@ -122,6 +122,42 @@ const FAMILIES: Record<string, Family> = {
       { bg: "#f4f2ee", bg2: "#e7e3da", ink: "#2b2f38", accent: "#b08d3c", soft: "#b8b2a4" },
     ],
   },
+  engagement: {
+    motif: "botanical",
+    eyebrow: "WE SAID YES",
+    palettes: [
+      { bg: "#fbf2f1", bg2: "#f3e0de", ink: "#54393c", accent: "#c08a86", soft: "#e6c6c2" },
+      { bg: "#f7f4ee", bg2: "#ece5d8", ink: "#4a4236", accent: "#b08d3c", soft: "#dcc99b" },
+    ],
+  },
+  "baby-shower": {
+    motif: "botanical",
+    eyebrow: "A LITTLE ONE IS ON THE WAY",
+    palettes: [
+      { bg: "#f7f4ef", bg2: "#eae4d9", ink: "#4a4438", accent: "#a39a7c", soft: "#cfc7ae" },
+      { bg: "#eff6f4", bg2: "#dcebe6", ink: "#334744", accent: "#6fa396", soft: "#b3d6cb" },
+    ],
+  },
+  reunion: {
+    motif: "monogram",
+    eyebrow: "LET US GATHER AGAIN",
+    palettes: [
+      { bg: "#f2f4f7", bg2: "#e0e5ee", ink: "#2c3550", accent: "#b08d3c", soft: "#aab4cb" },
+      { bg: "#f6f3ec", bg2: "#e9e2d3", ink: "#43402f", accent: "#8a7a4f", soft: "#c8bd9c" },
+    ],
+  },
+  /**
+   * A memorial notice, not a celebration. Muted stone and olive, the quietest
+   * motif in the set, and no festive language anywhere near it.
+   */
+  funeral: {
+    motif: "olive",
+    eyebrow: "IN LOVING MEMORY",
+    palettes: [
+      { bg: "#f6f6f4", bg2: "#e8e8e4", ink: "#3f4144", accent: "#8b8d88", soft: "#c3c5c0" },
+      { bg: "#f5f5ef", bg2: "#e6e7dc", ink: "#3f4438", accent: "#7d8467", soft: "#bec4ac" },
+    ],
+  },
   custom: {
     motif: "monogram",
     eyebrow: "AN INVITATION",
@@ -133,6 +169,28 @@ const FAMILIES: Record<string, Family> = {
 };
 
 const FALLBACK: Family = FAMILIES.custom!;
+
+/**
+ * Display names that do not match their family key. Callers pass whatever they
+ * have — the seed passes a category's display name, the marketplace its slug —
+ * so both have to land on the same family. Getting this wrong is not cosmetic:
+ * "Memorial" silently fell through to the celebratory custom monogram.
+ */
+const FAMILY_ALIASES: Record<string, string> = {
+  memorial: "funeral",
+  "baby-shower": "baby-shower",
+  baptism: "christening",
+  proposal: "engagement",
+};
+
+/** Normalise a caption to a family key: "Baby Shower" and "baby-shower" agree. */
+function familyFor(caption: string | undefined): Family {
+  const key = (caption ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+  return FAMILIES[FAMILY_ALIASES[key] ?? key] ?? FALLBACK;
+}
 
 /** A pointed leaf — two quadratic curves meeting at a tip. The unit of every botanical motif. */
 function leaf(
@@ -400,8 +458,12 @@ function figureFor(key: string, cx: number, height: number, p: Palette): string 
   const color = p.accent;
   const op = 0.5;
   switch (key) {
+    // Deliberately absent: funeral, reunion, baby-shower and the abstract
+    // families. A silhouette on a memorial notice would be in poor taste, and
+    // the others read better as pure motif.
     case "wedding":
-    case "anniversary": {
+    case "anniversary":
+    case "engagement": {
       const off = fh * 0.13;
       return `<g>${personBack(cx - off, groundY, fh, "gown", color, op)}${personBack(cx + off, groundY, fh, "suit", color, op)}</g>`;
     }
@@ -436,8 +498,8 @@ export function placeholderCover({
   height,
 }: PlaceholderOptions): string {
   const h = hash(seed);
-  const key = (caption ?? "").trim().toLowerCase();
-  const family = FAMILIES[key] ?? FALLBACK;
+  const key = (caption ?? "").trim().toLowerCase().replace(/\s+/g, "-");
+  const family = familyFor(caption);
   const p = family.palettes[h % family.palettes.length]!;
 
   const cx = width / 2;

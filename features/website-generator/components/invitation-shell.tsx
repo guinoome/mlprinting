@@ -217,7 +217,11 @@ export function InvitationShell({
         <style>{`.inv-overlay{display:none!important}.inv-reveal-root [data-reveal]{opacity:1!important;transform:none!important}`}</style>
       </noscript>
 
-      <canvas ref={canvasRef} className="inv-confetti" aria-hidden="true" />
+      {/* Omitted entirely when there is nothing to fire — a memorial notice
+          should not carry a confetti surface at all, even an empty one. */}
+      {confetti ? (
+        <canvas ref={canvasRef} className="inv-confetti" aria-hidden="true" />
+      ) : null}
 
       {!opened ? (
         <div className={opening ? "inv-overlay is-opening" : "inv-overlay"}>

@@ -14,25 +14,38 @@ import { MusicPlayer } from "./music-player";
 /** The hero's opening line, tuned to the celebration. */
 const EYEBROW: Record<EventKind, string> = {
   wedding: "Together with our families",
+  engagement: "We said yes",
   debut: "A debut celebration",
   birthday: "Let's celebrate",
   christening: "With joyful hearts",
+  "baby-shower": "A little one is on the way",
   anniversary: "Celebrating years together",
   graduation: "With pride and joy",
   corporate: "You are cordially invited",
+  reunion: "Let us gather again",
+  funeral: "In loving memory",
   general: "You're invited",
 };
 
-/** Confetti shape per celebration — petals for weddings, stars for debuts, and so on. */
-const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"]> = {
+/**
+ * Confetti shape per celebration — petals for weddings, stars for debuts, and
+ * so on. `null` means no confetti at all: a memorial notice is not a
+ * celebration, and firing confetti over one would be worse than shipping no
+ * animation.
+ */
+const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"] | null> = {
   wedding: "petal",
+  engagement: "petal",
   christening: "petal",
+  "baby-shower": "petal",
   debut: "star",
   anniversary: "star",
+  reunion: "star",
   birthday: "rect",
   graduation: "rect",
   corporate: "rect",
   general: "circle",
+  funeral: null,
 };
 
 /**
@@ -190,10 +203,10 @@ export function EventSite({
     : null;
 
   const eyebrow = EYEBROW[model.eventKind];
-  const confetti: ConfettiConfig = {
-    colors: confettiColors(style),
-    shape: CONFETTI_SHAPE[model.eventKind],
-  };
+  const confettiShape = CONFETTI_SHAPE[model.eventKind];
+  const confetti: ConfettiConfig | undefined = confettiShape
+    ? { colors: confettiColors(style), shape: confettiShape }
+    : undefined;
   const calendar = countdownTarget
     ? calendarUrl(
         model.title,

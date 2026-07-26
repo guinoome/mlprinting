@@ -34,6 +34,18 @@ interface KindSpec {
   bg: string;
   fg: string;
   accent: string;
+  /**
+   * Overrides for the shared celebratory copy below. A memorial needs every one
+   * of them — "Cocktails" on the programme and "can't wait to celebrate" at the
+   * end would be worse than having no sample at all.
+   */
+  invitation?: string;
+  venues?: { label: string; name: string; address: string; time: string }[];
+  program?: { time: string; title: string }[];
+  gifts?: string | null;
+  rsvpLine?: string | null;
+  closing?: string;
+  dressCode?: string | null;
 }
 
 const KINDS: Record<EventKind, KindSpec> = {
@@ -103,6 +115,75 @@ const KINDS: Record<EventKind, KindSpec> = {
     fg: "#f3ecdd",
     accent: "#c9a227",
   },
+  engagement: {
+    title: "She Said Yes",
+    subtitle: "Maria & Jose are engaged",
+    hosts: ["Maria Santos", "Jose Rivera"],
+    welcome:
+      "After eight years and one very nervous question, we are getting married.",
+    bg: "#fbf2f1",
+    fg: "#54393c",
+    accent: "#c08a86",
+  },
+  "baby-shower": {
+    title: "Baby Reyes",
+    subtitle: "a baby shower",
+    hosts: ["Ana Reyes"],
+    welcome:
+      "We are expecting, and we would love to celebrate with the people we love most.",
+    bg: "#f7f4ef",
+    fg: "#4a4438",
+    accent: "#a39a7c",
+  },
+  reunion: {
+    title: "The Santos Reunion",
+    subtitle: "four generations, one long table",
+    hosts: ["The Santos Family"],
+    welcome:
+      "It has been too long. Bring the children, bring the stories, bring an appetite.",
+    bg: "#f2f4f7",
+    fg: "#2c3550",
+    accent: "#b08d3c",
+  },
+  /**
+   * A memorial notice. The copy is written as an announcement of a service —
+   * no celebration language, no exclamation, nothing that reads as festive.
+   */
+  funeral: {
+    title: "Rosario Santos",
+    subtitle: "1948 — 2026",
+    hosts: ["The Santos Family"],
+    welcome:
+      "With grateful hearts for a life well lived, we invite you to join us in remembrance.",
+    bg: "#f6f6f4",
+    fg: "#3f4144",
+    accent: "#8b8d88",
+    invitation:
+      "The family of Rosario Santos thanks you for your prayers and kindness during this time.",
+    venues: [
+      {
+        label: "Wake",
+        name: "Cosmopolitan Funeral Homes",
+        address: "N. Bacalso Ave, Cebu City",
+        time: "Daily, 9:00 AM to 9:00 PM",
+      },
+      {
+        label: "Mass and interment",
+        name: "Santo Niño Basilica",
+        address: "Osmeña Blvd, Cebu City",
+        time: "8:00 AM",
+      },
+    ],
+    program: [
+      { time: "8:00 AM", title: "Funeral mass" },
+      { time: "10:00 AM", title: "Procession" },
+      { time: "11:00 AM", title: "Interment" },
+    ],
+    gifts: "In lieu of flowers, the family welcomes donations to the parish.",
+    rsvpLine: null,
+    closing: "Thank you for keeping her in your prayers.",
+    dressCode: null,
+  },
   general: {
     title: "You're Invited",
     subtitle: "join us to celebrate",
@@ -126,47 +207,60 @@ function sampleModel(kind: EventKind, coverImageUrl: string | null): PreviewMode
       name,
       biography: null,
     })),
-    venues: [
-      {
-        id: "v1",
-        label: "Ceremony",
-        name: "Santo Niño Basilica",
-        address: "Osmeña Blvd, Cebu City",
-        mapsUrl: "https://www.google.com/maps/search/?api=1&query=Santo+Nino+Basilica+Cebu",
-        parkingNotes: "Parking available at the plaza",
-        timeLine: "3:00 PM",
-      },
-      {
-        id: "v2",
-        label: "Reception",
-        name: "Marco Polo Plaza",
-        address: "Nivel Hills, Cebu City",
-        mapsUrl: "https://www.google.com/maps/search/?api=1&query=Marco+Polo+Plaza+Cebu",
-        parkingNotes: null,
-        timeLine: "6:00 PM",
-      },
-    ],
+    venues: (
+      k.venues ?? [
+        {
+          label: "Ceremony",
+          name: "Santo Niño Basilica",
+          address: "Osmeña Blvd, Cebu City",
+          time: "3:00 PM",
+        },
+        {
+          label: "Reception",
+          name: "Marco Polo Plaza",
+          address: "Nivel Hills, Cebu City",
+          time: "6:00 PM",
+        },
+      ]
+    ).map((v, i) => ({
+      id: `v${i}`,
+      label: v.label,
+      name: v.name,
+      address: v.address,
+      mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${v.name} ${v.address}`,
+      )}`,
+      parkingNotes: null,
+      timeLine: v.time,
+    })),
     welcomeMessage: k.welcome,
     invitationMessage:
+      k.invitation ??
       "Together with our families, we request the honour of your presence.",
     parents: [],
     sponsors: [],
-    program: [
-      { id: "g1", time: "3:00 PM", title: "Ceremony", description: null },
-      { id: "g2", time: "5:00 PM", title: "Cocktails", description: null },
-      {
-        id: "g3",
-        time: "6:00 PM",
-        title: "Reception and dinner",
-        description: null,
-      },
-    ],
-    giftsPreference: "Your presence is the only gift we ask for.",
+    program: (
+      k.program ?? [
+        { time: "3:00 PM", title: "Ceremony" },
+        { time: "5:00 PM", title: "Cocktails" },
+        { time: "6:00 PM", title: "Reception and dinner" },
+      ]
+    ).map((p, i) => ({
+      id: `g${i}`,
+      time: p.time,
+      title: p.title,
+      description: null,
+    })),
+    giftsPreference:
+      k.gifts === undefined
+        ? "Your presence is the only gift we ask for."
+        : k.gifts,
     specialNotes: null,
-    closingMessage: "We can't wait to celebrate with you.",
-    dressCode: "Formal",
+    closingMessage: k.closing ?? "We can't wait to celebrate with you.",
+    dressCode: k.dressCode === undefined ? "Formal" : k.dressCode,
     eventTheme: null,
-    rsvpLine: "Kindly reply by 20 January 2026",
+    rsvpLine:
+      k.rsvpLine === undefined ? "Kindly reply by 20 January 2026" : k.rsvpLine,
     coverImageUrl,
     galleryUrls: [],
     musicUrl: "/sample-invitation.wav",

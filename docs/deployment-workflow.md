@@ -146,6 +146,15 @@ The seed populates the catalog. It is idempotent — every write upserts on a sl
 so running it twice changes nothing. Without it the marketplace renders an honest
 "No templates published yet" rather than breaking.
 
+**A newly seeded category does not reach the filters straight away.** The
+category and facet lists are cached for an hour (`CATALOG_TAG` in
+`features/template-marketplace/repository.ts`), and the seed runs as its own
+process, so it cannot invalidate a cache that lives inside Next. New *templates*
+appear immediately — that query is not cached — but the filter list lags. Deploy
+after seeding (a fresh build starts with an empty data cache), or locally run
+`rm -rf .next/cache` and restart. When admin template editing lands it should
+call `revalidateCatalog()`, and this note goes away.
+
 To work on any of this without Supabase, run a local Postgres instead — no
 install, no credentials:
 

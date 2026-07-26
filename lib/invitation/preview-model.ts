@@ -30,22 +30,34 @@ export type PreviewSurface = "desktop" | "mobile" | "print";
  */
 export type EventKind =
   | "wedding"
+  | "engagement"
   | "debut"
   | "birthday"
   | "christening"
+  | "baby-shower"
   | "anniversary"
   | "graduation"
   | "corporate"
+  | "reunion"
+  | "funeral"
   | "general";
 
+/**
+ * Checked in order, so the more specific kinds come first: an engagement's
+ * copy often mentions the wedding, and a baby shower's often mentions the baby.
+ */
 const EVENT_KINDS: Exclude<EventKind, "general">[] = [
-  "wedding",
-  "debut",
-  "birthday",
+  "engagement",
+  "baby-shower",
+  "funeral",
+  "reunion",
   "christening",
-  "anniversary",
   "graduation",
+  "anniversary",
   "corporate",
+  "debut",
+  "wedding",
+  "birthday",
 ];
 
 /** Best-effort event kind from the template category, then the theme and title. */
@@ -59,6 +71,12 @@ export function deriveEventKind(
   for (const kind of EVENT_KINDS) {
     if (haystack.includes(kind)) return kind;
   }
+  // Written forms the slug match misses: a title says "Baby Shower", never
+  // "baby-shower", and a memorial notice rarely uses the word "funeral".
+  if (/baby\s*shower/.test(haystack)) return "baby-shower";
+  if (/memorial|in loving memory|wake|requiem/.test(haystack)) return "funeral";
+  if (/homecoming|get-?together/.test(haystack)) return "reunion";
+  if (/betroth|proposal|engaged/.test(haystack)) return "engagement";
   if (/baptism|dedication|christening/.test(haystack)) return "christening";
   if (/\bwed\b|nuptial/.test(haystack)) return "wedding";
   return "general";

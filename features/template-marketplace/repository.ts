@@ -1,6 +1,6 @@
 import "server-only";
 
-import { unstable_cache } from "next/cache";
+import { unstable_cache, revalidateTag } from "next/cache";
 import { cache } from "react";
 import { prisma, isDatabaseConfigured } from "@/lib/db";
 import { logger } from "@/lib/logger";
@@ -19,8 +19,25 @@ import { buildWhere, buildOrderBy, buildPagination, totalPages } from "./query";
  * public, and a database blip should cost a visitor the catalog, not the site.
  */
 
-/** Cache tag for everything catalog-shaped. Revalidated when the catalog changes. */
+/**
+ * Cache tag for everything catalog-shaped.
+ *
+ * Call `revalidateCatalog()` from any code path that changes categories,
+ * facets, or published templates. Nothing in the app does yet — the catalog is
+ * currently populated by `prisma/seed.ts`, which runs as its own process and so
+ * cannot reach Next's cache at all. That is why seeding a new category does not
+ * show up in the filter list until the next deploy (a fresh build starts with
+ * an empty data cache) or until the hour's `revalidate` elapses; the template
+ * cards change immediately, because `getCatalogPage` is not cached.
+ *
+ * This is the hook for when admin template editing lands: one call, here.
+ */
 export const CATALOG_TAG = "template-catalog";
+
+/** Drop the cached catalog metadata. Call after any write that changes it. */
+export function revalidateCatalog(): void {
+  revalidateTag(CATALOG_TAG);
+}
 
 /** The columns a card needs (Ph2.md §2) — and no more. `description` is long and unused here. */
 const CARD_SELECT = {
