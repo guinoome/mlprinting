@@ -334,7 +334,9 @@ function sampleModel(
     rsvpLine: k.rsvpLine === undefined ? dates.rsvpLine : k.rsvpLine,
     coverImageUrl,
     galleryUrls: [],
-    musicUrl: "/sample-invitation.wav",
+    // Left null so the sample exercises the same occasion-matched track a real
+    // invitation gets, rather than a one-off file only this page knows about.
+    musicUrl: null,
     style: {
       background: k.bg,
       foreground: k.fg,

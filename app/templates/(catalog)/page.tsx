@@ -109,7 +109,11 @@ export default async function TemplatesPage({
           {templates.length === 0 ? (
             <CatalogEmptyState criteria={criteria} />
           ) : (
-            <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+            /* Two columns even on the narrowest phone. A 4:5 thumbnail at half
+               of 375px is still large enough to judge a design by, and twice as
+               many designs pass under the thumb per scroll — which is the point
+               of browsing by picture. */
+            <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 xl:grid-cols-4">
               {templates.map((template, index) => (
                 <TemplateCard
                   key={template.id}

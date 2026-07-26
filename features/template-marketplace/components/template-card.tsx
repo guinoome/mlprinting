@@ -67,8 +67,10 @@ export function TemplateCard({
           alt=""
           fill
           // Tells the browser the rendered width per breakpoint so it does not
-          // fetch a 600px image for a 280px slot (Ph2.md §10).
-          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          // fetch a 600px image for a 280px slot (Ph2.md §10). Tracks the
+          // catalogue grid: two columns, three from md, four from xl once the
+          // sidebar has taken its 224px.
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
           loading={priority ? "eager" : "lazy"}
           priority={priority}
           unoptimized={isVectorCover}
@@ -89,7 +91,15 @@ export function TemplateCard({
           <span className="sr-only">{template.name}</span>
         </Link>
 
-        <div className="pointer-events-none absolute left-2 top-2 z-20 flex flex-wrap gap-1">
+        <div
+          className={cn(
+            "pointer-events-none absolute left-2 top-2 z-20 flex flex-wrap gap-1",
+            // Both badges plus the heart no longer fit across one line of a
+            // half-width card on a phone. Bound the row where the heart begins
+            // so the badges wrap instead of sliding underneath it.
+            showFavorite && "right-11",
+          )}
+        >
           {template.tier === "PREMIUM" ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-background backdrop-blur">
               <Sparkles className="size-3" aria-hidden="true" />
@@ -125,20 +135,23 @@ export function TemplateCard({
         />
       ) : null}
 
+      {/* Name over occasion rather than name beside it: at half a phone's width
+          there is no room for two things on one line, and stacking them makes a
+          column of cards read as a list of name and event type. The name gets
+          two lines then an ellipsis — clipping it to one cut most names in half
+          at that width. */}
       <div className="mt-3 space-y-1">
-        <div className="flex items-baseline justify-between gap-2">
-          <h3 className="truncate text-sm font-semibold">
-            <Link
-              href={routes.template(template.slug)}
-              className="hover:underline"
-            >
-              {template.name}
-            </Link>
-          </h3>
-          <span className="shrink-0 text-xs text-muted-foreground">
-            {template.category.name}
-          </span>
-        </div>
+        <h3 className="line-clamp-2 text-sm font-semibold">
+          <Link
+            href={routes.template(template.slug)}
+            className="hover:underline"
+          >
+            {template.name}
+          </Link>
+        </h3>
+        <p className="truncate text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          {template.category.name}
+        </p>
         <p className="line-clamp-2 text-xs text-muted-foreground">
           {template.shortDescription}
         </p>

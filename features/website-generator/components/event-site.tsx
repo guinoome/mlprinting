@@ -11,6 +11,7 @@ import { Typewriter } from "./typewriter";
 import { InvitationActions } from "./invitation-actions";
 import { MusicPlayer } from "./music-player";
 import { QrFooter } from "./qr-footer";
+import { MUSIC_TRACKS, moodForEventKind } from "@/lib/invitation/music";
 
 /** The hero's opening line, tuned to the celebration. */
 const EYEBROW: Record<EventKind, string> = {
@@ -487,7 +488,10 @@ export function EventSite({
           <p className="inv-footer">{coupleLine} · Made with ML Printing</p>
         </main>
 
-        {model.musicUrl ? <MusicPlayer src={model.musicUrl} /> : null}
+        {/* The customer's own upload wins; otherwise the invitation still gets
+            a track, chosen to suit the occasion (FDG-ML-DEP-STD-015 §6). A
+            memorial resolves to the cinematic track, never a celebratory one. */}
+        <MusicPlayer src={model.musicUrl ?? MUSIC_TRACKS[moodForEventKind(model.eventKind)]} />
       </div>
     </InvitationShell>
   );

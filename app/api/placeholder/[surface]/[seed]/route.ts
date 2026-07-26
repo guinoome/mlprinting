@@ -33,11 +33,15 @@ export async function GET(
 
   const label = (searchParams.get("label") ?? params.seed).slice(0, MAX_LABEL);
   const caption = searchParams.get("caption")?.slice(0, MAX_LABEL) || undefined;
+  // An unknown style falls back to the family's own default inside the
+  // renderer, so this needs a length cap rather than validation.
+  const style = searchParams.get("style")?.slice(0, 32) || undefined;
 
   const svg = placeholderCover({
     seed: params.seed,
     label,
     caption,
+    style,
     width,
     height,
   });
