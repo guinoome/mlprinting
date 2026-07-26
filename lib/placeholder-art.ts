@@ -158,6 +158,38 @@ const FAMILIES: Record<string, Family> = {
       { bg: "#f5f5ef", bg2: "#e6e7dc", ink: "#3f4438", accent: "#7d8467", soft: "#bec4ac" },
     ],
   },
+  family: {
+    motif: "olive",
+    eyebrow: "COME AND JOIN US",
+    palettes: [
+      { bg: "#faf5ec", bg2: "#ede2cd", ink: "#4a4131", accent: "#9a7a4a", soft: "#d3bf95" },
+      { bg: "#f4f5ef", bg2: "#e5e8dc", ink: "#3f4536", accent: "#7a8a5f", soft: "#bfc9a8" },
+    ],
+  },
+  fiesta: {
+    motif: "confetti",
+    eyebrow: "MABUHAY — JOIN THE FIESTA",
+    palettes: [
+      { bg: "#fff3ec", bg2: "#ffe0cf", ink: "#5d2f22", accent: "#c8442e", soft: "#f0a97f" },
+      { bg: "#fdf6e6", bg2: "#f7e7c2", ink: "#5a4519", accent: "#c9962a", soft: "#e8cd85" },
+    ],
+  },
+  religious: {
+    motif: "olive",
+    eyebrow: "WITH THANKSGIVING",
+    palettes: [
+      { bg: "#f9f7f0", bg2: "#eee9da", ink: "#453f30", accent: "#8e8354", soft: "#cabf98" },
+      { bg: "#f3f6f7", bg2: "#e2eaee", ink: "#354248", accent: "#6d8b99", soft: "#b4c9d3" },
+    ],
+  },
+  community: {
+    motif: "deco",
+    eyebrow: "EVERYONE IS WELCOME",
+    palettes: [
+      { bg: "#f2f4f8", bg2: "#e1e6f0", ink: "#2b3446", accent: "#4a6a94", soft: "#a9b8cd" },
+      { bg: "#f5f4ef", bg2: "#e8e5d9", ink: "#3f3f33", accent: "#7d7a56", soft: "#c3bfa0" },
+    ],
+  },
   custom: {
     motif: "monogram",
     eyebrow: "AN INVITATION",
@@ -178,9 +210,14 @@ const FALLBACK: Family = FAMILIES.custom!;
  */
 const FAMILY_ALIASES: Record<string, string> = {
   memorial: "funeral",
-  "baby-shower": "baby-shower",
   baptism: "christening",
+  dedication: "christening",
   proposal: "engagement",
+  // Display names for the Filipino event types, which differ from their slugs.
+  "family-celebration": "family",
+  "community-event": "community",
+  handaan: "family",
+  "corporate-event": "corporate",
 };
 
 /** Normalise a caption to a family key: "Baby Shower" and "baby-shower" agree. */

@@ -24,6 +24,10 @@ const EYEBROW: Record<EventKind, string> = {
   graduation: "With pride and joy",
   corporate: "You are cordially invited",
   reunion: "Let us gather again",
+  family: "Come and join us",
+  fiesta: "Mabuhay — join the fiesta",
+  religious: "With thanksgiving",
+  community: "Everyone is welcome",
   funeral: "In loving memory",
   general: "You're invited",
 };
@@ -45,7 +49,13 @@ const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"] | null> = {
   birthday: "rect",
   graduation: "rect",
   corporate: "rect",
+  fiesta: "rect",
+  family: "circle",
   general: "circle",
+  // A thanksgiving mass and a barangay assembly are not parties. They keep the
+  // motion and lose the party trick, the same judgement as the memorial.
+  religious: null,
+  community: null,
   funeral: null,
 };
 

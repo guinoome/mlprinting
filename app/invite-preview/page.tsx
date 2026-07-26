@@ -186,6 +186,72 @@ const KINDS: Record<EventKind, KindSpec> = {
     closing: "Thank you for keeping her in your prayers.",
     dressCode: null,
   },
+  family: {
+    title: "Noche Buena",
+    subtitle: "with the Santos family",
+    hosts: ["The Santos Family"],
+    welcome:
+      "The table is long, the lechon is ordered, and everyone is expected. Come hungry.",
+    bg: "#faf5ec",
+    fg: "#4a4131",
+    accent: "#9a7a4a",
+  },
+  fiesta: {
+    title: "Fiesta ng Santo Niño",
+    subtitle: "Barangay Libo, Consolacion",
+    hosts: ["Barangay Libo"],
+    welcome:
+      "Nine days of novena, one afternoon of procession, and a whole barangay at table. Everyone is welcome.",
+    bg: "#fff3ec",
+    fg: "#5d2f22",
+    accent: "#c8442e",
+    program: [
+      { time: "5:00 AM", title: "Novena mass" },
+      { time: "3:00 PM", title: "Procession" },
+      { time: "6:00 PM", title: "Programme and salu-salo" },
+    ],
+    dressCode: null,
+  },
+  religious: {
+    title: "Thanksgiving Mass",
+    subtitle: "for the Reyes family",
+    hosts: ["The Reyes Family"],
+    welcome:
+      "We are giving thanks for a year of grace, and we would be glad to have you with us.",
+    bg: "#f9f7f0",
+    fg: "#453f30",
+    accent: "#8e8354",
+    invitation:
+      "Please join us for the mass and the simple meal that follows it.",
+    program: [
+      { time: "9:00 AM", title: "Holy mass" },
+      { time: "10:30 AM", title: "Blessing" },
+      { time: "11:00 AM", title: "Salu-salo" },
+    ],
+    gifts: null,
+    dressCode: "Smart casual",
+  },
+  community: {
+    title: "Barangay Assembly",
+    subtitle: "first quarter, Barangay Libo",
+    hosts: ["Barangay Council"],
+    welcome:
+      "The quarterly assembly is open to every household. Your attendance is counted.",
+    bg: "#f2f4f8",
+    fg: "#2b3446",
+    accent: "#4a6a94",
+    invitation:
+      "Agenda, budget report, and an open forum. Please bring one representative per household.",
+    program: [
+      { time: "8:00 AM", title: "Registration" },
+      { time: "9:00 AM", title: "Reports and budget" },
+      { time: "10:30 AM", title: "Open forum" },
+    ],
+    gifts: null,
+    rsvpLine: null,
+    dressCode: null,
+    closing: "Salamat po, and we hope to see you there.",
+  },
   general: {
     title: "You're Invited",
     subtitle: "join us to celebrate",

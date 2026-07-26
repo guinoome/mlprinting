@@ -21,7 +21,7 @@ import { colorTheme, typography } from "@/lib/config/design-vocabulary";
  * Pure: no React, no Prisma, no fetch. Which is why it is testable.
  */
 
-export type PreviewSurface = "desktop" | "mobile" | "print";
+export type PreviewSurface = "desktop" | "tablet" | "mobile" | "print";
 
 /**
  * The kind of celebration, used to tune the public invitation's motion and copy
@@ -39,6 +39,10 @@ export type EventKind =
   | "graduation"
   | "corporate"
   | "reunion"
+  | "family"
+  | "fiesta"
+  | "religious"
+  | "community"
   | "funeral"
   | "general";
 
@@ -55,6 +59,10 @@ const EVENT_KINDS: Exclude<EventKind, "general">[] = [
   "graduation",
   "anniversary",
   "corporate",
+  "community",
+  "religious",
+  "fiesta",
+  "family",
   "debut",
   "wedding",
   "birthday",
@@ -76,6 +84,10 @@ export function deriveEventKind(
   if (/baby\s*shower/.test(haystack)) return "baby-shower";
   if (/memorial|in loving memory|wake|requiem/.test(haystack)) return "funeral";
   if (/homecoming|get-?together/.test(haystack)) return "reunion";
+  if (/handaan|salu-?salo|family celebration/.test(haystack)) return "family";
+  if (/santo|patron|barrio fiesta|sinulog/.test(haystack)) return "fiesta";
+  if (/mass|blessing|novena|thanksgiving|church/.test(haystack)) return "religious";
+  if (/barangay|assembly|civic|community/.test(haystack)) return "community";
   if (/betroth|proposal|engaged/.test(haystack)) return "engagement";
   if (/baptism|dedication|christening/.test(haystack)) return "christening";
   if (/\bwed\b|nuptial/.test(haystack)) return "wedding";

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Monitor, Smartphone, Printer } from "lucide-react";
+import { Monitor, Tablet, Smartphone, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { shows, type PreviewModel, type PreviewSurface } from "@/lib/invitation/preview-model";
 
@@ -25,17 +25,33 @@ import { shows, type PreviewModel, type PreviewSurface } from "@/lib/invitation/
 const SURFACES: { id: PreviewSurface; label: string; icon: typeof Monitor }[] =
   [
     { id: "desktop", label: "Desktop", icon: Monitor },
+    { id: "tablet", label: "Tablet", icon: Tablet },
     { id: "mobile", label: "Mobile", icon: Smartphone },
     { id: "print", label: "Print", icon: Printer },
   ];
 
-/** Frame per surface — Ph3.md §10 requires all three. */
+/** Frame per surface — Ph3.md §10 requires all three; tablet sits between. */
 const FRAME: Record<PreviewSurface, string> = {
   desktop: "w-full",
+  tablet: "w-[600px] max-w-full mx-auto",
   mobile: "w-[320px] mx-auto",
   // A4-ish. "Print Preview (basic)" per §10 — Ph6 owns real press output.
   print: "w-[420px] mx-auto aspect-[1/1.414]",
 };
+
+/**
+ * The surface that matches the screen the customer is actually on.
+ *
+ * The preview used to open on "desktop" regardless, which meant someone
+ * building an invitation on their phone was shown a wide layout squeezed into a
+ * narrow column — the one thing a preview must not do, since it misrepresents
+ * what their guests will see.
+ */
+function surfaceForWidth(width: number): PreviewSurface {
+  if (width < 640) return "mobile";
+  if (width < 1024) return "tablet";
+  return "desktop";
+}
 
 function Section({
   title,
@@ -295,22 +311,49 @@ export function InvitationPreview({
   );
 }
 
-/** Preview with the surface switcher — Ph3.md §10. */
+/**
+ * Preview with the surface switcher — Ph3.md §10.
+ *
+ * The surface follows the window until the customer picks one themselves, then
+ * it stays put. Automatic is right for the common case (open the builder on a
+ * phone, see the phone layout) but it must never override a deliberate choice —
+ * checking the desktop layout from a laptop that has been narrowed, then having
+ * the preview snap back the moment the window moves, would be the tool arguing
+ * with the person using it.
+ */
 export function PreviewPane({ model }: { model: PreviewModel }) {
   const [surface, setSurface] = React.useState<PreviewSurface>("desktop");
+  const [pinned, setPinned] = React.useState(false);
+
+  React.useEffect(() => {
+    if (pinned) return;
+    const apply = () => setSurface(surfaceForWidth(window.innerWidth));
+    apply();
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
+  }, [pinned]);
+
+  const choose = (id: PreviewSurface) => {
+    setPinned(true);
+    setSurface(id);
+  };
 
   return (
     <div className="space-y-3">
-      <div role="tablist" aria-label="Preview surface" className="flex gap-1">
+      <div
+        role="tablist"
+        aria-label="Preview surface"
+        className="-mx-1 flex gap-1 overflow-x-auto px-1"
+      >
         {SURFACES.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             role="tab"
             type="button"
             aria-selected={surface === id}
-            onClick={() => setSurface(id)}
+            onClick={() => choose(id)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               surface === id
                 ? "bg-muted text-foreground"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
