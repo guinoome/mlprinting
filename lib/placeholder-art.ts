@@ -436,8 +436,16 @@ function character(
 
   // Hair sits over the top of the head; the gown reads as long hair.
   if (kind === "gown" || kind === "child") {
+    // A cap over the crown plus a lock down each side, rather than one shape
+    // sweeping across the face. The single sweep covered the eyes and mouth
+    // entirely — they were still drawn, but on top of a dark mass, so every
+    // lone figure looked hooded.
+    const lock = (dir: number) =>
+      `<path d="M ${f(cx + dir * headR * 0.97)} ${f(headCy - headR * 0.1)} Q ${f(cx + dir * headR * 1.12)} ${f(headCy + headR * 0.55)} ${f(cx + dir * headR * 0.86)} ${f(headCy + headR * 0.95)} Q ${f(cx + dir * headR * 0.6)} ${f(headCy + headR * 0.7)} ${f(cx + dir * headR * 0.66)} ${f(headCy - headR * 0.1)} Z" fill="${hair}"/>`;
     parts.push(
-      `<path d="M ${f(cx - headR)} ${f(headCy)} A ${f(headR)} ${f(headR)} 0 0 1 ${f(cx + headR)} ${f(headCy)} L ${f(cx + headR * 0.95)} ${f(headCy + headR * 0.9)} Q ${f(cx)} ${f(headCy + headR * 0.35)} ${f(cx - headR * 0.95)} ${f(headCy + headR * 0.9)} Z" fill="${hair}"/>`,
+      `<path d="M ${f(cx - headR)} ${f(headCy - headR * 0.08)} A ${f(headR)} ${f(headR)} 0 0 1 ${f(cx + headR)} ${f(headCy - headR * 0.08)} Q ${f(cx)} ${f(headCy + headR * 0.18)} ${f(cx - headR)} ${f(headCy - headR * 0.08)} Z" fill="${hair}"/>`,
+      lock(-1),
+      lock(1),
     );
   } else {
     parts.push(
@@ -585,6 +593,8 @@ export function placeholderCover({
   let below = "";
   let titleY = height * 0.5;
 
+  const tSize = titleSize(label, width, art);
+
   switch (art) {
     case "floral": {
       // The ring encircles the title, so it is placed at the title, not above it.
@@ -655,18 +665,29 @@ export function placeholderCover({
       const pair = ["wedding", "engagement", "anniversary"].includes(
         normaliseKey(caption),
       );
-      const groundY = height * 0.9;
-      const fh = height * 0.42;
+
+      // The figure is measured from the space the text block leaves, not set to
+      // a fixed fraction of the card. A lone child at a fixed 42% left roughly
+      // a sixth of the cover empty between the category line and the top of the
+      // head, which a couple hid only because two figures are wider.
+      titleY = height * 0.3;
+      const textBottom = titleY + tSize * 0.72 + height * 0.045;
+      const groundY = height * 0.93;
+      const fh = (groundY - textBottom - height * 0.02) * 0.94;
+
+      // Clear the tallest point of whichever figure is drawn: the couple's
+      // heads sit higher up their own height than the child's do.
+      const archTop = groundY - fh * (pair ? 0.98 : 0.85);
+      const archHalf = width * (pair ? 0.28 : 0.2);
       const skin = "#e8c39e";
       const hair = "#3a2a24";
-      const arch = `<path d="M ${f(cx - width * 0.26)} ${f(groundY)} L ${f(cx - width * 0.26)} ${f(height * 0.52)} A ${f(width * 0.26)} ${f(width * 0.26)} 0 0 1 ${f(cx + width * 0.26)} ${f(height * 0.52)} L ${f(cx + width * 0.26)} ${f(groundY)} Z" fill="${p.soft}" opacity="0.28"/>`;
+      const arch = `<path d="M ${f(cx - archHalf)} ${f(groundY)} L ${f(cx - archHalf)} ${f(archTop)} A ${f(archHalf)} ${f(archHalf)} 0 0 1 ${f(cx + archHalf)} ${f(archTop)} L ${f(cx + archHalf)} ${f(groundY)} Z" fill="${p.soft}" opacity="0.28"/>`;
       ornament =
         arch +
         (pair
           ? character(cx - fh * 0.14, groundY, fh, "gown", skin, hair, p.soft, p.ink) +
             character(cx + fh * 0.14, groundY, fh, "suit", skin, hair, p.ink, p.ink)
           : character(cx, groundY, fh, "child", skin, hair, p.accent, p.ink));
-      titleY = height * 0.32;
       break;
     }
     case "minimal": {
@@ -686,7 +707,6 @@ export function placeholderCover({
     }
   }
 
-  const tSize = titleSize(label, width, art);
   const eyebrowSize = Math.max(8, width * 0.0205);
   const catSize = Math.max(8, width * 0.019);
   const eyebrowY = titleY - tSize * 0.86;
