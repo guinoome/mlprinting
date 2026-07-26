@@ -107,6 +107,9 @@ async function main() {
         template.slug,
         template.name,
         categoryName,
+        // The composition, so two templates in one category read as two designs
+        // rather than the same cover with different words on it.
+        template.style,
       ),
     };
 
