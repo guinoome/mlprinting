@@ -163,13 +163,16 @@ function CatalogHero({
         it too, if you like.
       </p>
 
+      {/* One scrolling line on a phone, wrapped rows once there is room.
+          Sixteen occasions wrapped on a 375px screen pushed the templates
+          themselves below the fold. Scrolls within itself; the page does not. */}
       {categories.length > 0 ? (
-        <ul className="mt-6 flex flex-wrap gap-2">
-          <li>
+        <ul className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+          <li className="shrink-0">
             <Link
               href={routes.templates}
               className={cn(
-                "inline-block rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+                "inline-block shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
                 noneActive
                   ? "border-foreground bg-foreground text-background"
                   : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
@@ -181,11 +184,11 @@ function CatalogHero({
           {categories.map((category) => {
             const active = activeCategories.includes(category.slug);
             return (
-              <li key={category.slug}>
+              <li key={category.slug} className="shrink-0">
                 <Link
                   href={`${routes.templates}?category=${category.slug}`}
                   className={cn(
-                    "inline-block rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+                    "inline-block shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
                     active
                       ? "border-foreground bg-foreground text-background"
                       : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",

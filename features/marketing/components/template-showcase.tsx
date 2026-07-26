@@ -43,12 +43,12 @@ export function TemplateShowcase({
         </div>
 
         {categories.length > 0 ? (
-          <ul className="mt-8 flex flex-wrap gap-2">
+          <ul className="-mx-4 mt-8 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
             {categories.map((category) => (
-              <li key={category.slug}>
+              <li key={category.slug} className="shrink-0">
                 <Link
                   href={`${routes.templates}?category=${category.slug}`}
-                  className="inline-block rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                  className="inline-block whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
                 >
                   {category.name}
                 </Link>

@@ -23,16 +23,30 @@ import { buildWhere, buildOrderBy, buildPagination, totalPages } from "./query";
  * Cache tag for everything catalog-shaped.
  *
  * Call `revalidateCatalog()` from any code path that changes categories,
- * facets, or published templates. Nothing in the app does yet — the catalog is
- * currently populated by `prisma/seed.ts`, which runs as its own process and so
- * cannot reach Next's cache at all. That is why seeding a new category does not
- * show up in the filter list until the next deploy (a fresh build starts with
- * an empty data cache) or until the hour's `revalidate` elapses; the template
- * cards change immediately, because `getCatalogPage` is not cached.
+ * facets, or published templates. Nothing in the app does yet: the catalog is
+ * populated by `prisma/seed.ts`, which runs as its own process and cannot reach
+ * a cache that lives inside Next.
  *
- * This is the hook for when admin template editing lands: one call, here.
+ * An earlier version of this comment claimed a deploy clears the stale entry.
+ * It does not — that is true of the local `.next/cache`, but Vercel's Data
+ * Cache is durable and survives a new deployment. Seeding four categories and
+ * shipping produced a catalog whose template cards had them (that query is not
+ * cached) and whose filter list did not. Hence the short window below rather
+ * than an hour: the metadata is still cached, so §10 is still satisfied, but
+ * being briefly stale is no longer indistinguishable from being broken.
+ *
+ * This tag is the hook for when admin template editing lands: one call, here.
  */
 export const CATALOG_TAG = "template-catalog";
+
+/**
+ * How long the catalog metadata stays cached.
+ *
+ * Short on purpose. These are two trivial queries against a database that now
+ * sits in the same region as the functions, so the hour this used to be bought
+ * almost nothing and cost a confusing, self-inflicted staleness bug.
+ */
+const CATALOG_REVALIDATE_SECONDS = 60;
 
 /** Drop the cached catalog metadata. Call after any write that changes it. */
 export function revalidateCatalog(): void {
@@ -138,7 +152,7 @@ export const getCategories = unstable_cache(
     }
   },
   ["template-categories"],
-  { tags: [CATALOG_TAG], revalidate: 3600 },
+  { tags: [CATALOG_TAG], revalidate: CATALOG_REVALIDATE_SECONDS },
 );
 
 /**
@@ -173,7 +187,7 @@ export const getFacets = unstable_cache(
     }
   },
   ["template-facets"],
-  { tags: [CATALOG_TAG], revalidate: 3600 },
+  { tags: [CATALOG_TAG], revalidate: CATALOG_REVALIDATE_SECONDS },
 );
 
 /** Full detail for the preview page — Ph2.md §6, §7. */

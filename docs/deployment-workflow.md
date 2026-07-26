@@ -146,14 +146,23 @@ The seed populates the catalog. It is idempotent — every write upserts on a sl
 so running it twice changes nothing. Without it the marketplace renders an honest
 "No templates published yet" rather than breaking.
 
-**A newly seeded category does not reach the filters straight away.** The
-category and facet lists are cached for an hour (`CATALOG_TAG` in
+**A newly seeded category takes up to a minute to reach the filters.** The
+category and facet lists are cached (`CATALOG_TAG` in
 `features/template-marketplace/repository.ts`), and the seed runs as its own
 process, so it cannot invalidate a cache that lives inside Next. New *templates*
-appear immediately — that query is not cached — but the filter list lags. Deploy
-after seeding (a fresh build starts with an empty data cache), or locally run
-`rm -rf .next/cache` and restart. When admin template editing lands it should
-call `revalidateCatalog()`, and this note goes away.
+appear immediately — that query is not cached — but the filter list lags by the
+revalidate window.
+
+Deploying does **not** clear it. That is worth stating plainly because the
+opposite was written here and it was wrong: a new deployment resets the local
+`.next/cache`, but Vercel's Data Cache is durable and survives deploys. Seeding
+four categories and shipping produced a live catalog whose cards listed them and
+whose filters did not.
+
+The window is therefore deliberately short (60s) rather than an hour. Locally,
+`rm -rf .next/cache` and restart for an immediate result. When admin template
+editing lands it should call `revalidateCatalog()` and the wait disappears
+entirely.
 
 To work on any of this without Supabase, run a local Postgres instead — no
 install, no credentials:
