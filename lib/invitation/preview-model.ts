@@ -69,13 +69,41 @@ const EVENT_KINDS: Exclude<EventKind, "general">[] = [
 ];
 
 /** Best-effort event kind from the template category, then the theme and title. */
+/** Category names and older labels that do not equal their kind. */
+const KIND_ALIASES: Record<string, EventKind> = {
+  memorial: "funeral",
+  baptism: "christening",
+  dedication: "christening",
+  "family-celebration": "family",
+  "community-event": "community",
+  "corporate-event": "corporate",
+  handaan: "family",
+};
+
 export function deriveEventKind(
   templateCategory: string | null | undefined,
   eventTheme: string | null | undefined,
   eventTitle: string | null | undefined,
 ): EventKind {
-  const haystack =
-    `${templateCategory ?? ""} ${eventTheme ?? ""} ${eventTitle ?? ""}`.toLowerCase();
+  // The template's category is a chosen fact, not a guess, so it decides on its
+  // own and never competes with the free text. Merging all three into one string
+  // and scanning it meant a wedding titled "The Santos Family Wedding" resolved
+  // as a family celebration: "family" sits earlier in the scan order, so a
+  // coincidence in the title outranked the category the customer picked.
+  const category = (templateCategory ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+  if (category) {
+    const resolved =
+      KIND_ALIASES[category] ??
+      EVENT_KINDS.find((kind) => kind === category) ??
+      null;
+    if (resolved) return resolved;
+  }
+
+  // No usable category — fall back to whatever the theme and title suggest.
+  const haystack = `${eventTheme ?? ""} ${eventTitle ?? ""}`.toLowerCase();
   for (const kind of EVENT_KINDS) {
     if (haystack.includes(kind)) return kind;
   }

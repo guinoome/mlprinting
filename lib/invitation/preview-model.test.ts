@@ -4,6 +4,7 @@ import {
   formatDate,
   formatTime,
   shows,
+  deriveEventKind,
   type PreviewInput,
 } from "./preview-model";
 
@@ -303,5 +304,63 @@ describe("section visibility", () => {
     expect(shows(model, "gifts", true)).toBe(false); // hidden
     expect(shows(model, "notes", false)).toBe(false); // nothing to show
     expect(shows(model, "notes", true)).toBe(true);
+  });
+});
+
+describe("deriveEventKind", () => {
+  it("trusts the template's own category over words in the title", () => {
+    // The bug this guards: category, theme and title were merged into one
+    // string and scanned in array order, so a wedding whose title happened to
+    // contain "family" came back as a family celebration — the template's own
+    // category, the one authoritative signal, lost to a coincidence.
+    expect(deriveEventKind("wedding", null, "The Santos Family Wedding")).toBe(
+      "wedding",
+    );
+    expect(deriveEventKind("birthday", "community party", "Emma at 7")).toBe(
+      "birthday",
+    );
+    expect(deriveEventKind("debut", null, "A Family Debut")).toBe("debut");
+  });
+
+  it("resolves every seeded category slug to its own kind", () => {
+    for (const slug of [
+      "wedding",
+      "engagement",
+      "debut",
+      "birthday",
+      "christening",
+      "baby-shower",
+      "anniversary",
+      "graduation",
+      "corporate",
+      "reunion",
+      "family",
+      "fiesta",
+      "religious",
+      "community",
+      "funeral",
+    ] as const) {
+      expect(deriveEventKind(slug, null, null)).toBe(slug);
+    }
+  });
+
+  it("maps display names and aliases onto their kind", () => {
+    expect(deriveEventKind("Baby Shower", null, null)).toBe("baby-shower");
+    expect(deriveEventKind("Family Celebration", null, null)).toBe("family");
+    expect(deriveEventKind("Community Event", null, null)).toBe("community");
+    expect(deriveEventKind("baptism", null, null)).toBe("christening");
+  });
+
+  it("falls back to the title when there is no category", () => {
+    expect(deriveEventKind(null, null, "Handaan sa Bahay")).toBe("family");
+    expect(deriveEventKind(null, null, "Thanksgiving Mass")).toBe("religious");
+    expect(deriveEventKind(null, null, "Barangay Assembly")).toBe("community");
+    expect(deriveEventKind(null, null, "In Loving Memory")).toBe("funeral");
+    expect(deriveEventKind(null, null, "Fiesta ng Santo Niño")).toBe("fiesta");
+  });
+
+  it("returns general when nothing matches", () => {
+    expect(deriveEventKind(null, null, null)).toBe("general");
+    expect(deriveEventKind("", "", "Saturday plans")).toBe("general");
   });
 });
