@@ -20,20 +20,35 @@ export function StepNav({
   invitationId,
   currentStep,
   incompleteSteps,
+  layout = "sidebar",
   className,
 }: {
   invitationId: string;
   currentStep: string;
   /** Required steps with something still missing — shown, not blocked. */
   incompleteSteps: string[];
+  /**
+   * `sidebar` is the vertical list beside the form. `strip` is the horizontal,
+   * scrollable version for narrow screens — without it a phone user gets no
+   * step navigation at all and has to page through eight steps with Back and
+   * Next, unable to see where they are or jump back to fix something.
+   */
+  layout?: "sidebar" | "strip";
   className?: string;
 }) {
   const blocked = new Set(incompleteSteps);
+  const strip = layout === "strip";
 
   return (
     <nav
       aria-label="Builder steps"
-      className={cn("flex flex-col gap-0.5", className)}
+      className={cn(
+        strip
+          ? // Scrolls within itself; the page never scrolls sideways.
+            "-mx-4 flex snap-x gap-1 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          : "flex flex-col gap-0.5",
+        className,
+      )}
     >
       {BUILDER_STEPS.map((step, index) => {
         const active = step.slug === currentStep;
@@ -47,7 +62,10 @@ export function StepNav({
             href={`${routes.builder}/${invitationId}/${step.slug}`}
             aria-current={active ? "step" : undefined}
             className={cn(
-              "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+              "group flex items-center gap-2.5 rounded-md text-sm transition-colors",
+              strip
+                ? "shrink-0 snap-start border border-border px-3 py-2"
+                : "gap-3 px-3 py-2",
               active
                 ? "bg-muted font-medium text-foreground"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
@@ -73,7 +91,14 @@ export function StepNav({
               )}
             </span>
 
-            <span className="min-w-0 flex-1 truncate">{step.label}</span>
+            <span
+              className={cn(
+                "min-w-0 truncate",
+                strip ? "whitespace-nowrap" : "flex-1",
+              )}
+            >
+              {step.label}
+            </span>
 
             {needsWork ? (
               <span className="sr-only">(needs attention)</span>

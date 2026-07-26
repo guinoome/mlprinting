@@ -49,7 +49,7 @@ export function StepFrame({
           <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
             Step {stepNumber(step)} of {BUILDER_STEPS.length}
           </p>
-          <h1 className="mt-1 text-xl font-semibold tracking-tight">
+          <h1 className="mt-1 font-serif text-2xl tracking-tight">
             {definition.label}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">

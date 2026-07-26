@@ -55,24 +55,38 @@ export default async function BuilderLayout({
           <DraftTitle invitationId={draft.id} title={draft.title} />
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 sm:flex">
+        {/* Progress shows at every width. Hiding it below `sm` took the one
+            piece of "how much is left?" away from exactly the customers most
+            likely to be filling this in on a phone. */}
+        <div className="flex items-center gap-2">
+          <div
+            className="h-1.5 w-20 overflow-hidden rounded-full bg-muted sm:w-24"
+            role="progressbar"
+            aria-valuenow={percent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Required steps complete"
+          >
             <div
-              className="h-1.5 w-24 overflow-hidden rounded-full bg-muted"
-              role="progressbar"
-              aria-valuenow={percent}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label="Required steps complete"
-            >
-              <div
-                className="h-full rounded-full bg-foreground transition-all"
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-            <span className="text-xs text-muted-foreground">{percent}%</span>
+              className="h-full rounded-full bg-foreground transition-all"
+              style={{ width: `${percent}%` }}
+            />
           </div>
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {percent}%
+          </span>
         </div>
+      </div>
+
+      {/* Below `lg` the sidebar is gone, so the steps ride along as a
+          scrollable strip instead of disappearing entirely. */}
+      <div className="mb-6 lg:hidden">
+        <StepNav
+          layout="strip"
+          invitationId={draft.id}
+          currentStep={draft.currentStep}
+          incompleteSteps={[...incompleteSteps(snapshot)]}
+        />
       </div>
 
       <div className="flex gap-8">
