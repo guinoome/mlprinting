@@ -43,7 +43,10 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
   birthday: {
     id: "birthday-bold",
     hero: "flat-bold",
-    sections: ["welcome", "countdown", "actions", "invitation", "venues", "program", "gallery", "gifts"],
+    // Where and when come before the prose. Most people opening a birthday
+    // invitation are deciding whether they can get a child across town on a
+    // Saturday afternoon, and the warm paragraph is not what answers that.
+    sections: ["welcome", "countdown", "venues", "program", "actions", "invitation", "gallery", "gifts"],
     ornament: "confetti",
     photoShape: "circle",
     celebratory: true,
@@ -136,7 +139,11 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
   funeral: {
     id: "memorial-still",
     hero: "arch-portrait",
-    sections: ["welcome", "invitation", "hosts", "venues", "program", "gallery", "gifts", "notes"],
+    // Service details before everything but the opening line. Someone reading a
+    // memorial notice is working out where the wake is and when the mass is, and
+    // making them scroll past a family biography to find it is the wrong
+    // priority on the one invitation where getting it wrong matters most.
+    sections: ["welcome", "invitation", "venues", "program", "hosts", "gallery", "notes", "gifts"],
     ornament: "none",
     photoShape: "oval",
     celebratory: false,

@@ -1,9 +1,9 @@
+import * as React from "react";
 import type {
   EventKind,
   PreviewModel,
   PreviewStyle,
 } from "@/lib/invitation/preview-model";
-import { shows } from "@/lib/invitation/preview-model";
 import { Countdown } from "./countdown";
 import { RsvpForm } from "./rsvp-form";
 import { InvitationShell, type ConfettiConfig } from "./invitation-shell";
@@ -12,6 +12,9 @@ import { InvitationActions } from "./invitation-actions";
 import { MusicPlayer } from "./music-player";
 import { QrFooter } from "./qr-footer";
 import { MUSIC_TRACKS, moodForEventKind } from "@/lib/invitation/music";
+import { layoutFor } from "../layouts/registry";
+import type { SectionId } from "../layouts/types";
+import { visibleSections } from "../layouts/visible-sections";
 
 /** The hero's opening line, tuned to the celebration. */
 const EYEBROW: Record<EventKind, string> = {
@@ -34,12 +37,16 @@ const EYEBROW: Record<EventKind, string> = {
 };
 
 /**
- * Confetti shape per celebration — petals for weddings, stars for debuts, and
- * so on. `null` means no confetti at all: a memorial notice is not a
- * celebration, and firing confetti over one would be worse than shipping no
- * animation.
+ * Which confetti shape a celebration fires — petals for weddings, stars for
+ * debuts, and so on.
+ *
+ * Whether it fires at all is not decided here. That is `layout.celebratory`,
+ * which is false for memorial, religious and community: a funeral notice is not
+ * a celebration, and firing confetti over one would be worse than shipping no
+ * animation. Their entries below are inert, and kept only so the table stays
+ * total over EventKind.
  */
-const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"] | null> = {
+const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"]> = {
   wedding: "petal",
   engagement: "petal",
   christening: "petal",
@@ -53,11 +60,9 @@ const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"] | null> = {
   fiesta: "rect",
   family: "circle",
   general: "circle",
-  // A thanksgiving mass and a barangay assembly are not parties. They keep the
-  // motion and lose the party trick, the same judgement as the memorial.
-  religious: null,
-  community: null,
-  funeral: null,
+  religious: "circle",
+  community: "circle",
+  funeral: "circle",
 };
 
 /**
@@ -68,8 +73,10 @@ const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"] | null> = {
  * font comes from `model.style`, which the envelope and hero pick up through
  * the --inv-* variables set on the shell.
  *
- * Section visibility still mirrors the in-app preview's shows() calls exactly,
- * so what the customer approves is what a guest sees.
+ * Structure comes from the occasion's layout rather than from the order the
+ * sections happen to be written in — see ../layouts. Visibility still mirrors
+ * the in-app preview's shows() calls exactly, so what the customer approves is
+ * what a guest sees.
  */
 
 /** Deterministic petals for the hero — a little ambient motion, no randomness to desync on hydration. */
@@ -221,10 +228,11 @@ export function EventSite({
     ? `${model.dateLine}${model.timeLine ? ` · ${model.timeLine}` : ""}`
     : null;
 
+  const layout = layoutFor(model.eventKind);
+
   const eyebrow = EYEBROW[model.eventKind];
-  const confettiShape = CONFETTI_SHAPE[model.eventKind];
-  const confetti: ConfettiConfig | undefined = confettiShape
-    ? { colors: confettiColors(style), shape: confettiShape }
+  const confetti: ConfettiConfig | undefined = layout.celebratory
+    ? { colors: confettiColors(style), shape: CONFETTI_SHAPE[model.eventKind] }
     : undefined;
   const calendar = countdownTarget
     ? calendarUrl(
@@ -233,6 +241,202 @@ export function EventSite({
         model.venues[0]?.address ?? model.venues[0]?.name ?? undefined,
       )
     : null;
+
+  const order = visibleSections(model, layout, {
+    hasCountdown: Boolean(countdownTarget),
+    hasQr: Boolean(qrSrc),
+  });
+
+  /**
+   * Every section the invitation can render, built once and then placed by the
+   * layout's ordering. `order` has already decided which of these appear, so
+   * the entries carry no emptiness checks of their own; the three that guard
+   * below do it to narrow a nullable value, not to re-decide visibility.
+   */
+  const nodes: Record<SectionId, React.ReactNode> = {
+    welcome: (
+      <Section>
+        <p className="inv-lead">{model.welcomeMessage}</p>
+      </Section>
+    ),
+
+    countdown: countdownTarget ? (
+      <Section>
+        <div className="inv-ornament" aria-hidden="true" />
+        <Countdown targetDate={countdownTarget} />
+      </Section>
+    ) : null,
+
+    actions: calendar ? (
+      <Section>
+        <InvitationActions title={model.title} calendarUrl={calendar} />
+      </Section>
+    ) : null,
+
+    invitation: (
+      <Section>
+        <p className="inv-lead" style={{ whiteSpace: "pre-line" }}>
+          {model.invitationMessage}
+        </p>
+      </Section>
+    ),
+
+    hosts: (
+      <Section>
+        <p className="inv-couplet">
+          {model.hosts.map((h) => h.name).join("  &  ")}
+        </p>
+      </Section>
+    ),
+
+    parents: (
+      <Section label="Parents">
+        <ul className="inv-list">
+          {model.parents.map((person) => (
+            <li key={person.id}>
+              {person.name}
+              {person.role ? (
+                <span style={{ opacity: 0.6 }}> — {person.role}</span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </Section>
+    ),
+
+    sponsors: (
+      <Section label="Principal Sponsors">
+        <ul className="inv-list">
+          {model.sponsors.map((person) => (
+            <li key={person.id}>{person.name}</li>
+          ))}
+        </ul>
+      </Section>
+    ),
+
+    venues: (
+      <Section label="Where">
+        <div>
+          {model.venues.map((venue) => (
+            <div key={venue.id} className="inv-venue">
+              <p className="inv-venue-k">
+                {venue.label}
+                {venue.timeLine ? ` · ${venue.timeLine}` : ""}
+              </p>
+              <p className="inv-venue-n">{venue.name}</p>
+              {venue.address ? (
+                <p className="inv-venue-a">{venue.address}</p>
+              ) : null}
+              {venue.mapsUrl ? (
+                <a
+                  href={venue.mapsUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inv-maplink"
+                >
+                  View on Google Maps
+                </a>
+              ) : null}
+              {venue.parkingNotes ? (
+                <p className="inv-venue-a" style={{ marginTop: 8 }}>
+                  {venue.parkingNotes}
+                </p>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </Section>
+    ),
+
+    program: (
+      <Section label="Programme">
+        <div className="inv-timeline">
+          {model.program.map((item) => (
+            <div key={item.id} className="inv-timeline-item">
+              <span className="inv-timeline-time">{item.time ?? ""}</span>
+              <span>
+                {item.title}
+                {item.description ? (
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: 13,
+                      opacity: 0.6,
+                    }}
+                  >
+                    {item.description}
+                  </span>
+                ) : null}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Section>
+    ),
+
+    gallery: (
+      <Section>
+        <div className="inv-gallery">
+          {model.galleryUrls.map((url) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={url} src={url} alt="" />
+          ))}
+        </div>
+      </Section>
+    ),
+
+    "dress-code": (
+      <Section label="Dress code">
+        <p style={{ textAlign: "center" }}>{model.dressCode}</p>
+      </Section>
+    ),
+
+    gifts: (
+      <Section label="Gifts">
+        <p style={{ textAlign: "center", whiteSpace: "pre-line", opacity: 0.9 }}>
+          {model.giftsPreference}
+        </p>
+      </Section>
+    ),
+
+    notes: (
+      <Section label="Notes">
+        <p style={{ textAlign: "center", whiteSpace: "pre-line", opacity: 0.9 }}>
+          {model.specialNotes}
+        </p>
+      </Section>
+    ),
+
+    rsvp: (
+      <Section label="RSVP">
+        <div className="inv-rsvp">
+          {model.rsvpLine ? (
+            <p
+              className="mb-3"
+              style={{
+                fontFamily: style.headingFont,
+                fontStyle: "italic",
+                opacity: 0.85,
+              }}
+            >
+              {model.rsvpLine}
+            </p>
+          ) : null}
+          <RsvpForm invitationId={invitationId} accentColor={style.accent} />
+        </div>
+      </Section>
+    ),
+
+    closing: (
+      <Section>
+        <p className="inv-lead">{model.closingMessage}</p>
+      </Section>
+    ),
+
+    qr: qrSrc ? (
+      <QrFooter src={qrSrc} caption="Scan to open this invitation" />
+    ) : null,
+  };
 
   return (
     <InvitationShell
@@ -249,7 +453,10 @@ export function EventSite({
           fontFamily: style.bodyFont,
         }}
       >
-        {/* Hero */}
+        {/* Hero. Still the one full-bleed presentation for all sixteen
+            occasions: `layout.hero` names the seven the design language asks
+            for, but nothing branches on it yet. This header is where that
+            branch goes. */}
         <header
           className="inv-hero"
           style={model.coverImageUrl ? undefined : { background: heroFallback }}
@@ -302,188 +509,9 @@ export function EventSite({
         </header>
 
         <main className="inv-main">
-          {shows(model, "welcome", Boolean(model.welcomeMessage)) ? (
-            <Section>
-              <p className="inv-lead">{model.welcomeMessage}</p>
-            </Section>
-          ) : null}
-
-          {countdownTarget ? (
-            <Section>
-              <div className="inv-ornament" aria-hidden="true" />
-              <Countdown targetDate={countdownTarget} />
-            </Section>
-          ) : null}
-
-          {calendar ? (
-            <Section>
-              <InvitationActions title={model.title} calendarUrl={calendar} />
-            </Section>
-          ) : null}
-
-          {model.invitationMessage ? (
-            <Section>
-              <p className="inv-lead" style={{ whiteSpace: "pre-line" }}>
-                {model.invitationMessage}
-              </p>
-            </Section>
-          ) : null}
-
-          {shows(model, "hosts", model.hosts.length > 0) ? (
-            <Section>
-              <p className="inv-couplet">
-                {model.hosts.map((h) => h.name).join("  &  ")}
-              </p>
-            </Section>
-          ) : null}
-
-          {shows(model, "parents", model.parents.length > 0) ? (
-            <Section label="Parents">
-              <ul className="inv-list">
-                {model.parents.map((person) => (
-                  <li key={person.id}>
-                    {person.name}
-                    {person.role ? (
-                      <span style={{ opacity: 0.6 }}> — {person.role}</span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          ) : null}
-
-          {shows(model, "sponsors", model.sponsors.length > 0) ? (
-            <Section label="Principal Sponsors">
-              <ul className="inv-list">
-                {model.sponsors.map((person) => (
-                  <li key={person.id}>{person.name}</li>
-                ))}
-              </ul>
-            </Section>
-          ) : null}
-
-          {shows(model, "venues", model.venues.length > 0) ? (
-            <Section label="Where">
-              <div>
-                {model.venues.map((venue) => (
-                  <div key={venue.id} className="inv-venue">
-                    <p className="inv-venue-k">
-                      {venue.label}
-                      {venue.timeLine ? ` · ${venue.timeLine}` : ""}
-                    </p>
-                    <p className="inv-venue-n">{venue.name}</p>
-                    {venue.address ? (
-                      <p className="inv-venue-a">{venue.address}</p>
-                    ) : null}
-                    {venue.mapsUrl ? (
-                      <a
-                        href={venue.mapsUrl}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="inv-maplink"
-                      >
-                        View on Google Maps
-                      </a>
-                    ) : null}
-                    {venue.parkingNotes ? (
-                      <p className="inv-venue-a" style={{ marginTop: 8 }}>
-                        {venue.parkingNotes}
-                      </p>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </Section>
-          ) : null}
-
-          {shows(model, "program", model.program.length > 0) ? (
-            <Section label="Programme">
-              <div className="inv-timeline">
-                {model.program.map((item) => (
-                  <div key={item.id} className="inv-timeline-item">
-                    <span className="inv-timeline-time">{item.time ?? ""}</span>
-                    <span>
-                      {item.title}
-                      {item.description ? (
-                        <span
-                          style={{
-                            display: "block",
-                            fontSize: 13,
-                            opacity: 0.6,
-                          }}
-                        >
-                          {item.description}
-                        </span>
-                      ) : null}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Section>
-          ) : null}
-
-          {shows(model, "gallery", model.galleryUrls.length > 0) ? (
-            <Section>
-              <div className="inv-gallery">
-                {model.galleryUrls.map((url) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={url} src={url} alt="" />
-                ))}
-              </div>
-            </Section>
-          ) : null}
-
-          {shows(model, "dress-code", Boolean(model.dressCode)) ? (
-            <Section label="Dress code">
-              <p style={{ textAlign: "center" }}>{model.dressCode}</p>
-            </Section>
-          ) : null}
-
-          {shows(model, "gifts", Boolean(model.giftsPreference)) ? (
-            <Section label="Gifts">
-              <p style={{ textAlign: "center", whiteSpace: "pre-line", opacity: 0.9 }}>
-                {model.giftsPreference}
-              </p>
-            </Section>
-          ) : null}
-
-          {shows(model, "notes", Boolean(model.specialNotes)) ? (
-            <Section label="Notes">
-              <p style={{ textAlign: "center", whiteSpace: "pre-line", opacity: 0.9 }}>
-                {model.specialNotes}
-              </p>
-            </Section>
-          ) : null}
-
-          {shows(model, "rsvp", true) ? (
-            <Section label="RSVP">
-              <div className="inv-rsvp">
-                {model.rsvpLine ? (
-                  <p
-                    className="mb-3"
-                    style={{
-                      fontFamily: style.headingFont,
-                      fontStyle: "italic",
-                      opacity: 0.85,
-                    }}
-                  >
-                    {model.rsvpLine}
-                  </p>
-                ) : null}
-                <RsvpForm invitationId={invitationId} accentColor={style.accent} />
-              </div>
-            </Section>
-          ) : null}
-
-          {model.closingMessage ? (
-            <Section>
-              <p className="inv-lead">{model.closingMessage}</p>
-            </Section>
-          ) : null}
-
-          {qrSrc ? (
-            <QrFooter src={qrSrc} caption="Scan to open this invitation" />
-          ) : null}
+          {order.map((id) => (
+            <React.Fragment key={id}>{nodes[id]}</React.Fragment>
+          ))}
 
           <p className="inv-footer">{coupleLine} · Made with ML Printing</p>
         </main>
