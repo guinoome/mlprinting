@@ -873,3 +873,26 @@
     transition: none;
   }
 }
+
+/* =========================================================================
+   Invitation primitives — the shaped photo frame (Increment 1 of
+   docs/invitation-design-language.md). Only the parts a utility class cannot
+   express live here; the arch's radius, the proportions, the ring and the
+   spacing are Tailwind in the component files. Shape-only, no colour, so a
+   frame keeps wearing the customer's --inv-* theme.
+   ========================================================================= */
+.inv-shape-oval {
+  /* Fills its box, so a portrait frame gives a tall oval and a landscape one a
+     wide oval. */
+  clip-path: ellipse(50% 50% at 50% 50%);
+}
+.inv-shape-circle {
+  /* closest-side by default, so this survives a box that is not square instead
+     of stretching — which is the whole difference between it and the oval. */
+  clip-path: circle(50% at 50% 50%);
+}
+.inv-shape-blob {
+  /* Eight values, asymmetric on both axes. Equal radii would read as a rounded
+     rectangle and the reference blobs are hand-drawn shapes, not soft corners. */
+  border-radius: 62% 38% 47% 53% / 55% 43% 57% 45%;
+}
