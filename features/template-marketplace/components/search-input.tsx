@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { shouldNavigateSearch } from "../search-sync";
 
 /**
  * Free-text search — Ph2.md §3.
@@ -34,19 +35,26 @@ export function SearchInput({ initialQuery }: { initialQuery?: string }) {
     [router, searchParams],
   );
 
-  // Debounced: one navigation per pause, not one per keystroke. Skips the first
-  // run so mounting the component does not immediately re-navigate to the URL
-  // that mounted it.
-  const mounted = React.useRef(false);
+  /**
+   * Debounced: one navigation per pause, not one per keystroke.
+   *
+   * The condition is that the box and the URL disagree — not merely that this
+   * effect ran. Skipping only the first render was not enough: `navigate`
+   * closes over `searchParams`, so every navigation handed it a new identity
+   * and re-ran this effect. Clicking page two therefore scheduled a navigation
+   * that deleted `page` and replaced the URL, and the catalogue bounced back to
+   * page one a third of a second after the click, for any page number, with no
+   * error to show for it.
+   *
+   * Comparing against the URL also retires the mounted ref: on the render that
+   * mounts the component, the two already agree.
+   */
   React.useEffect(() => {
-    if (!mounted.current) {
-      mounted.current = true;
-      return;
-    }
+    if (!shouldNavigateSearch(value, searchParams.get("q"))) return;
 
     const timer = setTimeout(() => navigate(value), DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [value, navigate]);
+  }, [value, navigate, searchParams]);
 
   return (
     <form
