@@ -23,6 +23,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "floral",
     photoShape: "arch",
     dateStyle: "row",
+    motion: "rise",
     celebratory: true,
   },
   engagement: {
@@ -32,6 +33,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "floral",
     photoShape: "arch",
     dateStyle: "line",
+    motion: "rise",
     celebratory: true,
   },
   debut: {
@@ -41,6 +43,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "filigree",
     photoShape: "oval",
     dateStyle: "row",
+    motion: "rise",
     celebratory: true,
   },
   birthday: {
@@ -53,6 +56,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "confetti",
     photoShape: "circle",
     dateStyle: "row",
+    motion: "pop",
     celebratory: true,
   },
   christening: {
@@ -62,6 +66,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "wash",
     photoShape: "blob",
     dateStyle: "line",
+    motion: "rise",
     celebratory: true,
   },
   "baby-shower": {
@@ -71,6 +76,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "wash",
     photoShape: "arch",
     dateStyle: "row",
+    motion: "rise",
     celebratory: true,
   },
   anniversary: {
@@ -80,6 +86,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "filigree",
     photoShape: "oval",
     dateStyle: "row",
+    motion: "sweep",
     celebratory: true,
   },
   graduation: {
@@ -89,6 +96,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "none",
     photoShape: "rect",
     dateStyle: "row",
+    motion: "sweep",
     celebratory: true,
   },
   corporate: {
@@ -98,6 +106,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "filigree",
     photoShape: "rect",
     dateStyle: "row",
+    motion: "rise",
     celebratory: true,
   },
   reunion: {
@@ -107,6 +116,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "none",
     photoShape: "rect",
     dateStyle: "line",
+    motion: "sweep",
     celebratory: true,
   },
   family: {
@@ -116,6 +126,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "wash",
     photoShape: "blob",
     dateStyle: "line",
+    motion: "rise",
     celebratory: true,
   },
   fiesta: {
@@ -125,6 +136,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "confetti",
     photoShape: "circle",
     dateStyle: "row",
+    motion: "pop",
     celebratory: true,
   },
   religious: {
@@ -134,6 +146,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "none",
     photoShape: "rect",
     dateStyle: "line",
+    motion: "fade",
     celebratory: false,
   },
   community: {
@@ -143,6 +156,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "none",
     photoShape: "rect",
     dateStyle: "line",
+    motion: "fade",
     celebratory: false,
   },
   /**
@@ -161,6 +175,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "none",
     photoShape: "oval",
     dateStyle: "line",
+    motion: "fade",
     celebratory: false,
   },
   general: {
@@ -170,6 +185,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     ornament: "none",
     photoShape: "rect",
     dateStyle: "line",
+    motion: "rise",
     celebratory: true,
   },
 };

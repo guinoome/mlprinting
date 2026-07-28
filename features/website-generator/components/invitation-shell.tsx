@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { MotionStyle } from "../layouts/types";
 
 /** Confetti particle shapes, chosen per event kind by the caller. */
 export type ConfettiShape = "petal" | "circle" | "star" | "rect";
@@ -120,6 +121,7 @@ export function InvitationShell({
   coupleLine,
   confetti,
   style,
+  motion = "rise",
   children,
 }: {
   monogram: string;
@@ -129,6 +131,13 @@ export function InvitationShell({
   confetti?: ConfettiConfig;
   /** The --inv-* theme variables, set on the root so the overlay is themed too. */
   style?: React.CSSProperties;
+  /**
+   * The occasion's reveal choreography, published to CSS as `data-motion` on
+   * the reveal root. One attribute on the root rather than a class per section:
+   * the observer below tags elements with `.vis` and knows nothing about which
+   * occasion it is animating, and it should stay that way.
+   */
+  motion?: MotionStyle;
   children: React.ReactNode;
 }) {
   const [opened, setOpened] = React.useState(false);
@@ -212,7 +221,12 @@ export function InvitationShell({
   }, [opened]);
 
   return (
-    <div ref={rootRef} className="inv-reveal-root" style={style}>
+    <div
+      ref={rootRef}
+      className="inv-reveal-root"
+      data-motion={motion}
+      style={style}
+    >
       <noscript>
         <style>{`.inv-overlay{display:none!important}.inv-reveal-root [data-reveal]{opacity:1!important;transform:none!important}`}</style>
       </noscript>

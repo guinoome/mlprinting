@@ -121,6 +121,39 @@ describe("layout registry", () => {
     });
   });
 
+  describe("motion", () => {
+    it("uses every choreography it defines", () => {
+      const used = new Set(ALL.map(([, l]) => l.motion));
+      expect(used).toEqual(new Set(["rise", "pop", "sweep", "fade"]));
+    });
+
+    /**
+     * The rule that matters. Sections sliding, scaling or springing into place
+     * is a page performing; a memorial notice, a mass and a barangay
+     * announcement should appear. "fade" is the only choreography with no
+     * travel and no scale, so it is the only one these three may take.
+     */
+    it("gives the solemn occasions the motion with no movement in it", () => {
+      for (const kind of ["funeral", "religious", "community"] as const) {
+        expect(LAYOUTS[kind].motion, `${kind} performs its arrival`).toBe(
+          "fade",
+        );
+      }
+    });
+
+    it("never springs a section on an occasion that takes no confetti", () => {
+      // celebratory already gates confetti; pop is the same judgement applied
+      // to scroll motion, and the two must not disagree.
+      for (const [kind, layout] of ALL) {
+        if (layout.motion === "pop") {
+          expect(layout.celebratory, `${kind} pops but is not celebratory`).toBe(
+            true,
+          );
+        }
+      }
+    });
+  });
+
   it("falls back to the neutral layout for an unknown occasion", () => {
     expect(layoutFor("general")).toBe(LAYOUTS.general);
   });

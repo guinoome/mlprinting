@@ -472,6 +472,7 @@ export function EventSite({
       monogram={monogram}
       coupleLine={coupleLine}
       confetti={confetti}
+      motion={layout.motion}
       style={invVars(style)}
     >
       <div

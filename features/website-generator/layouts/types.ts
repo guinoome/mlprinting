@@ -81,6 +81,28 @@ export type PhotoShape = "oval" | "arch" | "circle" | "blob" | "rect";
  */
 export type DateStyle = "line" | "row";
 
+/**
+ * How sections arrive as the guest scrolls — increment 4.
+ *
+ * Every invitation has always used one choreography: fade in while rising 26px.
+ * That is a good default and a poor universal, because *how a page moves* is
+ * part of its register. The same rise that reads as gentle on a christening
+ * reads as sluggish on a fiesta, and any movement at all is wrong on a memorial.
+ *
+ * - `rise`  — fade upward. The editorial default.
+ * - `pop`   — scale up from slightly small. For the loud occasions, matching
+ *             the flat-bold hero's register.
+ * - `sweep` — alternate in from left and right. Photo-led and editorial
+ *             layouts, where it reads as a filmstrip advancing.
+ * - `fade`  — opacity only, no travel, no scale. Memorial, religious and
+ *             community. Movement is what makes a page feel like it is
+ *             performing, and those three should appear rather than perform.
+ *
+ * `prefers-reduced-motion` still flattens all four to no transition at all —
+ * this chooses between motions, it does not decide whether to move.
+ */
+export type MotionStyle = "rise" | "pop" | "sweep" | "fade";
+
 export interface InvitationLayout {
   /** Stable id, used in tests and eventually for a per-template override. */
   id: string;
@@ -98,6 +120,7 @@ export interface InvitationLayout {
    */
   photoShape: PhotoShape;
   dateStyle: DateStyle;
+  motion: MotionStyle;
   /**
    * Whether the occasion takes confetti on opening. False is not an oversight
    * on memorial, religious and community — see event-site.tsx, which already

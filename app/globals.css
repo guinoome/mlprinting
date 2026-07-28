@@ -815,15 +815,64 @@
   opacity: 0.45;
 }
 
-/* --- Scroll reveal --- */
+/* --- Scroll reveal ---------------------------------------------------------
+ *
+ * The resting state is shared: hidden, and a single transition. Only the
+ * *from* transform varies per choreography, which is what keeps four motions
+ * from becoming four duplicated rule sets — and keeps the arrival identical, so
+ * no occasion can land somewhere other than its natural position.
+ *
+ * The observer in invitation-shell.tsx adds .vis and knows nothing about any of
+ * this; the occasion is published once as data-motion on the reveal root.
+ */
+/**
+ * Each choreography varies only two custom properties — where a section starts
+ * and how it travels. The transform itself is declared once.
+ *
+ * Custom properties rather than a rule per motion, because a rule per motion
+ * would tie with `.vis` on specificity (both land at 0-3-0) and win on source
+ * order, so `.vis` would never clear the offset and every section would
+ * animate *into* its displacement and stay there. Varying an input to one rule
+ * cannot lose a fight it never enters.
+ */
+.inv-reveal-root {
+  --inv-reveal-from: translateY(26px);
+  --inv-reveal-ease: opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 .inv-reveal-root [data-reveal] {
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: var(--inv-reveal-from);
+  transition: var(--inv-reveal-ease);
 }
 .inv-reveal-root [data-reveal].vis {
   opacity: 1;
   transform: none;
+}
+
+/* pop — birthday and fiesta. Up from slightly small, on a curve that overshoots
+   a little, matching the flat-bold hero's register. */
+.inv-reveal-root[data-motion="pop"] {
+  --inv-reveal-from: scale(0.94);
+  --inv-reveal-ease: opacity 0.5s ease,
+    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* sweep — anniversary, graduation, reunion. Alternating sides, so a column of
+   sections reads as a filmstrip advancing rather than a list arriving. */
+.inv-reveal-root[data-motion="sweep"] {
+  --inv-reveal-from: translateX(-34px);
+}
+.inv-reveal-root[data-motion="sweep"] [data-reveal]:nth-of-type(even) {
+  --inv-reveal-from: translateX(34px);
+}
+
+/* fade — memorial, religious, community. Opacity only, and slower: no travel,
+   no scale. Movement is what makes a page feel like it is performing, and these
+   three should appear rather than perform. */
+.inv-reveal-root[data-motion="fade"] {
+  --inv-reveal-from: none;
+  --inv-reveal-ease: opacity 1.1s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
