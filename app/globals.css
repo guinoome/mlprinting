@@ -346,6 +346,191 @@
   background: rgba(255, 255, 255, 0.7);
   margin: 18px auto 0;
 }
+
+/* --- On-ground heroes -------------------------------------------------------
+ *
+ * The five presentations that set type on the invitation's own paper rather
+ * than over a photograph: arch-portrait, photo-band, type-led, flat-bold and
+ * photo-grid. They share a base because they share the thing that makes them
+ * different from the full-bleed hero — ink type, no scrim, and a height that
+ * comes from their content instead of the viewport.
+ *
+ * Deliberately not min-height:100vh. A hero that always fills the screen is a
+ * cinematic device; on a memorial notice or a barangay announcement it just
+ * means the reader scrolls past emptiness to reach the details they opened the
+ * page for.
+ */
+.inv-hero-ground {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  color: var(--inv-fg);
+  padding: clamp(48px, 9vh, 96px) var(--inv-gutter);
+}
+.inv-hero-ground-copy {
+  position: relative;
+  max-width: 42rem;
+}
+/**
+ * Titles set inside a column, rather than across the viewport.
+ *
+ * .inv-names is clamp(40px, 8.4vw, 104px), sized against the viewport because
+ * on a full-bleed hero the title *is* the viewport. Reused unchanged inside a
+ * 42rem column it pinned to its 104px ceiling and filled the column edge to
+ * edge — measured, not guessed — which reads as shouting on a memorial and
+ * leaves a debut no margin.
+ *
+ * The selector follows the column and not the hero base, because card-on-photo
+ * is built on .inv-hero (it has a photographic backdrop) while its words live
+ * on a 30rem card. Keying this to .inv-hero-ground alone left that card setting
+ * a 104px title in a 480px box, which is exactly the bug this rule exists to
+ * prevent.
+ */
+.inv-hero-ground .inv-names,
+.inv-card-plane .inv-names {
+  font-size: clamp(30px, 5.2vw, 58px);
+}
+.inv-hero-ground .inv-hero-sub,
+.inv-card-plane .inv-hero-sub {
+  font-size: clamp(15px, 1.6vw, 18px);
+}
+/* The rule and monogram invert from the white used over a photograph. */
+.inv-hero-rule--ink {
+  background: var(--inv-accent);
+  opacity: 0.75;
+}
+.inv-mono--ink {
+  border-color: var(--inv-line);
+  color: var(--inv-accent);
+  margin: 0 auto clamp(18px, 3vh, 28px);
+}
+
+/* arch-portrait — one portrait, generous margin, words beneath. */
+.inv-arch-portrait {
+  position: relative;
+  width: min(320px, 68vw);
+  margin-bottom: clamp(26px, 5vh, 46px);
+}
+
+/* photo-band — a letterbox of photograph with the name set below it. */
+.inv-hero--band {
+  padding-top: 0;
+}
+.inv-band-photo {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  aspect-ratio: 16 / 9;
+  max-height: 58vh;
+  overflow: hidden;
+  margin-bottom: clamp(28px, 5vh, 52px);
+}
+.inv-band-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/**
+ * A cover standing in for a photograph that does not exist yet.
+ *
+ * The cover is a typeset card. Cropped to a letterbox and left legible it would
+ * print the template's own title across the band, above the hero setting the
+ * same words in type. Blurred past reading it keeps the palette and imagery and
+ * loses the words — texture, not a frosted panel. The scale hides the soft
+ * edges blur leaves at the boundary.
+ */
+.inv-band-texture {
+  filter: blur(14px) saturate(1.08);
+  transform: scale(1.12);
+}
+
+/* type-led — an inset ruled frame doing the work a photograph would. */
+.inv-type-card {
+  position: relative;
+  width: min(38rem, 100%);
+  padding: clamp(34px, 6vw, 62px) clamp(22px, 5vw, 48px);
+}
+
+/* flat-bold — the accent becomes the ground, not a detail.
+   The deepened accent, not the raw one: white on a raw mid-tone accent clears
+   the large-text contrast bar and fails the small-text one, which would leave
+   the eyebrow and date unreadable on exactly the two loudest occasions. */
+.inv-hero--bold {
+  background: var(--inv-accent-deep, var(--inv-accent));
+  color: #fff;
+}
+.inv-hero--bold .inv-hero-rule--ink {
+  background: rgba(255, 255, 255, 0.85);
+}
+.inv-hero--bold .inv-mono--ink {
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+/* The one place the type is meant to shout, so it overrides the column scale. */
+.inv-hero-ground .inv-names--bold {
+  font-size: clamp(38px, 7.4vw, 82px);
+}
+.inv-names--bold {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  /* A hard offset rather than a blur: the reference set's children's designs
+     use a printed drop shadow, and a soft glow reads as a web effect. */
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.18);
+}
+.inv-bold-photo {
+  width: min(190px, 44vw);
+  margin-top: clamp(26px, 5vh, 44px);
+}
+
+/* photo-grid — the crowd is the design. */
+.inv-grid-photos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-bottom: clamp(28px, 5vh, 52px);
+}
+@media (min-width: 640px) {
+  .inv-grid-photos {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.inv-grid-photos img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+/* card-on-photo — two planes: a photograph behind, paper on top. */
+.inv-hero-scrim--soft {
+  background: linear-gradient(
+    180deg,
+    rgba(20, 14, 16, 0.28) 0%,
+    rgba(20, 14, 16, 0.16) 50%,
+    rgba(20, 14, 16, 0.4) 100%
+  );
+}
+.inv-hero--card {
+  justify-content: center;
+}
+.inv-card-plane {
+  position: relative;
+  z-index: 1;
+  width: min(30rem, 100%);
+  padding: clamp(34px, 7vw, 60px) clamp(24px, 6vw, 44px);
+  background: var(--inv-paper);
+  color: var(--inv-fg);
+  border: 1px solid var(--inv-line);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
 .inv-petal {
   position: absolute;
   top: -6vh;

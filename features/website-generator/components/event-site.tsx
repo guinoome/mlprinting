@@ -7,7 +7,7 @@ import type {
 import { Countdown } from "./countdown";
 import { RsvpForm } from "./rsvp-form";
 import { InvitationShell, type ConfettiConfig } from "./invitation-shell";
-import { Typewriter } from "./typewriter";
+import { Hero } from "./hero";
 import { InvitationActions } from "./invitation-actions";
 import { MusicPlayer } from "./music-player";
 import { QrFooter } from "./qr-footer";
@@ -79,19 +79,6 @@ const CONFETTI_SHAPE: Record<EventKind, ConfettiConfig["shape"]> = {
  * what a guest sees.
  */
 
-/** Deterministic petals for the hero — a little ambient motion, no randomness to desync on hydration. */
-const PETALS = [
-  { left: 6, dur: 9, delay: 0, size: 9 },
-  { left: 18, dur: 11, delay: 1.5, size: 12 },
-  { left: 30, dur: 8, delay: 3, size: 7 },
-  { left: 42, dur: 12.5, delay: 0.8, size: 11 },
-  { left: 55, dur: 10, delay: 2.2, size: 8 },
-  { left: 67, dur: 13, delay: 4, size: 13 },
-  { left: 79, dur: 9.5, delay: 1, size: 9 },
-  { left: 89, dur: 11.5, delay: 3.4, size: 10 },
-  { left: 96, dur: 8.5, delay: 2.8, size: 7 },
-];
-
 function hexToRgb(hex: string): [number, number, number] | null {
   const match = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
   if (!match) return null;
@@ -138,6 +125,17 @@ function invVars(style: PreviewStyle): React.CSSProperties {
     "--inv-bg2": mix(style.background, style.accent, 0.16),
     "--inv-fg": style.foreground,
     "--inv-accent": style.accent,
+    /**
+     * The accent, deepened toward the ink, for use as a *ground* rather than a
+     * detail — the flat-bold hero fills the screen with it and sets white type
+     * on top.
+     *
+     * Measured, not assumed: a birthday's raw accent (#e2725b) gives white text
+     * 3.11:1. That passes for a large title and fails the 4.5:1 small-text
+     * threshold the eyebrow and date sit under. Deepening the ground fixes the
+     * whole block at once, where lightening the type cannot.
+     */
+    "--inv-accent-deep": mix(style.accent, style.foreground, 0.55),
     "--inv-soft": mix(style.background, style.accent, 0.28),
     "--inv-paper": mix(style.background, "#ffffff", 0.55),
     "--inv-line": rgba(style.accent, 0.28),
@@ -453,60 +451,23 @@ export function EventSite({
           fontFamily: style.bodyFont,
         }}
       >
-        {/* Hero. Still the one full-bleed presentation for all sixteen
-            occasions: `layout.hero` names the seven the design language asks
-            for, but nothing branches on it yet. This header is where that
-            branch goes. */}
-        <header
-          className="inv-hero"
-          style={model.coverImageUrl ? undefined : { background: heroFallback }}
-        >
-          {model.coverImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={model.coverImageUrl} alt="" className="inv-hero-photo" />
-          ) : null}
-          <div className="inv-hero-scrim" />
-          {PETALS.map((p) => (
-            <span
-              key={p.left}
-              className="inv-petal"
-              style={{
-                left: `${p.left}%`,
-                width: `${p.size}px`,
-                height: `${p.size}px`,
-                animationDuration: `${p.dur}s`,
-                animationDelay: `${p.delay}s`,
-              }}
-            />
-          ))}
-
-          <div className="inv-hero-top">
-            <div className="inv-mono">{monogram}</div>
-          </div>
-
-          <div className="inv-hero-inner">
-            <Typewriter text={eyebrow} className="inv-eyebrow" />
-            <h1 className="inv-names">{model.title}</h1>
-            {model.subtitle ? (
-              <p className="inv-hero-sub">{model.subtitle}</p>
-            ) : null}
-            {dateHero ? <p className="inv-hero-date">{dateHero}</p> : null}
-            <div className="inv-hero-rule" />
-          </div>
-
-          <div className="inv-scroll-cue" aria-hidden="true">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        </header>
+        {/* The occasion's own hero. `layout.hero` is finally read rather than
+            merely declared — see hero.tsx for what each of the seven does and
+            why the tone split matters more than the arrangement. */}
+        <Hero
+          presentation={layout.hero}
+          photoShape={layout.photoShape}
+          ornament={layout.ornament}
+          celebratory={layout.celebratory}
+          eyebrow={eyebrow}
+          title={model.title}
+          subtitle={model.subtitle}
+          dateLine={dateHero}
+          monogram={monogram}
+          coverImageUrl={model.coverImageUrl}
+          galleryUrls={model.galleryUrls}
+          fallbackBackground={heroFallback}
+        />
 
         <main className="inv-main">
           {order.map((id) => (
