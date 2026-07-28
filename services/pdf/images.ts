@@ -3,7 +3,7 @@ import "server-only";
 import sharp from "sharp";
 import { assetObjectPath } from "@/services/media";
 import { extensionOf } from "@/services/upload";
-import { signedUrl } from "@/services/upload/storage";
+import { signedReadUrl } from "@/services/upload/signed-read";
 import type { AssetRow } from "@/services/media";
 import type { Box } from "./types";
 
@@ -50,7 +50,7 @@ export async function prepareImage(
     extensionOf(asset.originalFilename),
   );
 
-  const url = await signedUrl(asset.bucket as "media" | "avatars", path, 60);
+  const url = await signedReadUrl(asset.bucket as "media" | "avatars", path, 60);
   if (!url) return null;
 
   const upstream = await fetch(url);

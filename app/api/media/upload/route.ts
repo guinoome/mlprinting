@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getProfile } from "@/lib/auth/session";
 import { createAsset, replaceAsset } from "@/services/media";
-import { validateUpload } from "@/services/upload";
+import { uploadKindForMime, validateUpload } from "@/services/upload";
 
 /**
  * Upload endpoint — design doc Decision 3's implementation note. One file per
@@ -35,9 +35,22 @@ export async function POST(request: NextRequest) {
   // Checked here as well as inside createAsset/replaceAsset, same reasoning as
   // features/invitation-builder/media-actions.ts: this is the layer that can
   // say it next to the request, before any processing runs.
+  //
+  // The kind comes from the file rather than being assumed. "image"
+  // unconditionally was right while images were all anyone could upload, and
+  // would have measured every video against the image ceiling and refused it
+  // in a message listing .jpg and .png.
+  const kind = uploadKindForMime(file.type);
+  if (!kind) {
+    return NextResponse.json(
+      { ok: false, error: "That file type is not accepted." },
+      { status: 400 },
+    );
+  }
+
   const failure = validateUpload(
     { name: file.name, size: file.size, type: file.type },
-    "image",
+    kind,
   );
   if (failure) {
     return NextResponse.json(

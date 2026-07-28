@@ -75,14 +75,19 @@ At <https://supabase.com> (free tier). Collect the four values listed in
 
 ### 3. Create the storage buckets
 
-Phase 1's upload framework (`services/upload`) writes to two buckets. Create both
-in Supabase → Storage:
+The upload framework (`services/upload`) writes to three buckets. Create all
+three in Supabase → Storage:
 
-| Bucket | Access | Holds |
-|---|---|---|
-| `avatars` | Public | Profile pictures |
-| `media` | **Private** | Customer media (Ph4), served via signed URLs |
-| `template-assets` | Public | Admin-uploaded template artwork (Instructions 4) |
+| Bucket | Access | Limit | MIME types | Holds |
+|---|---|---|---|---|
+| `avatars` | Public | 10 MB | jpeg, png, webp | Profile pictures |
+| `media` | **Private** | 50 MB | jpeg, png, webp, heic, mp4, webm | Customer photographs and hero video |
+| `template-assets` | Public | 20 MB | jpeg, png, webp | Admin-uploaded template artwork |
+
+Set the size limit and MIME list on each bucket, not only in application code:
+storage should refuse what the application would have refused, so a bug in one
+is not a hole in both. `media` carries the higher ceiling because a hero video
+lives there; images are capped far lower by `UPLOAD_CONSTRAINTS`.
 
 `template-assets` is public-read on purpose: it holds catalogue imagery every
 visitor is meant to see, and a signed URL that rotates on each mint would defeat
@@ -97,15 +102,9 @@ Then add a row-level security policy on each restricting writes to the caller's
 own folder — objects are stored at `<userId>/…`, and that prefix is what the
 policy matches on:
 
-```sql
--- Per bucket. Repeat with bucket_id = 'media'.
-create policy "own folder write" on storage.objects
-  for insert to authenticated
-  with check (
-    bucket_id = 'avatars'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
-```
+Run [`storage-policies.sql`](storage-policies.sql) in Supabase → SQL Editor. It
+is idempotent — every policy is dropped before it is created — and it prints the
+seven policies it installed so the result is checkable rather than assumed.
 
 **This step is not optional.** The application derives every upload path from the
 session, so it cannot write outside a user's own prefix — but that is application
@@ -113,6 +112,16 @@ code, and application code is not an access policy. Without RLS, anyone holding
 the anon key can write anywhere in the bucket, and the anon key is public by
 design. The code convention and the policy have to agree; only the policy is
 enforced.
+
+Note what the policies deliberately do **not** grant: anonymous read on `media`.
+A guest opening a published invitation never touches storage directly. The proxy
+route authorises the request, then mints a 60-second signed URL with the service
+role (`services/upload/signed-read.ts`) and re-serves the bytes itself, so the
+signed URL never leaves the server. That is how a private bucket feeds a public
+page without a public policy — and it is why reads are signed with the service
+role while **writes are not**: an upload path bug would put one customer's file
+in another's folder, which is exactly where a second line of defence earns its
+keep.
 
 ### 4. Link Vercel
 

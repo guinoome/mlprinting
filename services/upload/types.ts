@@ -8,7 +8,7 @@
  */
 
 /** What a caller is uploading. Constraints differ per kind. */
-export type UploadKind = "image" | "document";
+export type UploadKind = "image" | "document" | "video";
 
 export interface UploadConstraints {
   maxBytes: number;

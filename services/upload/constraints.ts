@@ -23,4 +23,24 @@ export const UPLOAD_CONSTRAINTS: Record<UploadKind, UploadConstraints> = {
     mimeTypes: ["application/pdf"],
     extensions: [".pdf"],
   },
+  /**
+   * Hero background video — increment 5 of docs/invitation-design-language.md.
+   *
+   * Two containers, both of which every current browser plays, and no
+   * transcoding: the platform has no ffmpeg, and a serverless function is the
+   * wrong place to acquire one. What a customer uploads is what a guest
+   * downloads, which is exactly why the ceiling is low — 50 MB over a Philippine
+   * mobile connection is already a long wait for decoration, and the hero shows
+   * its poster until the video is ready in any case.
+   *
+   * MOV is absent deliberately. iPhones record it, mostly in HEVC, which Chrome
+   * on Android will not decode; accepting it would mean uploads that look right
+   * to the person who made them and play for nobody else. Refusing it at the
+   * door is kinder than a silent black rectangle on the invitation.
+   */
+  video: {
+    maxBytes: 50 * 1024 * 1024,
+    mimeTypes: ["video/mp4", "video/webm"],
+    extensions: [".mp4", ".webm"],
+  },
 };

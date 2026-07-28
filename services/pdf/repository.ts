@@ -3,7 +3,8 @@ import "server-only";
 import type { Prisma, PdfGeneration, PdfPageSize } from "@prisma/client";
 import { prisma, isDatabaseConfigured } from "@/lib/db";
 import { logger } from "@/lib/logger";
-import { uploadFile, signedUrl, BUCKETS } from "@/services/upload/storage";
+import { uploadFile, BUCKETS } from "@/services/upload/storage";
+import { signedReadUrl } from "@/services/upload/signed-read";
 import { pdfObjectPath } from "./paths";
 
 /**
@@ -227,7 +228,7 @@ export async function storePdf(
 export async function readPdf(
   storagePath: string,
 ): Promise<ReadableStream | null> {
-  const url = await signedUrl(BUCKETS.media, storagePath, 60);
+  const url = await signedReadUrl(BUCKETS.media, storagePath, 60);
   if (!url) return null;
 
   const upstream = await fetch(url);

@@ -8,7 +8,12 @@
  */
 
 export { UPLOAD_CONSTRAINTS } from "./constraints";
-export { validateUpload, acceptAttribute, extensionOf } from "./validation";
+export {
+  validateUpload,
+  acceptAttribute,
+  extensionOf,
+  uploadKindForMime,
+} from "./validation";
 export type { FileDescriptor } from "./validation";
 export type {
   UploadKind,

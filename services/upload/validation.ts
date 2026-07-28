@@ -67,3 +67,25 @@ export function validateUpload(
 export function acceptAttribute(kind: UploadKind): string {
   return UPLOAD_CONSTRAINTS[kind].extensions.join(",");
 }
+
+/**
+ * Which constraint set a file should be judged against.
+ *
+ * The upload endpoint passed `"image"` unconditionally, which was true while
+ * images were the only thing anyone could upload and became wrong the moment
+ * video existed: a video would have been measured against the image rules and
+ * refused as the wrong type, in a message naming .jpg and .png.
+ *
+ * Decided from the claimed MIME type alone, which is enough here because it
+ * only chooses which rules apply — it grants nothing. validateUpload then
+ * checks type *and* extension against that set, so a video renamed .png is
+ * judged as an image and refused, and an .mp4 carrying a forged image header is
+ * judged as an image and refused as well. Neither reaches storage.
+ */
+export function uploadKindForMime(mimeType: string): UploadKind | null {
+  const mime = mimeType.trim().toLowerCase();
+  for (const kind of Object.keys(UPLOAD_CONSTRAINTS) as UploadKind[]) {
+    if (UPLOAD_CONSTRAINTS[kind].mimeTypes.includes(mime)) return kind;
+  }
+  return null;
+}

@@ -7,7 +7,7 @@ import {
   assetObjectPath,
 } from "@/services/media";
 import { extensionOf } from "@/services/upload";
-import { signedUrl } from "@/services/upload/storage";
+import { signedReadUrl } from "@/services/upload/signed-read";
 import { features } from "@/lib/config";
 
 /**
@@ -83,7 +83,7 @@ export async function GET(
 
   // Short-lived on purpose: this URL is used once, immediately, server-side,
   // and never reaches the browser — only our own re-served bytes do.
-  const url = await signedUrl(asset.bucket as "media" | "avatars", path, 60);
+  const url = await signedReadUrl(asset.bucket as "media" | "avatars", path, 60);
   if (!url) return new Response("Not found", { status: 404 });
 
   const upstream = await fetch(url);

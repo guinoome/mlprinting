@@ -5,6 +5,7 @@ import { isDatabaseConfigured } from "@/lib/db";
 import { extensionOf } from "@/services/upload";
 import { BUCKETS } from "@/services/upload/storage";
 import { processImage } from "./processing";
+import { mediaKindForMime } from "./kind";
 import { assetObjectPath, hasVariants } from "./paths";
 import { writeAssetObjects, removeAssetObjects } from "./storage";
 import {
@@ -131,7 +132,23 @@ export async function createAsset({
   const assetId = crypto.randomUUID();
   const extension = extensionOf(file.name);
   const buffer = Buffer.from(await file.arrayBuffer());
-  const processed = await processImage(buffer);
+
+  /**
+   * Video is stored as it arrived and never handed to sharp.
+   *
+   * processImage returns null for anything it cannot decode, so passing a video
+   * through it would "work" — after loading fifty megabytes into a serverless
+   * function's memory and asking an image library to parse a container it has
+   * never understood, purely to be told no. Deciding from the MIME type skips
+   * that entirely.
+   *
+   * The consequence is that a video has no thumbnail and no dimensions, so
+   * hasVariants() is false for it and every caller falls back to the original —
+   * which is the same path an image whose decode failed already takes. A hero
+   * video's still frame is the invitation's cover, not a generated one.
+   */
+  const kind = mediaKindForMime(file.type);
+  const processed = kind === "VIDEO" ? null : await processImage(buffer);
 
   const writes = [
     {
@@ -170,7 +187,7 @@ export async function createAsset({
       profileId,
       bucket: BUCKETS.media,
       storagePath: writes[0].path,
-      kind: "IMAGE",
+      kind,
       mimeType: file.type,
       bytes: file.size,
       originalFilename: file.name.slice(0, 200),

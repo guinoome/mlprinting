@@ -115,28 +115,21 @@ export function publicUrl(bucket: Bucket, path: string): string | null {
 }
 
 /**
- * Time-limited URL for an object in a private bucket.
- * Private media must never be handed out as a permanent link — a signed URL
- * that never expires is a public one with extra characters.
+ * Signing a private-bucket read lives in ./signed-read.ts, not here.
+ *
+ * There was a `signedUrl` in this module that signed as the signed-in user.
+ * Every one of its three callers ran *after* deciding the caller may read the
+ * object, and two of them have no session at all — a guest opening a published
+ * invitation, and PDF generation running as a background job. Signing as the
+ * caller there means signing as `anon`, which can only succeed if the bucket is
+ * opened to anonymous reads, and that would hand every customer's private
+ * photographs to anyone holding the anon key.
+ *
+ * It is removed rather than deprecated because it worked in development —
+ * where no storage policies existed and every signature succeeded — and would
+ * have started returning null the moment RLS became real. A function that is
+ * correct only while the security is switched off is worth deleting.
  */
-export async function signedUrl(
-  bucket: Bucket,
-  path: string,
-  expiresInSeconds = 3600,
-): Promise<string | null> {
-  if (!isSupabaseConfigured()) return null;
-
-  const supabase = createClient();
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(path, expiresInSeconds);
-
-  if (error) {
-    logger.report(error, { at: "signedUrl", bucket });
-    return null;
-  }
-  return data?.signedUrl ?? null;
-}
 
 /** Test seam: the object path for a user's avatar. */
 export function avatarPath(userId: string, extension: string): string {
