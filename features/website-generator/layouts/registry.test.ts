@@ -95,6 +95,32 @@ describe("layout registry", () => {
     });
   });
 
+  describe("date style", () => {
+    /**
+     * Both treatments have to be in real use. A field every occasion answers
+     * the same way is not a choice — it is a constant with extra steps, and the
+     * renderer branch behind it would never be exercised.
+     */
+    it("uses both treatments across the library", () => {
+      const used = new Set(ALL.map(([, l]) => l.dateStyle));
+      expect(used).toEqual(new Set(["line", "row"]));
+    });
+
+    /**
+     * The row is a device: a large numeral flanked by rules. It suits a
+     * celebration, and it is the wrong register for a memorial notice, a mass
+     * or a barangay announcement, where a date should be stated rather than
+     * performed.
+     */
+    it("keeps the numeral device off the solemn occasions", () => {
+      for (const kind of ["funeral", "religious", "community"] as const) {
+        expect(LAYOUTS[kind].dateStyle, `${kind} performs its date`).toBe(
+          "line",
+        );
+      }
+    });
+  });
+
   it("falls back to the neutral layout for an unknown occasion", () => {
     expect(layoutFor("general")).toBe(LAYOUTS.general);
   });

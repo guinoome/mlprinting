@@ -583,6 +583,10 @@
 }
 .inv-section {
   margin-top: clamp(52px, 9vw, 96px);
+  /* Containing block for .inv-section-motif, which is pinned to this section's
+     corners. Without it the ornament escapes to the nearest positioned
+     ancestor, which is the page. */
+  position: relative;
 }
 .inv-section-first {
   margin-top: clamp(48px, 8vw, 84px);
@@ -727,11 +731,39 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+/**
+ * The gallery is now PhotoFrame, which brings its own silhouette and its own
+ * aspect ratio per shape. Both are stripped here so the grid stays square and
+ * the shape decides the outline — an 8px radius under a blob or an oval would
+ * be a second, contradictory rounding.
+ */
+.inv-gallery > * {
+  aspect-ratio: 1;
+}
 .inv-gallery img {
   width: 100%;
-  aspect-ratio: 1;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+}
+
+/**
+ * The motif carried into one body section.
+ *
+ * Positioned relative to the section rather than the page, and pinned to the
+ * top corners only: the brief gathers decoration at the edges so the centre
+ * stays clear for words, and a countdown is exactly the kind of thing an
+ * ornament will crowd if allowed to.
+ */
+.inv-section-motif {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/** The date row standing in for the hero's plain date line. */
+.inv-hero-daterow {
+  margin-top: clamp(18px, 3vh, 28px);
 }
 .inv-rsvp {
   background: var(--inv-surface);

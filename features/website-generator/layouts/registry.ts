@@ -22,6 +22,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "countdown", "actions", "hosts", "invitation", "parents", "sponsors", "venues", "program", "gallery", "dress-code", "gifts"],
     ornament: "floral",
     photoShape: "arch",
+    dateStyle: "row",
     celebratory: true,
   },
   engagement: {
@@ -30,6 +31,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "hosts", "invitation", "countdown", "actions", "venues", "gallery", "notes"],
     ornament: "floral",
     photoShape: "arch",
+    dateStyle: "line",
     celebratory: true,
   },
   debut: {
@@ -38,6 +40,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "hosts", "countdown", "invitation", "sponsors", "venues", "program", "dress-code", "gallery", "actions"],
     ornament: "filigree",
     photoShape: "oval",
+    dateStyle: "row",
     celebratory: true,
   },
   birthday: {
@@ -49,6 +52,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "countdown", "venues", "program", "actions", "invitation", "gallery", "gifts"],
     ornament: "confetti",
     photoShape: "circle",
+    dateStyle: "row",
     celebratory: true,
   },
   christening: {
@@ -57,6 +61,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "hosts", "parents", "sponsors", "invitation", "venues", "program", "countdown", "gallery"],
     ornament: "wash",
     photoShape: "blob",
+    dateStyle: "line",
     celebratory: true,
   },
   "baby-shower": {
@@ -65,6 +70,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "hosts", "invitation", "countdown", "actions", "venues", "gifts", "gallery", "notes"],
     ornament: "wash",
     photoShape: "arch",
+    dateStyle: "row",
     celebratory: true,
   },
   anniversary: {
@@ -73,6 +79,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "hosts", "countdown", "invitation", "gallery", "venues", "program", "dress-code"],
     ornament: "filigree",
     photoShape: "oval",
+    dateStyle: "row",
     celebratory: true,
   },
   graduation: {
@@ -81,6 +88,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "hosts", "invitation", "countdown", "actions", "venues", "program", "gallery"],
     ornament: "none",
     photoShape: "rect",
+    dateStyle: "row",
     celebratory: true,
   },
   corporate: {
@@ -89,6 +97,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "invitation", "countdown", "venues", "program", "dress-code", "actions", "notes"],
     ornament: "filigree",
     photoShape: "rect",
+    dateStyle: "row",
     celebratory: true,
   },
   reunion: {
@@ -97,6 +106,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "gallery", "hosts", "invitation", "countdown", "venues", "program", "actions"],
     ornament: "none",
     photoShape: "rect",
+    dateStyle: "line",
     celebratory: true,
   },
   family: {
@@ -105,6 +115,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "hosts", "invitation", "venues", "program", "countdown", "gallery", "notes", "actions"],
     ornament: "wash",
     photoShape: "blob",
+    dateStyle: "line",
     celebratory: true,
   },
   fiesta: {
@@ -113,6 +124,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "program", "invitation", "venues", "countdown", "gallery", "notes", "actions"],
     ornament: "confetti",
     photoShape: "circle",
+    dateStyle: "row",
     celebratory: true,
   },
   religious: {
@@ -121,6 +133,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "invitation", "program", "venues", "hosts", "notes"],
     ornament: "none",
     photoShape: "rect",
+    dateStyle: "line",
     celebratory: false,
   },
   community: {
@@ -129,6 +142,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "invitation", "program", "venues", "notes", "actions"],
     ornament: "none",
     photoShape: "rect",
+    dateStyle: "line",
     celebratory: false,
   },
   /**
@@ -146,6 +160,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "invitation", "venues", "program", "hosts", "gallery", "notes", "gifts"],
     ornament: "none",
     photoShape: "oval",
+    dateStyle: "line",
     celebratory: false,
   },
   general: {
@@ -154,6 +169,7 @@ export const LAYOUTS: Record<EventKind, InvitationLayout> = {
     sections: ["welcome", "invitation", "countdown", "actions", "hosts", "venues", "program", "gallery", "dress-code", "gifts", "notes"],
     ornament: "none",
     photoShape: "rect",
+    dateStyle: "line",
     celebratory: true,
   },
 };

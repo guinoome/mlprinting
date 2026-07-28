@@ -8,6 +8,7 @@ import { Countdown } from "./countdown";
 import { RsvpForm } from "./rsvp-form";
 import { InvitationShell, type ConfettiConfig } from "./invitation-shell";
 import { Hero } from "./hero";
+import { CornerOrnament, PhotoFrame } from "./primitives";
 import { InvitationActions } from "./invitation-actions";
 import { MusicPlayer } from "./music-player";
 import { QrFooter } from "./qr-footer";
@@ -258,9 +259,25 @@ export function EventSite({
       </Section>
     ),
 
+    /**
+     * The one section that carries the occasion's motif into the body.
+     *
+     * `layout.ornament` was read only by the hero, so a fiesta's confetti and a
+     * christening's wash stopped at the fold and every occasion's body was
+     * decorated with the same anonymous rule. One motif-bearing section is
+     * enough — the brief puts decoration in the corners so the centre stays
+     * clear, and repeating it down the page would be wallpaper.
+     */
     countdown: countdownTarget ? (
       <Section>
-        <div className="inv-ornament" aria-hidden="true" />
+        {layout.ornament === "none" ? (
+          <div className="inv-ornament" aria-hidden="true" />
+        ) : (
+          <div className="inv-section-motif" aria-hidden="true">
+            <CornerOrnament placement="top-left" motif={layout.ornament} />
+            <CornerOrnament placement="top-right" motif={layout.ornament} />
+          </div>
+        )}
         <Countdown targetDate={countdownTarget} />
       </Section>
     ) : null,
@@ -372,12 +389,26 @@ export function EventSite({
       </Section>
     ),
 
+    /**
+     * Cut to the occasion's own shape, not to rectangles.
+     *
+     * docs/invitation-design-language.md calls this the largest single gap in
+     * the platform: a rectangle reads as pasted where a shape reads as placed.
+     * The hero has framed its portrait since increment 2; leaving the gallery
+     * square undid that a screen later, so a christening's soft blob was
+     * followed by a grid of hard corners.
+     */
     gallery: (
       <Section>
         <div className="inv-gallery">
           {model.galleryUrls.map((url) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={url} src={url} alt="" />
+            <PhotoFrame
+              key={url}
+              shape={layout.photoShape}
+              src={url}
+              alt=""
+              ring
+            />
           ))}
         </div>
       </Section>
@@ -463,6 +494,9 @@ export function EventSite({
           title={model.title}
           subtitle={model.subtitle}
           dateLine={dateHero}
+          date={countdownTarget}
+          timeLine={model.timeLine}
+          dateStyle={layout.dateStyle}
           monogram={monogram}
           coverImageUrl={model.coverImageUrl}
           galleryUrls={model.galleryUrls}

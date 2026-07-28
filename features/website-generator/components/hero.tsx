@@ -4,10 +4,12 @@ import { Typewriter } from "./typewriter";
 import {
   CornerOrnament,
   InsetFrame,
+  DateRow,
   PhotoFrame,
   PhotoStrip,
 } from "./primitives";
 import type {
+  DateStyle,
   HeroPresentation,
   OrnamentMotif,
   PhotoShape,
@@ -74,6 +76,11 @@ export interface HeroProps {
   subtitle: string | null;
   /** Date and time, already joined by the caller. The hero never formats a date. */
   dateLine: string | null;
+  /** The resolved event date. Null when the customer has not set one. */
+  date: Date | null;
+  /** Time only, for the row device to set beneath its numeral. */
+  timeLine: string | null;
+  dateStyle: DateStyle;
   monogram: string;
   coverImageUrl: string | null;
   galleryUrls: string[];
@@ -92,6 +99,9 @@ function HeroCopy({
   title,
   subtitle,
   dateLine,
+  date,
+  dateStyle,
+  timeLine,
   tone,
   titleClass,
   animate,
@@ -100,11 +110,20 @@ function HeroCopy({
   title: string;
   subtitle: string | null;
   dateLine: string | null;
+  /** The resolved event date, when there is one. Required by the row device. */
+  date: Date | null;
+  dateStyle: DateStyle;
+  timeLine: string | null;
   tone: "light" | "ink";
   titleClass?: string;
   /** Typewriter on the eyebrow. Off where the hero should not perform. */
   animate: boolean;
 }) {
+  // The row needs a real Date; the line is prose the model already formatted.
+  // Falling back keeps an occasion that asked for a row from losing its date
+  // entirely on an invitation whose date has not been set.
+  const showRow = dateStyle === "row" && date !== null;
+
   return (
     <>
       {animate ? (
@@ -114,7 +133,17 @@ function HeroCopy({
       )}
       <h1 className={cn("inv-names", titleClass)}>{title}</h1>
       {subtitle ? <p className="inv-hero-sub">{subtitle}</p> : null}
-      {dateLine ? <p className="inv-hero-date">{dateLine}</p> : null}
+
+      {showRow ? (
+        <DateRow
+          date={date}
+          timeLine={timeLine ?? undefined}
+          className="inv-hero-daterow"
+        />
+      ) : dateLine ? (
+        <p className="inv-hero-date">{dateLine}</p>
+      ) : null}
+
       <div
         className={cn("inv-hero-rule", tone === "ink" && "inv-hero-rule--ink")}
       />
@@ -268,6 +297,9 @@ function FullBleedHero({
   title,
   subtitle,
   dateLine,
+  date,
+  dateStyle,
+  timeLine,
   monogram,
   coverImageUrl,
   fallbackBackground,
@@ -294,6 +326,9 @@ function FullBleedHero({
           title={title}
           subtitle={subtitle}
           dateLine={dateLine}
+          date={date}
+          dateStyle={dateStyle}
+          timeLine={timeLine}
           tone="light"
           animate
         />
@@ -316,6 +351,9 @@ function ArchPortraitHero({
   title,
   subtitle,
   dateLine,
+  date,
+  dateStyle,
+  timeLine,
   ornament,
   galleryUrls,
 }: HeroProps) {
@@ -337,6 +375,9 @@ function ArchPortraitHero({
           title={title}
           subtitle={subtitle}
           dateLine={dateLine}
+          date={date}
+          dateStyle={dateStyle}
+          timeLine={timeLine}
           tone="ink"
           animate={celebratory}
         />
@@ -359,6 +400,9 @@ function PhotoBandHero({
   title,
   subtitle,
   dateLine,
+  date,
+  dateStyle,
+  timeLine,
   monogram,
   coverImageUrl,
   galleryUrls,
@@ -380,6 +424,9 @@ function PhotoBandHero({
           title={title}
           subtitle={subtitle}
           dateLine={dateLine}
+          date={date}
+          dateStyle={dateStyle}
+          timeLine={timeLine}
           tone="ink"
           animate={celebratory}
         />
@@ -402,6 +449,9 @@ function TypeLedHero({
   title,
   subtitle,
   dateLine,
+  date,
+  dateStyle,
+  timeLine,
   monogram,
   ornament,
 }: HeroProps) {
@@ -417,6 +467,9 @@ function TypeLedHero({
             title={title}
             subtitle={subtitle}
             dateLine={dateLine}
+            date={date}
+            dateStyle={dateStyle}
+            timeLine={timeLine}
             tone="ink"
             animate={celebratory}
           />
@@ -440,6 +493,9 @@ function FlatBoldHero({
   title,
   subtitle,
   dateLine,
+  date,
+  dateStyle,
+  timeLine,
   ornament,
   galleryUrls,
 }: HeroProps) {
@@ -454,6 +510,9 @@ function FlatBoldHero({
           title={title}
           subtitle={subtitle}
           dateLine={dateLine}
+          date={date}
+          dateStyle={dateStyle}
+          timeLine={timeLine}
           tone="ink"
           titleClass="inv-names--bold"
           animate={celebratory}
@@ -486,6 +545,9 @@ function CardOnPhotoHero({
   title,
   subtitle,
   dateLine,
+  date,
+  dateStyle,
+  timeLine,
   monogram,
   ornament,
   coverImageUrl,
@@ -511,6 +573,9 @@ function CardOnPhotoHero({
           title={title}
           subtitle={subtitle}
           dateLine={dateLine}
+          date={date}
+          dateStyle={dateStyle}
+          timeLine={timeLine}
           tone="ink"
           animate={celebratory}
         />
@@ -533,6 +598,9 @@ function PhotoGridHero({
   title,
   subtitle,
   dateLine,
+  date,
+  dateStyle,
+  timeLine,
   monogram,
   coverImageUrl,
   galleryUrls,
@@ -564,6 +632,9 @@ function PhotoGridHero({
           title={title}
           subtitle={subtitle}
           dateLine={dateLine}
+          date={date}
+          dateStyle={dateStyle}
+          timeLine={timeLine}
           tone="ink"
           animate={celebratory}
         />

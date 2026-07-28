@@ -62,6 +62,25 @@ export type OrnamentMotif = "floral" | "filigree" | "wash" | "confetti" | "none"
 /** The shape a photograph is cut to. A rectangle reads as pasted; a shape reads as placed. */
 export type PhotoShape = "oval" | "arch" | "circle" | "blob" | "rect";
 
+/**
+ * How the hero states the date.
+ *
+ * "line" is one small line of tracked capitals — right when a photograph or a
+ * display title is already carrying the design.
+ *
+ * "row" is the DateRow device: weekday and month either side of a large
+ * numeral, divided by vertical rules. Five of the sixteen references use it,
+ * and it is the strongest upgrade available to a hero with no photograph to
+ * lean on.
+ *
+ * Declared per occasion rather than derived from the hero presentation, because
+ * the two do not correlate — a full-bleed wedding wants the row, and a type-led
+ * community notice is better served by the quiet line.
+ *
+ * Exactly one of the two renders. A date belongs on an invitation once.
+ */
+export type DateStyle = "line" | "row";
+
 export interface InvitationLayout {
   /** Stable id, used in tests and eventually for a per-template override. */
   id: string;
@@ -72,7 +91,13 @@ export interface InvitationLayout {
    */
   sections: SectionId[];
   ornament: OrnamentMotif;
+  /**
+   * The shape gallery photographs and framed hero portraits are cut to. Read by
+   * the gallery section, not only the hero — a rectangle in the body undoes a
+   * shaped frame at the top.
+   */
   photoShape: PhotoShape;
+  dateStyle: DateStyle;
   /**
    * Whether the occasion takes confetti on opening. False is not an oversight
    * on memorial, religious and community — see event-site.tsx, which already
