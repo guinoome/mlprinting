@@ -444,6 +444,13 @@ enum MediaSlot {
   /// Ph3.md §7 marks background music future-ready. The slot exists; nothing
   /// writes it yet.
   MUSIC
+  /// The hero's moving background — increment 5 of
+  /// docs/invitation-design-language.md. Same treatment as MUSIC above: the
+  /// renderer plays one when this slot is filled, and nothing fills it yet
+  /// because Ph4 Decision 4 scopes upload to images. COVER remains the poster,
+  /// so an invitation with a video still has a still frame to show while it
+  /// loads, when it fails, and whenever the guest asked for reduced motion.
+  VIDEO
 }
 
 enum MediaKind {

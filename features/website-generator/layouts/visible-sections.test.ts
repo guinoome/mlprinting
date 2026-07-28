@@ -37,6 +37,7 @@ function emptyModel(over: Partial<PreviewModel> = {}): PreviewModel {
     eventTheme: null,
     rsvpLine: null,
     coverImageUrl: null,
+    heroVideoUrl: null,
     galleryUrls: [],
     musicUrl: null,
     style: STYLE,

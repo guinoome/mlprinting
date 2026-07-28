@@ -4,7 +4,11 @@ import { notFound } from "next/navigation";
 import { getPublishedInvitation } from "@/features/website-generator/repository";
 import { zonedInstant } from "@/features/website-generator/countdown-time";
 import { EventSite } from "@/features/website-generator/components/event-site";
-import { toPreviewModel, type PreviewInput } from "@/lib/invitation/preview-model";
+import {
+  toPreviewModel,
+  type MediaSlotKey,
+  type PreviewInput,
+} from "@/lib/invitation/preview-model";
 import { previewUrl } from "@/services/media";
 import { features } from "@/lib/config";
 import { env } from "@/lib/env";
@@ -72,11 +76,9 @@ export default async function PublicEventPage({
   const invitation = await loadInvitation(params.slug);
   if (!invitation) notFound();
 
-  const mediaUrls: Partial<
-    Record<"COVER" | "COUPLE" | "FAMILY" | "LOGO" | "MUSIC", string[]>
-  > = {};
+  const mediaUrls: Partial<Record<MediaSlotKey, string[]>> = {};
   for (const link of invitation.media) {
-    const slot = link.slot as "COVER" | "COUPLE" | "FAMILY" | "LOGO" | "MUSIC";
+    const slot = link.slot as MediaSlotKey;
     (mediaUrls[slot] ??= []).push(previewUrl(link.asset));
   }
 

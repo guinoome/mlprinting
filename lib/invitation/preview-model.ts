@@ -177,10 +177,24 @@ export interface PreviewInput {
     hiddenSections: string[];
   } | null;
   /** Slot → resolved URLs. The model never resolves storage itself. */
-  mediaUrls: Partial<
-    Record<"COVER" | "COUPLE" | "FAMILY" | "LOGO" | "MUSIC", string[]>
-  >;
+  mediaUrls: Partial<Record<MediaSlotKey, string[]>>;
 }
+
+/**
+ * The media slots a renderer understands, mirroring Prisma's MediaSlot.
+ *
+ * Exported because three call sites were each re-typing the same union inline,
+ * which is how a new slot gets added to the database and silently dropped on
+ * the way to the page — the compiler has nothing to disagree with when the
+ * shape is written out by hand in every consumer.
+ */
+export type MediaSlotKey =
+  | "COVER"
+  | "COUPLE"
+  | "FAMILY"
+  | "LOGO"
+  | "MUSIC"
+  | "VIDEO";
 
 /** Resolved design values, ready to hand to a renderer as CSS. */
 export interface PreviewStyle {
@@ -226,6 +240,14 @@ export interface PreviewModel {
   eventTheme: string | null;
   rsvpLine: string | null;
   coverImageUrl: string | null;
+  /**
+   * The hero's moving background, when one has been uploaded — increment 5.
+   *
+   * Null is the normal case and not a degraded one: `coverImageUrl` is the
+   * poster, so a hero with no video is exactly the hero that shipped before
+   * this field existed.
+   */
+  heroVideoUrl: string | null;
   galleryUrls: string[];
   /** Optional background track (customer upload); the public site offers a play toggle. */
   musicUrl: string | null;
@@ -374,6 +396,7 @@ export function toPreviewModel(input: PreviewInput): PreviewModel {
       : null,
 
     coverImageUrl: input.mediaUrls.COVER?.[0] ?? null,
+    heroVideoUrl: input.mediaUrls.VIDEO?.[0] ?? null,
     galleryUrls: [
       ...(input.mediaUrls.COUPLE ?? []),
       ...(input.mediaUrls.FAMILY ?? []),

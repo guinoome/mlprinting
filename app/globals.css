@@ -270,6 +270,10 @@
   overflow: hidden;
   padding: 0 var(--inv-gutter) clamp(56px, 8vh, 104px);
 }
+/* The full-bleed backdrop. An <img> normally; a <video> when one was uploaded
+   (increment 5). One selector for both so the parallax in
+   invitation-shell.tsx — which queries this class — moves either without
+   knowing which it got. Oversized so the drift never exposes an edge. */
 .inv-hero-photo {
   position: absolute;
   top: -20%;
@@ -278,6 +282,12 @@
   height: 140%;
   object-fit: cover;
   will-change: transform;
+}
+/* A paused <video> shows its poster, which must fill the frame the same way
+   the photograph would rather than letterboxing inside it. */
+video.inv-hero-photo {
+  object-position: center;
+  background: var(--inv-soft);
 }
 .inv-hero-scrim {
   position: absolute;

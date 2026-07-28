@@ -333,6 +333,10 @@ function sampleModel(
     eventTheme: null,
     rsvpLine: k.rsvpLine === undefined ? dates.rsvpLine : k.rsvpLine,
     coverImageUrl,
+    // No uploaded media on the sample, so no hero video. The cover above is the
+    // poster, which is exactly what the full-bleed heroes showed before video
+    // existed — an absent video is the normal case, not a degraded one.
+    heroVideoUrl: null,
     galleryUrls: [],
     // Left null so the sample exercises the same occasion-matched track a real
     // invitation gets, rather than a one-off file only this page knows about.

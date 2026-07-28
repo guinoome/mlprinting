@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Typewriter } from "./typewriter";
+import { HeroVideo } from "./hero-video";
 import {
   CornerOrnament,
   InsetFrame,
@@ -83,6 +84,8 @@ export interface HeroProps {
   dateStyle: DateStyle;
   monogram: string;
   coverImageUrl: string | null;
+  /** The hero's moving background, when one has been uploaded. */
+  heroVideoUrl: string | null;
   galleryUrls: string[];
   /** Gradient shown when there is no photograph. */
   fallbackBackground: string;
@@ -245,6 +248,41 @@ function Band({
   );
 }
 
+/**
+ * What fills a full-bleed hero behind the scrim — increment 5.
+ *
+ * A video when one has been uploaded, the cover photograph otherwise, and the
+ * theme gradient when there is neither. Extracted because both over-photo
+ * heroes need the same three-way choice, and a branch written twice is a branch
+ * that will be corrected once.
+ *
+ * The video keeps the photograph's class, so the existing hero parallax in
+ * invitation-shell.tsx — which drives `.inv-hero-photo` — moves it too, without
+ * that effect learning what a video is.
+ */
+function Backdrop({
+  videoUrl,
+  coverImageUrl,
+}: {
+  videoUrl: string | null;
+  coverImageUrl: string | null;
+}) {
+  if (videoUrl) {
+    return (
+      <HeroVideo
+        src={videoUrl}
+        poster={coverImageUrl}
+        className="inv-hero-photo"
+      />
+    );
+  }
+  if (coverImageUrl) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={coverImageUrl} alt="" className="inv-hero-photo" />;
+  }
+  return null;
+}
+
 /** Corner decoration, when the occasion has a motif. "none" draws nothing. */
 function Corners({ motif }: { motif: OrnamentMotif }) {
   if (motif === "none") return null;
@@ -302,6 +340,7 @@ function FullBleedHero({
   timeLine,
   monogram,
   coverImageUrl,
+  heroVideoUrl,
   fallbackBackground,
 }: HeroProps) {
   return (
@@ -309,10 +348,7 @@ function FullBleedHero({
       className="inv-hero"
       style={coverImageUrl ? undefined : { background: fallbackBackground }}
     >
-      {coverImageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={coverImageUrl} alt="" className="inv-hero-photo" />
-      ) : null}
+      <Backdrop videoUrl={heroVideoUrl} coverImageUrl={coverImageUrl} />
       <div className="inv-hero-scrim" />
       <Ambient celebratory={celebratory} />
 
@@ -405,6 +441,7 @@ function PhotoBandHero({
   timeLine,
   monogram,
   coverImageUrl,
+  heroVideoUrl,
   galleryUrls,
   fallbackBackground,
 }: HeroProps) {
@@ -551,6 +588,7 @@ function CardOnPhotoHero({
   monogram,
   ornament,
   coverImageUrl,
+  heroVideoUrl,
   fallbackBackground,
 }: HeroProps) {
   return (
@@ -558,10 +596,7 @@ function CardOnPhotoHero({
       className="inv-hero inv-hero--card"
       style={coverImageUrl ? undefined : { background: fallbackBackground }}
     >
-      {coverImageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={coverImageUrl} alt="" className="inv-hero-photo" />
-      ) : null}
+      <Backdrop videoUrl={heroVideoUrl} coverImageUrl={coverImageUrl} />
       <div className="inv-hero-scrim inv-hero-scrim--soft" />
       <Ambient celebratory={celebratory} />
 
@@ -603,6 +638,7 @@ function PhotoGridHero({
   timeLine,
   monogram,
   coverImageUrl,
+  heroVideoUrl,
   galleryUrls,
   fallbackBackground,
 }: HeroProps) {

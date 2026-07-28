@@ -243,13 +243,18 @@ export default async function BuilderStepPage({
 
       case "preview": {
         // Group resolved URLs by slot for the view model.
-        const mediaUrls: Partial<
-          Record<"COVER" | "COUPLE" | "FAMILY" | "LOGO", string[]>
-        > = {};
-        for (const link of draft!.media) {
-          if (link.slot === "MUSIC") continue;
+        //
+        // An allowlist rather than a skip-list. The previous form excluded
+        // MUSIC by name and cast whatever remained to one of four slots, so
+        // adding VIDEO to MediaSlot would have quietly filed a video under
+        // COVER — a cast is a promise the compiler stops checking.
+        const PREVIEWABLE = ["COVER", "COUPLE", "FAMILY", "LOGO"] as const;
+        type PreviewableSlot = (typeof PREVIEWABLE)[number];
 
-          const slot = link.slot as "COVER" | "COUPLE" | "FAMILY" | "LOGO";
+        const mediaUrls: Partial<Record<PreviewableSlot, string[]>> = {};
+        for (const link of draft!.media) {
+          const slot = PREVIEWABLE.find((s) => s === link.slot);
+          if (!slot) continue;
           (mediaUrls[slot] ??= []).push(previewUrl(link.asset));
         }
 

@@ -500,6 +500,7 @@ export function EventSite({
           dateStyle={layout.dateStyle}
           monogram={monogram}
           coverImageUrl={model.coverImageUrl}
+          heroVideoUrl={model.heroVideoUrl}
           galleryUrls={model.galleryUrls}
           fallbackBackground={heroFallback}
         />
