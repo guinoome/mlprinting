@@ -29,6 +29,21 @@ GitHub (guinoome/mlprinting)
 
 Once configured, no manual deployment step exists (PROJECT_CHARTER.md).
 
+### Why `build` runs `prisma generate`
+
+`package.json`'s build script is `prisma generate && next build`, not just
+`next build`. `prisma generate` also runs on `postinstall`, which looks like
+enough and is not: Vercel restores a build cache between deployments, so an
+install with no dependency changes prints "Already up to date" and skips
+lifecycle scripts entirely. The cached Prisma client then predates the schema in
+the commit being built.
+
+This failed exactly once, in the obvious way — a deployment adding a model died
+on `Property 'templateAsset' does not exist on type 'PrismaClient'` while the
+same build passed locally, because local had generated after the schema changed.
+Generating in the build step makes the client a function of the committed schema
+rather than of whether the cache happened to be warm.
+
 **Status:** the pipeline is *prepared, not live* (ML-DES.md §5). Wiring is
 verified by a successful build; the site is not made public.
 
@@ -67,6 +82,16 @@ in Supabase → Storage:
 |---|---|---|
 | `avatars` | Public | Profile pictures |
 | `media` | **Private** | Customer media (Ph4), served via signed URLs |
+| `template-assets` | Public | Admin-uploaded template artwork (Instructions 4) |
+
+`template-assets` is public-read on purpose: it holds catalogue imagery every
+visitor is meant to see, and a signed URL that rotates on each mint would defeat
+CDN caching across a grid of covers while protecting nothing. It takes **no** RLS
+write policy, unlike the two above — writes go through a service-role client
+(`lib/supabase/admin.ts`) behind `requireStaff()`, because "public" grants read
+and not insert. Set its size limit to 20 MB and restrict its allowed MIME types
+to `image/jpeg, image/png, image/webp`, so storage refuses anything the
+application would have refused.
 
 Then add a row-level security policy on each restricting writes to the caller's
 own folder — objects are stored at `<userId>/…`, and that prefix is what the
