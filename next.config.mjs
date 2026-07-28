@@ -16,6 +16,25 @@ const nextConfig = {
      */
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+
+    /**
+     * Admin-uploaded template artwork lives in Supabase Storage — Instructions
+     * 4. next/image refuses any host not listed here, so without this every
+     * uploaded cover renders as a 400 while the generated ones keep working,
+     * which is a confusing way to discover a missing config line.
+     *
+     * Scoped to the public object path of one bucket rather than the whole
+     * host: nothing else we store is meant to be optimised and served through
+     * our own image endpoint, and a wildcard would let any object in any
+     * bucket be fetched through it.
+     */
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/template-assets/**",
+      },
+    ],
   },
 };
 

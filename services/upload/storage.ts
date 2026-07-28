@@ -24,6 +24,10 @@ export const BUCKETS = {
   /** Customer media. Private; served through signed URLs. */
   media: "media",
 } as const;
+// Admin template artwork is deliberately absent. It is written with a
+// service-role client and lives in services/template-assets/storage.ts —
+// keeping the privileged path out of this service means no existing caller here
+// is one wrong argument away from bypassing RLS. See lib/supabase/admin.ts.
 
 export type Bucket = (typeof BUCKETS)[keyof typeof BUCKETS];
 

@@ -51,6 +51,8 @@ model Profile {
   invitations Invitation[]
   mediaAssets MediaAsset[]
 
+  uploadedTemplateAssets TemplateAsset[] @relation("TemplateAssetUploader")
+
   orders         Order[]      @relation("OrderCustomer")
   assignedOrders Order[]      @relation("OrderAssignee")
   assignedItems  OrderItem[]  @relation("OrderItemAssignee")
@@ -213,7 +215,23 @@ model Template {
   printCompatible   Boolean             @default(true)
   websiteCompatible Boolean             @default(true)
 
+  /// What every surface renders — card, landing page, builder, preview, OG tag.
+  /// When an admin assigns uploaded artwork this is overwritten with its public
+  /// URL, so all twelve consumers pick up the real design without knowing this
+  /// feature exists.
   coverImageUrl String
+
+  /// The uploaded design currently supplying coverImageUrl, if any.
+  /// SetNull rather than Cascade: deleting an asset must not delete templates.
+  artworkId String?        @db.Uuid
+  artwork   TemplateAsset? @relation(fields: [artworkId], references: [id], onDelete: SetNull)
+
+  /// The procedurally generated cover this template had before artwork was
+  /// assigned. Stored rather than recomputed because regenerating it needs the
+  /// seed's style argument, which lives in seed-data.ts and not on this row —
+  /// so recomputation would quietly return a *different* design. Remembering
+  /// the string makes un-assigning exact instead of approximate.
+  generatedCoverUrl String?
 
   // --- Curation and lifecycle ---
   isFeatured  Boolean   @default(false)
@@ -243,6 +261,60 @@ model Template {
   @@index([publishedAt, useCount])
   @@index([publishedAt, name])
   @@map("templates")
+}
+
+/// A professionally designed cover uploaded by an administrator —
+/// Instructions 4.
+///
+/// The reason this model exists: template artwork was generated procedurally
+/// from the slug (lib/placeholder-art.ts), and generated vector art does not
+/// look like stationery someone would pay for. This is the escape hatch — a
+/// real design, drawn by a person, uploaded through the admin.
+///
+/// Deliberately NOT folded into Template. A Template carries a slug, category,
+/// two descriptions, a designer and five string arrays, all required; the brief
+/// asks for three fields and puts categories out of scope. Forcing an upload
+/// through the catalogue schema would mean inventing nine values nobody typed.
+/// An asset is a file. What it is *used for* is the assignment below.
+model TemplateAsset {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// Display name. Defaults to the filename, editable at upload.
+  name String
+
+  /// Bucket and object path — never a URL. Mirrors MediaAsset's reasoning:
+  /// a path is stable, a URL is a rendering of one.
+  bucket      String
+  /// Unique within the bucket. Generated, never the user's filename, so two
+  /// designers uploading "cover.png" cannot collide or overwrite each other.
+  storagePath String @unique
+
+  /// What the admin actually chose on disk. Kept for display and for support
+  /// questions ("which file did I upload?"); never used to address storage.
+  originalFilename String
+  mimeType         String
+  bytes            Int
+  /// Intrinsic dimensions. Null only if the image could not be probed, which
+  /// also means no thumbnail was produced.
+  width            Int?
+  height           Int?
+
+  /// Downscaled thumbnail path for the admin grid. Null when generation
+  /// failed — the list falls back to the full image rather than a broken box.
+  thumbnailPath String?
+
+  uploadedById String?  @db.Uuid
+  uploadedBy   Profile? @relation("TemplateAssetUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  /// Templates currently wearing this artwork. Plural because one design may
+  /// legitimately cover several catalogue entries.
+  templates Template[]
+
+  /// Newest first is the only ordering the brief asks for.
+  @@index([createdAt])
+  @@map("template_assets")
 }
 
 /// Preview imagery — Ph2.md §6 (desktop, mobile, print).
