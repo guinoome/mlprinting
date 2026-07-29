@@ -11,6 +11,12 @@ import {
   unassignArtwork,
   uploadTemplateAsset,
 } from "@/services/template-assets";
+import {
+  createTemplate,
+  deleteTemplate,
+  setPublished,
+} from "./catalogue-repository";
+import { validateNewTemplate } from "./catalogue";
 
 /**
  * Admin template artwork actions — Instructions 4.
@@ -104,6 +110,82 @@ export async function applyTemplateArtwork(
 
   revalidateCatalogue();
   return { message: "Design applied to the template." };
+}
+
+/**
+ * Publish or unpublish a catalogue template — the safe, reversible half of
+ * retiring one. See catalogue.ts for why it is not the same as deleting.
+ */
+export async function setTemplatePublished(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireStaff();
+
+  const templateId = String(formData.get("templateId") ?? "");
+  if (!templateId) return { error: "That template could not be identified." };
+
+  const publish = formData.get("publish") === "true";
+  const result = await setPublished(templateId, publish);
+  if (!result.ok) return { error: result.error };
+
+  revalidateCatalogue();
+  return {
+    message: publish
+      ? "Template published — customers can choose it now."
+      : "Template unpublished. Invitations already using it are unaffected.",
+  };
+}
+
+/**
+ * Delete a catalogue template.
+ *
+ * The repository re-checks usage rather than trusting the page's counts: the
+ * page rendered them at some point in the past, and a customer may have started
+ * an invitation since. A delete authorised by a stale number is exactly the one
+ * that strips somebody's design.
+ */
+export async function removeTemplate(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireStaff();
+
+  const templateId = String(formData.get("templateId") ?? "");
+  if (!templateId) return { error: "That template could not be identified." };
+
+  const result = await deleteTemplate(templateId);
+  if (!result.ok) return { error: result.error };
+
+  revalidateCatalogue();
+  return { message: "Template deleted." };
+}
+
+/** Add a catalogue entry. Created unpublished — see createTemplate. */
+export async function addTemplate(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireStaff();
+
+  const input = {
+    name: String(formData.get("name") ?? ""),
+    categoryId: String(formData.get("categoryId") ?? ""),
+    shortDescription: String(formData.get("shortDescription") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    designer: String(formData.get("designer") ?? ""),
+  };
+
+  const errors = validateNewTemplate(input);
+  if (Object.keys(errors).length > 0) return { fieldErrors: errors };
+
+  const result = await createTemplate(input);
+  if (!result.ok) return { error: result.error };
+
+  revalidateCatalogue();
+  return {
+    message: `Created “${input.name.trim()}” as a draft. Apply a design, then publish it.`,
+  };
 }
 
 export async function restoreGeneratedCover(

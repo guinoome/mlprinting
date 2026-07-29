@@ -10,6 +10,12 @@ import {
 } from "@/services/template-assets";
 import { AssetGrid } from "@/features/admin-templates/components/asset-grid";
 import { TemplateUploadForm } from "@/features/admin-templates/components/upload-form";
+import { CatalogueRow } from "@/features/admin-templates/components/catalogue-row";
+import { NewTemplateForm } from "@/features/admin-templates/components/new-template-form";
+import {
+  listCatalogue,
+  listCategories,
+} from "@/features/admin-templates/catalogue-repository";
 
 export const metadata: Metadata = {
   title: "Templates",
@@ -26,10 +32,14 @@ export const metadata: Metadata = {
 export default async function AdminTemplatesPage() {
   await requireStaff();
 
-  const [assets, templates] = await Promise.all([
+  const [assets, templates, catalogue, categories] = await Promise.all([
     getTemplateAssets(),
     getAssignableTemplates(),
+    listCatalogue(),
+    listCategories(),
   ]);
+
+  const drafts = catalogue.filter((t) => t.publishedAt === null).length;
 
   return (
     <div>
@@ -69,6 +79,36 @@ export default async function AdminTemplatesPage() {
           )}
         </section>
       </div>
+
+      {/* The catalogue itself, below the artwork it wears. Ordering matters:
+          uploading a design is the frequent visit, and curating the catalogue
+          is the occasional one. */}
+      <section aria-labelledby="catalogue-heading" className="mt-12 space-y-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="catalogue-heading" className="text-sm font-semibold">
+            Catalogue{" "}
+            <span className="font-normal text-muted-foreground">
+              ({catalogue.length} template{catalogue.length === 1 ? "" : "s"}
+              {drafts > 0 ? `, ${drafts} draft` : ""}
+              {drafts > 1 ? "s" : ""})
+            </span>
+          </h2>
+        </div>
+
+        <NewTemplateForm categories={categories} />
+
+        <p className="text-xs text-muted-foreground">
+          Unpublishing removes a template from the catalogue and leaves every
+          invitation already built on it untouched. Deleting is only offered when
+          no invitation uses the design.
+        </p>
+
+        <ul className="space-y-2">
+          {catalogue.map((row) => (
+            <CatalogueRow key={row.id} row={row} />
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }
