@@ -16,4 +16,20 @@ export const branding = {
   tagline: "Premium event websites and matching printed invitations.",
   location: "Libo, Tayud, Consolacion, Cebu",
   supportEmail: "hello@mlprinting.example",
+  /** Drives both links below, so a page rename cannot leave them disagreeing. */
+  facebookHandle: "mlprintingcebu",
+} as const;
+
+/**
+ * Where customers actually reach ML Printing.
+ *
+ * Messenger matters more than email here. In Cebu a business enquiry arrives on
+ * Messenger far more often than in an inbox, and someone who wants to ask about
+ * a debut package before committing should not have to create an account to ask.
+ * `m.me` is Messenger's own short link — on a phone it opens the app rather than
+ * the mobile web page.
+ */
+export const social = {
+  facebook: `https://facebook.com/${branding.facebookHandle}`,
+  messenger: `https://m.me/${branding.facebookHandle}`,
 } as const;

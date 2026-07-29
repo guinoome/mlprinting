@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SiteHeader } from "@/components/nav/site-header";
-import { branding, routes, features } from "@/lib/config";
+import { branding, routes, features, social } from "@/lib/config";
+import { MessengerButton } from "@/components/messenger-button";
 
 /**
  * Marketplace layout — Ph2.md.
@@ -36,7 +37,27 @@ export default function MarketplaceLayout({
         >
           Back to home
         </Link>
+        {" · "}
+        <a
+          href={social.messenger}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="transition-colors hover:text-foreground"
+        >
+          Message us
+        </a>
+        {" · "}
+        <a
+          href={social.facebook}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="transition-colors hover:text-foreground"
+        >
+          Facebook
+        </a>
       </footer>
+
+      <MessengerButton />
     </div>
   );
 }

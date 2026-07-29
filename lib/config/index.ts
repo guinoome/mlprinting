@@ -5,6 +5,6 @@
  * lib/env.ts, which is the only module that touches process.env for secrets.
  */
 
-export { branding } from "./branding";
+export { branding, social } from "./branding";
 export { routes } from "./routes";
 export { features } from "./features";

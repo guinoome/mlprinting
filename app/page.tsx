@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/nav/site-header";
-import { branding, routes, features } from "@/lib/config";
+import { MessengerButton } from "@/components/messenger-button";
+import { branding, routes, features, social } from "@/lib/config";
 import { isDatabaseConfigured } from "@/lib/db";
 import {
   getCatalogPage,
@@ -107,6 +108,25 @@ export default async function Home() {
             <p className="mt-3 text-xs text-muted-foreground">
               {branding.supportEmail}
             </p>
+            {/* Messenger before email: it is how an enquiry actually arrives. */}
+            <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+              <a
+                href={social.messenger}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+              >
+                Message us
+              </a>
+              <a
+                href={social.facebook}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+              >
+                Facebook
+              </a>
+            </p>
           </div>
 
           <nav className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
@@ -137,6 +157,8 @@ export default async function Home() {
           © {new Date().getFullYear()} {branding.company}. {branding.tagline}
         </p>
       </footer>
+
+      <MessengerButton />
     </div>
   );
 }
