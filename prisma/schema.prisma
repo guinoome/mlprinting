@@ -72,7 +72,19 @@ model Preference {
   profileId          String          @id @db.Uuid
   theme              ThemePreference @default(SYSTEM)
   emailNotifications Boolean         @default(true)
-  marketingEmails    Boolean         @default(false)
+  /// Opt-out rather than opt-in, at the owner's instruction.
+  ///
+  /// Worth knowing what that commits ML Printing to. The Philippines' Data
+  /// Privacy Act asks for consent that is freely given, specific and informed,
+  /// and a pre-set default is a weaker basis than a tick the customer made
+  /// themselves. It is defensible for a business emailing its own customers
+  /// about its own services, and it is not defensible for anyone in the EU or
+  /// UK, where a pre-ticked box is not consent at all.
+  ///
+  /// What makes opt-out workable is the exit: every marketing email needs a
+  /// one-click unsubscribe that writes back to this column, and no sender
+  /// exists yet to carry one. See docs/architecture.md.
+  marketingEmails    Boolean         @default(true)
   updatedAt          DateTime        @updatedAt
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)

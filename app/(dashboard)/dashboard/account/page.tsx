@@ -22,11 +22,18 @@ export const metadata: Metadata = {
   title: "Account",
 };
 
-/** Defaults matching the Preference model, for a profile with no row yet. */
+/**
+ * Defaults matching the Preference model, for a profile with no row yet.
+ *
+ * These must agree with the `@default(...)` values in schema.prisma. Most
+ * customers have no preferences row until they save the form once, so this
+ * object — not the database — is what they actually see, and the two drifting
+ * apart would show somebody a setting that is not the one in force.
+ */
 const DEFAULT_PREFERENCES = {
   theme: "SYSTEM" as ThemePreference,
   emailNotifications: true,
-  marketingEmails: false,
+  marketingEmails: true,
 };
 
 async function loadPreferences(profileId: string) {

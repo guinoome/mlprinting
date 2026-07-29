@@ -1,0 +1,11 @@
+-- Marketing emails become opt-out rather than opt-in, at the owner's request.
+--
+-- Only the column default changes. Existing rows are deliberately left alone:
+-- a customer who already unticked the box made a choice, and a migration that
+-- flipped it back would be the platform overruling them — which is both rude
+-- and the sort of thing a regulator asks about.
+--
+-- This default is load-bearing rather than decorative. lib/auth/session.ts
+-- creates a preferences row with `create: {}` on first sign-in, supplying no
+-- fields at all, so what a new customer gets is exactly what this line says.
+ALTER TABLE "preferences" ALTER COLUMN "marketingEmails" SET DEFAULT true;
