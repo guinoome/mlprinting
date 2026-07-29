@@ -87,10 +87,9 @@ export const adminNav: readonly NavItem[] = [
   },
   {
     label: "Templates",
-    built: false,
     href: routes.admin.templates,
     icon: LayoutTemplate,
-    description: "The invitation template catalogue.",
+    description: "Upload cover artwork and apply it to catalogue templates.",
   },
   {
     label: "Production",

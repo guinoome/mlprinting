@@ -51,6 +51,11 @@ export const routes = {
     eventRsvps: (id: string) => `/dashboard/events/${id}/rsvps`,
     /** Print file — Ph6.md's PDF generation surface. */
     eventPrint: (id: string) => `/dashboard/events/${id}/print`,
+    /**
+     * Delivery Center — Ph8.md §8. The one page that answers "is my thing
+     * ready and where is it", which until now took three.
+     */
+    eventDelivery: (id: string) => `/dashboard/events/${id}/delivery`,
   },
 
   admin: {

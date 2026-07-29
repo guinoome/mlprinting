@@ -8,6 +8,7 @@ import {
   Globe,
   Users,
   Printer,
+  PackageCheck,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -80,6 +81,14 @@ export function DraftMenu({
 
         {status === "COMPLETED" ? (
           <>
+            {/* First, because it is the question the other three each answer a
+                third of — Ph8.md §8. */}
+            <DropdownMenuItem asChild>
+              <Link href={routes.dashboard.eventDelivery(invitationId)}>
+                <PackageCheck aria-hidden="true" />
+                Delivery
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href={routes.dashboard.eventWebsite(invitationId)}>
                 <Globe aria-hidden="true" />
