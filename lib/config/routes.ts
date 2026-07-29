@@ -9,6 +9,12 @@ export const routes = {
   home: "/",
   login: "/login",
   register: "/register",
+  /** Where every emailed auth link lands, to exchange its code for a session. */
+  authCallback: "/auth/callback",
+  /** Ask for a recovery email. */
+  forgotPassword: "/forgot-password",
+  /** Choose a new password, reached from that email via the callback. */
+  resetPassword: "/reset-password",
 
   /** Template Marketplace — Ph2. Public: browsing needs no account. */
   templates: "/templates",
