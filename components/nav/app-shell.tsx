@@ -7,6 +7,24 @@ import { UserMenu } from "./user-menu";
 import type { SessionProfile } from "@/lib/auth/session";
 
 /**
+ * A nav item with its icon already drawn.
+ *
+ * `NavItem.icon` is a Lucide component — a function — and a function cannot be
+ * handed from a Server Component to a Client one. React serialises props across
+ * that boundary, and there is no way to serialise code. Passing the array
+ * straight through threw "Functions cannot be passed directly to Client
+ * Components" on every authenticated page, which nobody saw for months because
+ * sign-in was paused and this layout had therefore never rendered in
+ * production.
+ *
+ * An element serialises fine, so the icon is rendered here — on the server —
+ * and the client components receive the result rather than the recipe.
+ */
+export type RenderedNavItem = Omit<NavItem, "icon"> & {
+  icon: React.ReactNode;
+};
+
+/**
  * The chrome shared by both dashboards — Ph1.md §2, §3.
  *
  * A Server Component: it reads the profile from its caller and passes plain
@@ -27,12 +45,17 @@ export function AppShell({
   homeHref: string;
   children: React.ReactNode;
 }) {
+  const rendered: RenderedNavItem[] = items.map(({ icon: Icon, ...rest }) => ({
+    ...rest,
+    icon: <Icon className="size-4 shrink-0" aria-hidden="true" />,
+  }));
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Top Navigation — Ph1.md §3 */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="flex h-14 items-center gap-2 px-4">
-          <MobileNav items={items} />
+          <MobileNav items={rendered} />
 
           <Link
             href={homeHref}
@@ -61,7 +84,7 @@ export function AppShell({
         {/* Sidebar — Ph1.md §3. Hidden below md; MobileNav carries it there. */}
         <aside className="hidden w-60 shrink-0 border-r border-border md:block">
           <div className="sticky top-14 p-3">
-            <SidebarNav items={items} />
+            <SidebarNav items={rendered} />
           </div>
         </aside>
 

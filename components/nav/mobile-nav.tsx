@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { SidebarNav } from "./sidebar-nav";
 import { branding } from "@/lib/config";
-import type { NavItem } from "@/lib/config/navigation";
+import type { RenderedNavItem } from "./app-shell";
 
 /**
  * Mobile navigation drawer — Ph1.md §3.
@@ -21,7 +21,7 @@ import type { NavItem } from "@/lib/config/navigation";
  * client-side route change, so without the pathname effect the drawer would
  * still be sitting open over the page the user just asked for.
  */
-export function MobileNav({ items }: { items: readonly NavItem[] }) {
+export function MobileNav({ items }: { items: readonly RenderedNavItem[] }) {
   const [open, setOpen] = React.useState(false);
   const pathname = usePathname();
 

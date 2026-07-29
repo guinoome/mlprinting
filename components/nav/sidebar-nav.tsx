@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { isActiveNav, type NavItem } from "@/lib/config/navigation";
+import { isActiveNav } from "@/lib/config/navigation";
+import type { RenderedNavItem } from "./app-shell";
 import { cn } from "@/lib/utils";
 
 /**
@@ -16,7 +17,7 @@ export function SidebarNav({
   onNavigate,
   className,
 }: {
-  items: readonly NavItem[];
+  items: readonly RenderedNavItem[];
   /** Called after a link is chosen — the drawer uses it to close itself. */
   onNavigate?: () => void;
   className?: string;
@@ -25,7 +26,7 @@ export function SidebarNav({
 
   return (
     <nav aria-label="Sections" className={cn("flex flex-col gap-1", className)}>
-      {items.map(({ label, href, icon: Icon, built }) => {
+      {items.map(({ label, href, icon, built }) => {
         const active = isActiveNav(pathname, href);
 
         return (
@@ -41,7 +42,7 @@ export function SidebarNav({
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
             )}
           >
-            <Icon className="size-4 shrink-0" aria-hidden="true" />
+            {icon}
             <span className="truncate">{label}</span>
             {/* The honest version of a link that looks finished and isn't.
                 Reads "Soon" rather than a phase number: this badge sat in the
