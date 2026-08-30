@@ -6,3 +6,7 @@ CREATE UNIQUE INDEX "event_memory_submissions_storagePath_key" ON "event_memory_
 CREATE INDEX "event_memory_submissions_invitationId_status_createdAt_idx" ON "event_memory_submissions"("invitationId", "status", "createdAt");
 ALTER TABLE "event_memory_settings" ADD CONSTRAINT "event_memory_settings_invitationId_fkey" FOREIGN KEY ("invitationId") REFERENCES "invitations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "event_memory_submissions" ADD CONSTRAINT "event_memory_submissions_invitationId_fkey" FOREIGN KEY ("invitationId") REFERENCES "invitations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Server-side Prisma owns data access; deny direct PostgREST access by default.
+ALTER TABLE "event_memory_settings" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "event_memory_submissions" ENABLE ROW LEVEL SECURITY;

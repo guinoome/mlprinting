@@ -28,3 +28,6 @@ CREATE INDEX "invitation_media_derivativeId_idx" ON "invitation_media"("derivati
 
 ALTER TABLE "media_derivatives" ADD CONSTRAINT "media_derivatives_assetId_fkey" FOREIGN KEY ("assetId") REFERENCES "media_assets"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "invitation_media" ADD CONSTRAINT "invitation_media_derivativeId_fkey" FOREIGN KEY ("derivativeId") REFERENCES "media_derivatives"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Server-side Prisma owns data access; deny direct PostgREST access by default.
+ALTER TABLE "media_derivatives" ENABLE ROW LEVEL SECURITY;

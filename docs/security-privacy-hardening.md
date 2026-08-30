@@ -14,6 +14,10 @@ The existing size, extension, and claimed MIME checks remain the first gate. The
 
 SVG remains rejected. Guest memories stay in the private media bucket, begin `PENDING`, and become publicly readable only when approved and the invitation's sharing mode permits a gallery or wall.
 
+## Database API boundary
+
+Tables introduced by WP-04 and WP-07 through WP-13 enable row-level security in their migrations without granting direct PostgREST policies. These records are accessed through server-side Prisma repositories, so Supabase `anon` and `authenticated` API roles are denied by default. Existing production tables require a separate, policy-by-policy RLS migration; enabling RLS on those tables without matching policies could interrupt the live application.
+
 ## Browser and ownership controls
 
 All routes receive `nosniff`, clickjacking denial, strict referrer, restrictive camera/microphone/location permissions, and HSTS headers. Database reads and writes continue to scope ownership in their queries. Storage policies remain versioned in `docs/storage-policies.sql`; production policy application must be verified during release rather than inferred from code.

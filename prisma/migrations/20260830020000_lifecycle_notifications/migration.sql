@@ -6,3 +6,6 @@ CREATE INDEX "lifecycle_notifications_status_scheduledAt_idx" ON "lifecycle_noti
 CREATE INDEX "lifecycle_notifications_profileId_scheduledAt_idx" ON "lifecycle_notifications"("profileId", "scheduledAt");
 ALTER TABLE "lifecycle_notifications" ADD CONSTRAINT "lifecycle_notifications_invitationId_fkey" FOREIGN KEY ("invitationId") REFERENCES "invitations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "lifecycle_notifications" ADD CONSTRAINT "lifecycle_notifications_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Server-side Prisma owns data access; deny direct PostgREST access by default.
+ALTER TABLE "lifecycle_notifications" ENABLE ROW LEVEL SECURITY;

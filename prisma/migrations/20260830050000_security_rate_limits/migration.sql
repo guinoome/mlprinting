@@ -10,3 +10,6 @@ CREATE TABLE "rate_limit_buckets" (
 );
 CREATE UNIQUE INDEX "rate_limit_buckets_scope_keyHash_windowStart_key" ON "rate_limit_buckets"("scope", "keyHash", "windowStart");
 CREATE INDEX "rate_limit_buckets_expiresAt_idx" ON "rate_limit_buckets"("expiresAt");
+
+-- Server-side Prisma owns data access; deny direct PostgREST access by default.
+ALTER TABLE "rate_limit_buckets" ENABLE ROW LEVEL SECURITY;

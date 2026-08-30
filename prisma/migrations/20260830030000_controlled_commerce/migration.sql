@@ -21,3 +21,6 @@ CREATE UNIQUE INDEX "payments_orderId_key" ON "payments"("orderId");
 CREATE UNIQUE INDEX "payments_provider_providerReference_key" ON "payments"("provider", "providerReference");
 CREATE INDEX "payments_status_updatedAt_idx" ON "payments"("status", "updatedAt");
 ALTER TABLE "payments" ADD CONSTRAINT "payments_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Server-side Prisma owns data access; deny direct PostgREST access by default.
+ALTER TABLE "payments" ENABLE ROW LEVEL SECURITY;
