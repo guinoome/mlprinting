@@ -42,15 +42,15 @@ export interface BuilderStep {
 /** Ph3.md §1, in order. */
 export const BUILDER_STEPS: BuilderStep[] = [
   {
-    slug: "template",
-    label: "Template",
-    description: "Choose the design your invitation is built on.",
+    slug: "event",
+    label: "Event",
+    description: "Tell us what you are celebrating so we can narrow the choices.",
     required: true,
   },
   {
-    slug: "event",
-    label: "Event",
-    description: "The basics: what the event is, and when.",
+    slug: "template",
+    label: "Experience",
+    description: "Choose from a short set recommended for your event.",
     required: true,
   },
   {

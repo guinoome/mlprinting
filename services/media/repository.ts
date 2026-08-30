@@ -35,6 +35,98 @@ const ASSET_SELECT = {
   createdAt: true,
 } as const;
 
+export const DERIVATIVE_SELECT = {
+  id: true,
+  assetId: true,
+  kind: true,
+  sourceVersion: true,
+  provider: true,
+  providerVersion: true,
+  storagePath: true,
+  mimeType: true,
+  bytes: true,
+  width: true,
+  height: true,
+  createdAt: true,
+} as const;
+
+export async function findCurrentRemaster(
+  assetId: string,
+  sourceVersion: number,
+) {
+  if (!isDatabaseConfigured()) return null;
+  return prisma.mediaDerivative.findFirst({
+    where: { assetId, sourceVersion, kind: "REMASTER" },
+    orderBy: { createdAt: "desc" },
+    select: DERIVATIVE_SELECT,
+  });
+}
+
+export async function listCurrentRemasters(
+  profileId: string,
+  assetIds: string[],
+) {
+  if (!isDatabaseConfigured() || assetIds.length === 0) return [];
+  return prisma.mediaDerivative.findMany({
+    where: {
+      assetId: { in: assetIds },
+      kind: "REMASTER",
+      asset: { profileId },
+    },
+    orderBy: { createdAt: "desc" },
+    select: DERIVATIVE_SELECT,
+  });
+}
+
+export async function insertRemaster(data: {
+  id: string;
+  assetId: string;
+  sourceVersion: number;
+  provider: string;
+  providerVersion: string;
+  storagePath: string;
+  mimeType: string;
+  bytes: number;
+  width: number;
+  height: number;
+}) {
+  return prisma.mediaDerivative.create({ data, select: DERIVATIVE_SELECT });
+}
+
+export async function findDerivativeById(id: string) {
+  if (!isDatabaseConfigured()) return null;
+  return prisma.mediaDerivative.findUnique({
+    where: { id },
+    select: DERIVATIVE_SELECT,
+  });
+}
+
+export async function isDerivativePublic(id: string): Promise<boolean> {
+  if (!isDatabaseConfigured()) return false;
+  const usage = await prisma.invitationMedia.findFirst({
+    where: { derivativeId: id, invitation: { isPublished: true } },
+    select: { derivativeId: true },
+  });
+  return usage !== null;
+}
+
+export async function listDerivativesForAsset(assetId: string) {
+  if (!isDatabaseConfigured()) return [];
+  return prisma.mediaDerivative.findMany({
+    where: { assetId },
+    select: { id: true, sourceVersion: true, storagePath: true },
+  });
+}
+
+export async function deleteDerivativesForVersion(
+  assetId: string,
+  sourceVersion: number,
+): Promise<void> {
+  await prisma.mediaDerivative.deleteMany({
+    where: { assetId, sourceVersion },
+  });
+}
+
 export interface InsertAssetInput {
   id: string;
   profileId: string;

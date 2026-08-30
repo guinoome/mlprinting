@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assetObjectPath, hasVariants } from "./paths";
+import { assetObjectPath, hasVariants, remasterObjectPath } from "./paths";
 
 describe("assetObjectPath", () => {
   it("builds the original path using the caller's extension", () => {
@@ -20,6 +20,14 @@ describe("assetObjectPath", () => {
   it("embeds the version so a replace never collides with the prior version's objects", () => {
     expect(assetObjectPath("user-1", "asset-1", 2, "original", ".png")).toBe(
       "user-1/asset-1/v2/original.png",
+    );
+  });
+});
+
+describe("remasterObjectPath", () => {
+  it("binds a derivative to its source version and unique id", () => {
+    expect(remasterObjectPath("user-1", "asset-1", 3, "remaster-1")).toBe(
+      "user-1/asset-1/v3/remaster/remaster-1.webp",
     );
   });
 });

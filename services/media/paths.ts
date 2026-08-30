@@ -25,6 +25,16 @@ export function assetObjectPath(
   return `${profileId}/${assetId}/v${version}/${variant}${extension}`;
 }
 
+/** Immutable path for one derivative of one immutable asset version. */
+export function remasterObjectPath(
+  profileId: string,
+  assetId: string,
+  sourceVersion: number,
+  derivativeId: string,
+): string {
+  return `${profileId}/${assetId}/v${sourceVersion}/remaster/${derivativeId}.webp`;
+}
+
 /**
  * The sole signal that thumbnail/preview variants exist for an asset (design
  * doc Decision 4) — there is no variants table, so this is derived from a field

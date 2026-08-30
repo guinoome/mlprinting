@@ -3,8 +3,10 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { themeInitScript } from "@/lib/theme";
 import { branding } from "@/lib/config";
+import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(env.app.url),
   // "%s" is filled by each page's own title; "default" covers pages with none.
   title: {
     default: branding.product,

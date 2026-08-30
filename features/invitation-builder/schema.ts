@@ -244,6 +244,7 @@ export const mediaStepSchema = z.object({
     .array(
       z.object({
         assetId: z.string().uuid(),
+        derivativeId: z.string().uuid().nullable().optional(),
         slot: z.enum(["COVER", "COUPLE", "FAMILY", "LOGO", "MUSIC"]),
       }),
     )

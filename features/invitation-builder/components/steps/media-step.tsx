@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { saveMediaStep } from "../../actions";
-import { removeMedia } from "../../media-actions";
+import { remasterMedia, removeMedia } from "../../media-actions";
 import { useAutosave } from "../use-autosave";
 import { SaveIndicator } from "../save-indicator";
 import {
@@ -36,6 +36,7 @@ export type Slot = "COVER" | "COUPLE" | "FAMILY" | "LOGO";
 export interface Assignment {
   assetId: string;
   slot: Slot;
+  derivativeId?: string | null;
 }
 
 const SLOTS: {
@@ -132,6 +133,35 @@ export function MediaStep({
     }
 
     setAssignments((current) => current.filter((a) => a.assetId !== asset.id));
+    router.refresh();
+  }
+
+  function chooseTreatment(
+    assetId: string,
+    slot: Slot,
+    derivativeId: string | null,
+  ) {
+    setAssignments((current) =>
+      current.map((assignment) =>
+        assignment.assetId === assetId && assignment.slot === slot
+          ? { ...assignment, derivativeId }
+          : assignment,
+      ),
+    );
+    autosave.markDirty();
+  }
+
+  async function handleRemaster(asset: MediaAssetSummary) {
+    const formData = new FormData();
+    formData.set("assetId", asset.id);
+    const result = await remasterMedia({}, formData);
+    if (result.error) {
+      notify.error({
+        title: "Could not create remaster",
+        description: result.error,
+      });
+      return;
+    }
     router.refresh();
   }
 
@@ -239,6 +269,82 @@ export function MediaStep({
                   : "Try a different search term."
               }
             />
+            {assignments.some(
+              (assignment) => assignment.slot === activeSlot,
+            ) ? (
+              <div className="space-y-3 rounded-lg border bg-muted/25 p-4">
+                <div>
+                  <h3 className="text-sm font-medium">Photo treatment</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Original is always preserved and used by default. A remaster
+                    is optional, and you can switch back at any time.
+                  </p>
+                </div>
+                {assignments
+                  .filter((assignment) => assignment.slot === activeSlot)
+                  .map((assignment) => {
+                    const asset = initialAssets.find(
+                      (candidate) => candidate.id === assignment.assetId,
+                    );
+                    if (!asset) return null;
+                    const usingRemaster =
+                      assignment.derivativeId === asset.remaster?.id;
+                    return (
+                      <div
+                        key={`${assignment.slot}:${assignment.assetId}`}
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-background p-3"
+                      >
+                        <span className="max-w-48 truncate text-sm">
+                          {asset.originalFilename}
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            aria-pressed={!usingRemaster}
+                            onClick={() =>
+                              chooseTreatment(asset.id, activeSlot, null)
+                            }
+                            className={cn(
+                              "rounded-md border px-3 py-1.5 text-xs font-medium",
+                              !usingRemaster && "bg-foreground text-background",
+                            )}
+                          >
+                            Use Original
+                          </button>
+                          {asset.remaster ? (
+                            <button
+                              type="button"
+                              aria-pressed={usingRemaster}
+                              onClick={() =>
+                                chooseTreatment(
+                                  asset.id,
+                                  activeSlot,
+                                  asset.remaster!.id,
+                                )
+                              }
+                              className={cn(
+                                "rounded-md border px-3 py-1.5 text-xs font-medium",
+                                usingRemaster &&
+                                  "bg-foreground text-background",
+                              )}
+                            >
+                              Use Remaster
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleRemaster(asset)}
+                              className="rounded-md border px-3 py-1.5 text-xs font-medium hover:bg-muted"
+                            >
+                              Create optional remaster
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </div>

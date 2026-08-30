@@ -34,11 +34,15 @@ export function PublishForm({
   currentSlug,
   isPublished,
   publicUrl,
+  publishAllowed,
+  blockedReason,
 }: {
   invitationId: string;
   currentSlug: string | null;
   isPublished: boolean;
   publicUrl: string | null;
+  publishAllowed: boolean;
+  blockedReason: string | null;
 }) {
   const [publishState, runPublish] = useFormState(publishAction, initialState);
   const [unpublishState, runUnpublish] = useFormState(
@@ -125,7 +129,14 @@ export function PublishForm({
                 {publishState.error}
               </p>
             ) : null}
-            <Button type="submit">Publish</Button>
+            {!publishAllowed && blockedReason ? (
+              <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+                {blockedReason}
+              </p>
+            ) : null}
+            <Button type="submit" disabled={!publishAllowed}>
+              Publish
+            </Button>
           </form>
         )}
       </CardContent>

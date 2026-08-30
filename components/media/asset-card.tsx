@@ -9,6 +9,7 @@ export interface MediaAssetSummary {
   altText: string | null;
   originalFilename: string;
   tags: string[];
+  remaster?: { id: string; previewUrl: string };
 }
 
 export function AssetCard({

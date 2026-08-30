@@ -9,9 +9,10 @@ import {
   type MediaSlotKey,
   type PreviewInput,
 } from "@/lib/invitation/preview-model";
-import { previewUrl } from "@/services/media";
+import { previewUrl, remasterUrl } from "@/services/media";
 import { features } from "@/lib/config";
 import { env } from "@/lib/env";
+import { routes } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,18 @@ export async function generateMetadata({
     title,
     description: invitation.subtitle ?? `You're invited — ${title}`,
     openGraph: cover
-      ? { title, images: [{ url: previewUrl(cover.asset) }] }
+      ? {
+          title,
+          images: [
+            {
+              url:
+                cover.derivative &&
+                cover.derivative.sourceVersion === cover.asset.version
+                  ? remasterUrl(cover.asset, cover.derivative)
+                  : previewUrl(cover.asset),
+            },
+          ],
+        }
       : { title },
     // noindex applies to PUBLISHED sites too, and that is deliberate — not an
     // oversight to "fix" later. The design makes the slug memorable rather than
@@ -79,7 +91,11 @@ export default async function PublicEventPage({
   const mediaUrls: Partial<Record<MediaSlotKey, string[]>> = {};
   for (const link of invitation.media) {
     const slot = link.slot as MediaSlotKey;
-    (mediaUrls[slot] ??= []).push(previewUrl(link.asset));
+    (mediaUrls[slot] ??= []).push(
+      link.derivative && link.derivative.sourceVersion === link.asset.version
+        ? remasterUrl(link.asset, link.derivative)
+        : previewUrl(link.asset),
+    );
   }
 
   const input: PreviewInput = {
@@ -105,7 +121,11 @@ export default async function PublicEventPage({
   const model = toPreviewModel(input);
 
   const countdownTarget = invitation.eventDate
-    ? zonedInstant(invitation.eventDate, invitation.eventTime, invitation.timeZone)
+    ? zonedInstant(
+        invitation.eventDate,
+        invitation.eventTime,
+        invitation.timeZone,
+      )
     : null;
 
   return (
@@ -116,6 +136,11 @@ export default async function PublicEventPage({
       // Served by the cached, publication-gated route rather than generated
       // per request: the encoded URL cannot change without a new slug.
       qrSrc={`/api/qr/${encodeURIComponent(params.slug)}`}
+      memoryHref={
+        invitation.memorySettings?.enabled
+          ? routes.publicEventMemories(params.slug)
+          : null
+      }
     />
   );
 }

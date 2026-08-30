@@ -17,8 +17,15 @@ import { MediaStep } from "@/features/invitation-builder/components/steps/media-
 import { PersonalizeStep } from "@/features/invitation-builder/components/steps/personalize-step";
 import { PreviewStep } from "@/features/invitation-builder/components/steps/preview-step";
 import { toPreviewModel } from "@/lib/invitation/preview-model";
-import { listAssets, thumbnailUrl, previewUrl } from "@/services/media";
+import {
+  listAssets,
+  listCurrentRemasters,
+  thumbnailUrl,
+  previewUrl,
+  remasterUrl,
+} from "@/services/media";
 import { DESIGN_DEFAULTS } from "@/lib/config/design-vocabulary";
+import { curateTemplateChoices } from "@/features/invitation-builder/recommendations";
 
 /**
  * One step of the builder — Ph3.md §1.
@@ -74,34 +81,78 @@ export default async function BuilderStepPage({
   async function renderStep() {
     switch (params.step) {
       case "template": {
-        // A short list — browsing properly is what Ph2's marketplace is for.
-        const templates = await prisma.template.findMany({
-          where: { publishedAt: { not: null } },
-          orderBy: [
-            { isFeatured: "desc" },
-            { useCount: "desc" },
-            { slug: "asc" },
-          ],
-          take: 12,
-          select: {
-            slug: true,
-            name: true,
-            coverImageUrl: true,
-            orientation: true,
-            category: { select: { name: true } },
+        const [templates, recentUses, recentViews, favorites] =
+          await Promise.all([
+            prisma.template.findMany({
+              where: { publishedAt: { not: null, lte: new Date() } },
+              orderBy: { slug: "asc" },
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                coverImageUrl: true,
+                orientation: true,
+                useCount: true,
+                publishedAt: true,
+                isFeatured: true,
+                tags: true,
+                colors: true,
+                styles: true,
+                category: { select: { slug: true, name: true } },
+              },
+            }),
+            prisma.templateUse.findMany({
+              where: { profileId: profile!.id },
+              orderBy: { usedAt: "desc" },
+              take: 20,
+              select: { templateId: true },
+            }),
+            prisma.templateView.findMany({
+              where: { profileId: profile!.id },
+              orderBy: { viewedAt: "desc" },
+              take: 20,
+              select: { templateId: true },
+            }),
+            prisma.templateFavorite.findMany({
+              where: { profileId: profile!.id },
+              orderBy: { createdAt: "desc" },
+              take: 50,
+              select: { templateId: true },
+            }),
+          ]);
+
+        const candidates = templates.map((template) => ({
+          ...template,
+          categorySlug: template.category.slug,
+        }));
+        const recommended = curateTemplateChoices(
+          candidates,
+          {
+            eventTypeSlug: draft!.eventType ?? undefined,
+            recentlyUsedIds: recentUses.map((item) => item.templateId),
+            recentlyViewedIds: recentViews.map((item) => item.templateId),
+            favoritedIds: favorites.map((item) => item.templateId),
           },
-        });
+          draft!.template?.id ?? null,
+          6,
+        );
+        const eventTypeLabel =
+          templates.find(
+            (template) => template.category.slug === draft!.eventType,
+          )?.category.name ?? null;
 
         return (
           <TemplateStep
             invitationId={draft!.id}
             selectedSlug={draft!.template?.slug ?? null}
-            templates={templates.map((template) => ({
+            eventTypeLabel={eventTypeLabel}
+            templates={recommended.map(({ template, reasons }) => ({
               slug: template.slug,
               name: template.name,
               categoryName: template.category.name,
               coverImageUrl: template.coverImageUrl,
               orientation: template.orientation,
+              recommendationReasons: reasons,
             }))}
           />
         );
@@ -196,6 +247,7 @@ export default async function BuilderStepPage({
 
       case "media": {
         const assets = await listAssets(profile!.id);
+        const remasters = await listCurrentRemasters(profile!.id, assets);
         // Proxy URLs, built from id+version — no signed URL ever reaches the
         // client (design doc Decision 4).
 
@@ -208,11 +260,18 @@ export default async function BuilderStepPage({
               altText: asset.altText,
               originalFilename: asset.originalFilename,
               tags: asset.tags,
+              remaster: remasters.has(asset.id)
+                ? {
+                    id: remasters.get(asset.id)!.id,
+                    previewUrl: remasterUrl(asset, remasters.get(asset.id)!),
+                  }
+                : undefined,
             }))}
             initialAssignments={draft!.media
               .filter((link) => link.slot !== "MUSIC")
               .map((link) => ({
                 assetId: link.assetId,
+                derivativeId: link.derivativeId,
                 slot: link.slot as "COVER" | "COUPLE" | "FAMILY" | "LOGO",
               }))}
           />
@@ -255,7 +314,12 @@ export default async function BuilderStepPage({
         for (const link of draft!.media) {
           const slot = PREVIEWABLE.find((s) => s === link.slot);
           if (!slot) continue;
-          (mediaUrls[slot] ??= []).push(previewUrl(link.asset));
+          (mediaUrls[slot] ??= []).push(
+            link.derivative &&
+              link.derivative.sourceVersion === link.asset.version
+              ? remasterUrl(link.asset, link.derivative)
+              : previewUrl(link.asset),
+          );
         }
 
         const model = toPreviewModel({

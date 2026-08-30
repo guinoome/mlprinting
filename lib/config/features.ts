@@ -63,6 +63,10 @@ export const features = {
   get websiteGenerator() {
     return flag("NEXT_PUBLIC_FEATURE_WEBSITE_GENERATOR", true);
   },
+  /** WP-01 — typed experience configuration and shared motion resolver. */
+  get interactiveExperiences() {
+    return flag("NEXT_PUBLIC_FEATURE_INTERACTIVE_EXPERIENCES");
+  },
   /** Allow self-service registration. On by default; a kill switch, not a phase gate. */
   get registration() {
     return flag("NEXT_PUBLIC_FEATURE_REGISTRATION", true);

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { MotionStyle } from "../layouts/types";
+import type { MotionLevel, MotionProfileId } from "../experience/types";
 
 /** Confetti particle shapes, chosen per event kind by the caller. */
 export type ConfettiShape = "petal" | "circle" | "star" | "rect";
@@ -122,6 +123,10 @@ export function InvitationShell({
   confetti,
   style,
   motion = "rise",
+  experienceEnabled = false,
+  experienceId,
+  motionProfile,
+  motionLevel = "M0",
   children,
 }: {
   monogram: string;
@@ -138,6 +143,11 @@ export function InvitationShell({
    * occasion it is animating, and it should stay that way.
    */
   motion?: MotionStyle;
+  /** Enables the profile hooks while leaving the legacy renderer reversible. */
+  experienceEnabled?: boolean;
+  experienceId?: string;
+  motionProfile?: MotionProfileId;
+  motionLevel?: MotionLevel;
   children: React.ReactNode;
 }) {
   const [opened, setOpened] = React.useState(false);
@@ -145,8 +155,11 @@ export function InvitationShell({
   const rootRef = React.useRef<HTMLDivElement>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const cancelConfetti = React.useRef<() => void>(() => {});
+  const openingRef = React.useRef(false);
 
   const open = React.useCallback(() => {
+    if (openingRef.current) return;
+    openingRef.current = true;
     setOpening(true);
     // Fire synchronously, inside the gesture, so audio autoplay is permitted.
     window.dispatchEvent(new CustomEvent("invitation:open"));
@@ -225,6 +238,11 @@ export function InvitationShell({
       ref={rootRef}
       className="inv-reveal-root"
       data-motion={motion}
+      data-experience-enabled={experienceEnabled ? "true" : "false"}
+      data-experience-id={experienceId}
+      data-motion-profile={experienceEnabled ? motionProfile : undefined}
+      data-motion-level={experienceEnabled ? motionLevel : "M0"}
+      data-opened={opened ? "true" : "false"}
       style={style}
     >
       <noscript>

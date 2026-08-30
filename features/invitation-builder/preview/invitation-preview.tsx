@@ -3,7 +3,13 @@
 import * as React from "react";
 import { Monitor, Tablet, Smartphone, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { shows, type PreviewModel, type PreviewSurface } from "@/lib/invitation/preview-model";
+import {
+  shows,
+  type PreviewModel,
+  type PreviewSurface,
+} from "@/lib/invitation/preview-model";
+import { features } from "@/lib/config";
+import { resolveExperience } from "@/features/website-generator/experience/registry";
 
 /**
  * The live preview — Ph3.md §10.
@@ -87,6 +93,9 @@ export function InvitationPreview({
   className?: string;
 }) {
   const { style } = model;
+  const experience = resolveExperience(model.eventKind, {
+    enabled: features.interactiveExperiences,
+  });
 
   const background =
     style.backgroundStyle === "soft-gradient"
@@ -95,6 +104,9 @@ export function InvitationPreview({
 
   return (
     <div
+      data-experience-id={experience.config.id}
+      data-motion-profile={experience.config.motionProfile}
+      data-motion-level={experience.motionLevel}
       className={cn(
         "overflow-hidden rounded-lg border border-border shadow-sm",
         FRAME[surface],

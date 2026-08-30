@@ -39,11 +39,27 @@ export default async function OrderDetailPage({
 
       <header className="space-y-1">
         <h1 className="text-2xl font-semibold">{order.reference}</h1>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           {order.invitation?.title ? `${order.invitation.title} · ` : ""}
           {ORDER_STATUS_LABELS[order.status]}
         </p>
       </header>
+
+      <section
+        className="rounded-md border p-4"
+        aria-labelledby="settlement-heading"
+      >
+        <h2 id="settlement-heading" className="font-medium">
+          Payment
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {order.payment?.status === "CAPTURED"
+            ? `${order.payment.currency} ${(order.payment.amountMinor / 100).toFixed(2)} verified.`
+            : order.payment?.status === "WAIVED"
+              ? "Payment was waived by authorized staff."
+              : "Awaiting verified payment."}
+        </p>
+      </section>
 
       <ul className="space-y-4">
         {order.items.map((item) => {
@@ -62,7 +78,7 @@ export default async function OrderDetailPage({
                     {ITEM_KIND_LABELS[item.kind] ?? item.kind}
                     {item.quantity > 1 ? ` ×${item.quantity}` : ""}
                   </p>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-sm text-muted-foreground">
                     {ITEM_STATUS_LABELS[item.status]}
                   </p>
                 </div>

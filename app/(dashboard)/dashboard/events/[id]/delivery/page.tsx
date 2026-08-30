@@ -33,9 +33,8 @@ const DATE = new Intl.DateTimeFormat("en-PH", {
  * knew about the order. A customer had to visit all three and do the joining
  * themselves, which is work the platform should be doing.
  *
- * Ph8's payment module is paused at the owner's instruction, so the payment
- * step renders as not-required rather than being hidden — see readiness.ts for
- * why a missing step reads worse than an inert one.
+ * Payment readiness comes from the server-verified settlement row. A browser
+ * redirect or client-side success flag never satisfies delivery.
  */
 export default async function EventDeliveryPage({
   params,
@@ -96,7 +95,11 @@ export default async function EventDeliveryPage({
                   </a>
                   <div className="flex flex-wrap gap-2">
                     <Button asChild size="sm" variant="outline">
-                      <a href={publicUrl} target="_blank" rel="noreferrer noopener">
+                      <a
+                        href={publicUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                      >
                         <ExternalLink aria-hidden="true" />
                         Open
                       </a>

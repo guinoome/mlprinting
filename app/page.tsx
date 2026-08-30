@@ -14,7 +14,6 @@ import { parseCriteria } from "@/features/template-marketplace/criteria";
 import { LandingHero } from "@/features/marketing/components/landing-hero";
 import { FeatureHighlights } from "@/features/marketing/components/feature-highlights";
 import { TemplateShowcase } from "@/features/marketing/components/template-showcase";
-import { Testimonials } from "@/features/marketing/components/testimonials";
 import { FaqSection } from "@/features/marketing/components/faq-section";
 
 /**
@@ -34,6 +33,14 @@ export const metadata: Metadata = {
   title: `${branding.product} — ${branding.company}`,
   description:
     "Animated digital invitations with RSVPs, and printed suites to match. Weddings, debuts, christenings and more, from ML Printing in Cebu.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    title: "Interactive digital invitations and matching print — ML Printing",
+    description:
+      "Explore real animated invitation previews, RSVP tools, and matching print designs from ML Printing in Cebu.",
+    url: "/",
+  },
 };
 
 export default async function Home() {
@@ -55,10 +62,23 @@ export default async function Home() {
     src: template.coverImageUrl,
     alt: template.name,
   }));
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: branding.company,
+    description: branding.tagline,
+    areaServed: "Cebu, Philippines",
+    sameAs: [social.facebook],
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
       <main className="flex-1">
         <LandingHero
@@ -73,8 +93,6 @@ export default async function Home() {
           categories={categories}
         />
 
-        <Testimonials />
-
         <FaqSection />
 
         <section className="border-b border-border">
@@ -87,7 +105,7 @@ export default async function Home() {
               becomes. No account needed.
             </p>
             <Button asChild size="lg" className="mt-8">
-              <Link href={routes.templates}>
+              <Link href={routes.acquisitionTemplates("home-closing")}>
                 Browse templates
                 <ArrowRight aria-hidden="true" />
               </Link>
@@ -104,9 +122,6 @@ export default async function Home() {
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {branding.location}
-            </p>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {branding.supportEmail}
             </p>
             {/* Messenger before email: it is how an enquiry actually arrives. */}
             <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">

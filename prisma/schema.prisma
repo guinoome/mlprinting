@@ -44,12 +44,13 @@ model Profile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  preferences Preference?
-  favorites   TemplateFavorite[]
-  views       TemplateView[]
-  uses        TemplateUse[]
-  invitations Invitation[]
-  mediaAssets MediaAsset[]
+  preferences            Preference?
+  favorites              TemplateFavorite[]
+  views                  TemplateView[]
+  uses                   TemplateUse[]
+  invitations            Invitation[]
+  mediaAssets            MediaAsset[]
+  lifecycleNotifications LifecycleNotification[]
 
   uploadedTemplateAssets TemplateAsset[] @relation("TemplateAssetUploader")
 
@@ -475,6 +476,10 @@ enum MediaKind {
   VIDEO
 }
 
+enum MediaDerivativeKind {
+  REMASTER
+}
+
 /// An uploaded asset — Ph4's Media Library owns this concept (Ph4.md §15).
 ///
 /// It exists in Phase 3 because Ph3.md §7 says "Connect to the Invitation Media
@@ -507,11 +512,11 @@ model MediaAsset {
   /// "by type" virtual folder view (design doc Decision 1) all read this one
   /// field. Not validated against a fixed vocabulary; unlike Template.tags this
   /// is customer-authored, not curated catalog data.
-  tags             String[] @default([])
+  tags             String[]  @default([])
   /// Bumped on every Replace Asset (Ph4.md §10). Embedded in served URLs so a
   /// stale cached URL is provably stale rather than silently wrong — see the
   /// design doc's "Why the version belongs in the URL path".
-  version          Int      @default(1)
+  version          Int       @default(1)
   /// Intrinsic dimensions, when known. Null for audio, documents, and any image
   /// whose thumbnail/preview generation failed (design doc Decision 4). This is
   /// also the sole signal that variants exist for this asset — see
@@ -522,11 +527,36 @@ model MediaAsset {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profile Profile           @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  usages  InvitationMedia[]
+  profile     Profile           @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  usages      InvitationMedia[]
+  derivatives MediaDerivative[]
 
   @@index([profileId, createdAt])
   @@map("media_assets")
+}
+
+/// A generated, optional treatment of an uploaded asset. The source asset row
+/// and its original storage object are never changed by derivative creation.
+model MediaDerivative {
+  id              String              @id @default(uuid()) @db.Uuid
+  assetId         String              @db.Uuid
+  kind            MediaDerivativeKind @default(REMASTER)
+  sourceVersion   Int
+  provider        String
+  providerVersion String
+  storagePath     String              @unique
+  mimeType        String
+  bytes           Int
+  width           Int?
+  height          Int?
+  createdAt       DateTime            @default(now())
+
+  asset  MediaAsset        @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  usages InvitationMedia[]
+
+  @@unique([assetId, sourceVersion, kind, provider, providerVersion])
+  @@index([assetId, sourceVersion, kind, createdAt])
+  @@map("media_derivatives")
 }
 
 /// A customer's invitation — the structured dataset Ph3.md exists to produce.
@@ -593,29 +623,151 @@ model Invitation {
   /// Public website identifier, chosen by the customer at publish time — never
   /// during the builder. Doubles as the access-control boundary alongside
   /// isPublished; there is no separate opaque id underneath it.
-  slug        String?  @unique
+  slug        String? @unique
   /// The single guest-visibility boundary. "Never published" and "unpublished"
   /// are identical to every access check and to a guest (the route is not live
   /// either way) — the only difference is UI copy, derived from whether slug
   /// is already set. No enum, no extra state to keep consistent.
-  isPublished Boolean  @default(false)
+  isPublished Boolean @default(false)
 
-  profile         Profile                    @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  template        Template?                  @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  hosts           InvitationHost[]
-  venues          InvitationVenue[]
-  content         InvitationContent?
-  people          InvitationPerson[]
-  program         ProgramItem[]
-  personalization InvitationPersonalization?
-  media           InvitationMedia[]
-  rsvps           RsvpResponse[]
-  pdfGenerations  PdfGeneration[]
-  orders          Order[]
+  profile                Profile                    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  template               Template?                  @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  hosts                  InvitationHost[]
+  venues                 InvitationVenue[]
+  content                InvitationContent?
+  people                 InvitationPerson[]
+  program                ProgramItem[]
+  personalization        InvitationPersonalization?
+  media                  InvitationMedia[]
+  rsvps                  RsvpResponse[]
+  memorySettings         EventMemorySettings?
+  memorySubmissions      EventMemorySubmission[]
+  lifecycleNotifications LifecycleNotification[]
+  pdfGenerations         PdfGeneration[]
+  orders                 Order[]
 
   @@index([profileId, status, updatedAt])
   @@index([templateId])
   @@map("invitations")
+}
+
+enum LifecycleNotificationKind {
+  MEMORY_PROMPT
+  THANK_YOU
+  ARCHIVE_READY
+  REVIEW_REQUEST
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum AcquisitionEventType {
+  HOMEPAGE_CTA
+}
+
+/// Anonymous product-acquisition measurement. Deliberately stores no IP,
+/// user-agent, cookie, profile, or guest identity.
+model AcquisitionEvent {
+  id        String               @id @default(uuid()) @db.Uuid
+  type      AcquisitionEventType
+  source    String
+  target    String
+  createdAt DateTime             @default(now())
+
+  @@index([type, createdAt])
+  @@map("acquisition_events")
+}
+
+/// Fixed-window public-write limiter. The key is an HMAC digest; raw network
+/// addresses are never persisted.
+model RateLimitBucket {
+  id          String   @id @default(uuid()) @db.Uuid
+  scope       String
+  keyHash     String
+  windowStart DateTime
+  count       Int      @default(1)
+  expiresAt   DateTime
+  updatedAt   DateTime @updatedAt
+
+  @@unique([scope, keyHash, windowStart])
+  @@index([expiresAt])
+  @@map("rate_limit_buckets")
+}
+
+model LifecycleNotification {
+  id           String                     @id @default(uuid()) @db.Uuid
+  invitationId String                     @db.Uuid
+  profileId    String                     @db.Uuid
+  kind         LifecycleNotificationKind
+  channel      String                     @default("in_app")
+  scheduledAt  DateTime
+  status       NotificationDeliveryStatus @default(PENDING)
+  payload      Json
+  consentBasis String?
+  attempts     Int                        @default(0)
+  lastError    String?
+  claimedAt    DateTime?
+  sentAt       DateTime?
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+  invitation   Invitation                 @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  profile      Profile                    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([invitationId, kind])
+  @@index([status, scheduledAt])
+  @@index([profileId, scheduledAt])
+  @@map("lifecycle_notifications")
+}
+
+enum EventMemoryMode {
+  PRIVATE_COLLECTION
+  GUEST_GALLERY
+  LIVE_WALL
+  POST_EVENT_ARCHIVE
+}
+
+enum EventMemoryStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model EventMemorySettings {
+  invitationId String          @id @db.Uuid
+  enabled      Boolean         @default(false)
+  mode         EventMemoryMode @default(PRIVATE_COLLECTION)
+  opensAt      DateTime?
+  closesAt     DateTime?
+  allowVideos  Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  invitation   Invitation      @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@map("event_memory_settings")
+}
+
+model EventMemorySubmission {
+  id               String            @id @default(uuid()) @db.Uuid
+  invitationId     String            @db.Uuid
+  status           EventMemoryStatus @default(PENDING)
+  guestName        String?
+  caption          String?
+  bucket           String
+  storagePath      String            @unique
+  mimeType         String
+  bytes            Int
+  originalFilename String
+  createdAt        DateTime          @default(now())
+  moderatedAt      DateTime?
+  invitation       Invitation        @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId, status, createdAt])
+  @@map("event_memory_submissions")
 }
 
 /// A host or celebrant — Ph3.md §3.
@@ -778,16 +930,19 @@ model InvitationPersonalization {
 model InvitationMedia {
   invitationId String    @db.Uuid
   assetId      String    @db.Uuid
+  derivativeId String?   @db.Uuid
   slot         MediaSlot
   sortOrder    Int       @default(0)
 
-  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  asset      MediaAsset @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  invitation Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  asset      MediaAsset       @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  derivative MediaDerivative? @relation(fields: [derivativeId], references: [id], onDelete: SetNull)
 
   /// One asset may fill one slot once, but may appear in several slots.
   @@id([invitationId, assetId, slot])
   @@index([invitationId, slot, sortOrder])
   @@index([assetId])
+  @@index([derivativeId])
   @@map("invitation_media")
 }
 
@@ -797,8 +952,8 @@ model InvitationMedia {
 /// invited "Maria Santos" are not the same guest) and deliberately not
 /// attempted.
 model RsvpResponse {
-  id           String   @id @default(uuid()) @db.Uuid
-  invitationId String   @db.Uuid
+  id           String @id @default(uuid()) @db.Uuid
+  invitationId String @db.Uuid
 
   guestName  String
   attending  Boolean
@@ -856,7 +1011,7 @@ model PdfGeneration {
 
   createdAt DateTime @default(now())
 
-  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  invitation Invitation  @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
   @@index([invitationId, createdAt])
@@ -906,6 +1061,17 @@ enum OrderEventType {
   NOTE_ADDED
   ITEM_ADDED
   GENERATED
+  PAYMENT_STATUS
+  PUBLICATION
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+  WAIVED
 }
 
 /// One commercial engagement — Ph7.md §1. What a customer calls "my booking".
@@ -931,14 +1097,36 @@ model Order {
   assignedTo Profile?    @relation("OrderAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
   invitation Invitation? @relation(fields: [invitationId], references: [id], onDelete: SetNull)
 
-  items  OrderItem[]
-  events OrderEvent[]
-  notes  OrderNote[]
+  items   OrderItem[]
+  events  OrderEvent[]
+  notes   OrderNote[]
+  payment Payment?
 
   @@index([status, createdAt])
   @@index([profileId])
   @@index([assignedToId])
   @@map("orders")
+}
+
+/// One settlement record per order. Provider callbacks update this row only
+/// after server-side verification; offline payments and waivers are staff-only.
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  orderId           String        @unique @db.Uuid
+  status            PaymentStatus @default(PENDING)
+  amountMinor       Int
+  currency          String        @default("PHP")
+  provider          String
+  providerReference String?
+  verifiedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerReference])
+  @@index([status, updatedAt])
+  @@map("payments")
 }
 
 /// One deliverable — a print run, a website, a reprint. This is what the

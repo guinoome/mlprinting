@@ -18,6 +18,8 @@ export const routes = {
 
   /** Template Marketplace — Ph2. Public: browsing needs no account. */
   templates: "/templates",
+  acquisitionTemplates: (source: "home-hero" | "home-closing") =>
+    `/go/templates?source=${source}`,
   template: (slug: string) => `/templates/${slug}`,
   /**
    * The animated invitation a template produces, filled with sample content.
@@ -43,6 +45,7 @@ export const routes = {
    * `slug` is the customer-chosen identifier from Invitation.slug.
    */
   publicEvent: (slug: string) => `/e/${slug}`,
+  publicEventMemories: (slug: string) => `/e/${slug}/memories`,
 
   dashboard: {
     root: "/dashboard",
@@ -55,6 +58,7 @@ export const routes = {
     eventWebsite: (id: string) => `/dashboard/events/${id}/website`,
     /** RSVP list — Ph5.md §3. */
     eventRsvps: (id: string) => `/dashboard/events/${id}/rsvps`,
+    eventMemories: (id: string) => `/dashboard/events/${id}/memories`,
     /** Print file — Ph6.md's PDF generation surface. */
     eventPrint: (id: string) => `/dashboard/events/${id}/print`,
     /**

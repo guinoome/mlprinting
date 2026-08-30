@@ -16,7 +16,7 @@ import { env } from "@/lib/env";
 export const runtime = "nodejs";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { slug: string } },
 ) {
   // The flag gates every guest-facing surface of this phase, routes included.
@@ -30,7 +30,14 @@ export async function GET(
   const invitation = await getPublishedInvitation(params.slug);
   if (!invitation) return new Response("Not found", { status: 404 });
 
-  const url = `${env.app.url}${routes.publicEvent(params.slug)}`;
+  const memoryTarget =
+    request.nextUrl.searchParams.get("target") === "memories";
+  if (memoryTarget && !invitation.memorySettings?.enabled)
+    return new Response("Not found", { status: 404 });
+  const path = memoryTarget
+    ? routes.publicEventMemories(params.slug)
+    : routes.publicEvent(params.slug);
+  const url = `${env.app.url}${path}`;
   const png = await generateQrPng(url);
 
   // `Response` (per lib.dom's `BodyInit`) doesn't structurally accept the

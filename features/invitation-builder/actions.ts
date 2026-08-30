@@ -511,6 +511,39 @@ export async function saveMediaStep(
       if (owned !== assetIds.length)
         return { error: "One of those images is not available." };
     }
+    const chosenDerivatives = parsed.data.assignments.filter(
+      (assignment) => assignment.derivativeId,
+    );
+    if (chosenDerivatives.length > 0) {
+      const derivativeIds = [
+        ...new Set(
+          chosenDerivatives.map((assignment) => assignment.derivativeId!),
+        ),
+      ];
+      const valid = await prisma.mediaDerivative.findMany({
+        where: {
+          id: { in: derivativeIds },
+          asset: { profileId: auth.profileId },
+        },
+        select: {
+          id: true,
+          assetId: true,
+          sourceVersion: true,
+          asset: { select: { version: true } },
+        },
+      });
+      const validById = new Map(valid.map((row) => [row.id, row]));
+      const mismatch = chosenDerivatives.some((assignment) => {
+        const row = validById.get(assignment.derivativeId!);
+        return (
+          !row ||
+          row.assetId !== assignment.assetId ||
+          row.sourceVersion !== row.asset.version
+        );
+      });
+      if (mismatch)
+        return { error: "One of those remasters is not available." };
+    }
 
     await prisma.$transaction([
       prisma.invitationMedia.deleteMany({ where: { invitationId } }),
@@ -518,6 +551,7 @@ export async function saveMediaStep(
         data: parsed.data.assignments.map((assignment, index) => ({
           invitationId,
           assetId: assignment.assetId,
+          derivativeId: assignment.derivativeId ?? null,
           slot: assignment.slot,
           sortOrder: index,
         })),

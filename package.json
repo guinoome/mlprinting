@@ -5,7 +5,7 @@
   "description": "ML Digital Event Platform (ML-DEP) — production platform for ML Printing",
   "packageManager": "pnpm@11.13.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13"
   },
   "scripts": {
     "dev": "next dev",

@@ -202,6 +202,9 @@ and nothing finer. Resist adding per-action permissions until a phase asks.
 
 ## Design system
 
+The typed experience-configuration seam and its rollback boundary are documented in
+[`docs/experience-engine.md`](experience-engine.md).
+
 Tokens are CSS custom properties in `app/globals.css`, surfaced to Tailwind as
 semantic names (`bg-primary`, `text-muted-foreground`) in `tailwind.config.ts`.
 
@@ -254,6 +257,12 @@ querying for them (so it can be an HTTP call to a model, and is testable without
 a database), and it returns scores with reasons rather than a re-ordered list
 (so a ranking stays auditable). Swapping implementations is one line in
 `services/recommendations/index.ts`.
+
+The guided builder consumes that same contract through
+[`docs/spoon-fed-recommendation-flow.md`](spoon-fed-recommendation-flow.md). It
+collects event context before the experience choice, displays a six-item
+explainable set, and leaves the complete catalogue available without copying
+ranking logic into the builder.
 
 ---
 
@@ -332,6 +341,13 @@ need a seeded Supabase project to sign into; that lands with the deployment gate
 in `docs/deployment-workflow.md`.
 
 ---
+
+## Original and remaster media
+
+Optional photo enhancement is modeled as an immutable, version-bound derivative
+rather than a replacement of the uploaded original. The invitation-media join
+stores the reversible selection. See
+[`docs/original-remaster-workflow.md`](original-remaster-workflow.md).
 
 ## Known gaps
 

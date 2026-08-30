@@ -15,7 +15,6 @@ export const branding = {
   shortName: "ML-DEP",
   tagline: "Premium event websites and matching printed invitations.",
   location: "Libo, Tayud, Consolacion, Cebu",
-  supportEmail: "hello@mlprinting.example",
   /** Drives both links below, so a page rename cannot leave them disagreeing. */
   facebookHandle: "mlprintingcebu",
 } as const;

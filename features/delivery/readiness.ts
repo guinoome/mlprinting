@@ -13,11 +13,7 @@
  */
 
 export type DeliveryStepId =
-  | "details"
-  | "website"
-  | "print"
-  | "order"
-  | "payment";
+  "details" | "website" | "print" | "order" | "payment";
 
 export type DeliveryStepState = "done" | "waiting" | "failed" | "not-required";
 
@@ -39,17 +35,7 @@ export interface DeliveryInput {
   /** Newest first. Only the newest decides the step; older ones are history. */
   pdfGenerations: { status: "PENDING" | "READY" | "FAILED" }[];
   order: { reference: string; status: string } | null;
-  /**
-   * Whether this deployment gates delivery on payment.
-   *
-   * False today, and not an oversight: Ph8's payment module is paused at the
-   * owner's instruction, so there is nothing that could satisfy the gate. The
-   * step is still declared and reported as not-required, because a delivery
-   * checklist that silently omits payment reads as "payment is not part of
-   * this" rather than "payment is not switched on" — and switching it on
-   * should be this flag, not a new step somebody has to remember to add.
-   */
-  paymentRequired: boolean;
+  payment: { status: string } | null;
 }
 
 export interface DeliveryReadiness {
@@ -79,6 +65,8 @@ export function deliveryReadiness(input: DeliveryInput): DeliveryReadiness {
   const detailsDone = invitation.status !== "DRAFT";
   const websiteDone = invitation.isPublished && Boolean(invitation.slug);
   const print = printState(input.pdfGenerations);
+  const paymentDone =
+    input.payment?.status === "CAPTURED" || input.payment?.status === "WAIVED";
 
   const steps: DeliveryStep[] = [
     {
@@ -123,10 +111,13 @@ export function deliveryReadiness(input: DeliveryInput): DeliveryReadiness {
     {
       id: "payment",
       label: "Payment",
-      state: input.paymentRequired ? "waiting" : "not-required",
-      detail: input.paymentRequired
-        ? "Awaiting payment."
-        : "Not required for this order.",
+      state: paymentDone ? "done" : "waiting",
+      detail:
+        input.payment?.status === "WAIVED"
+          ? "Payment was waived by an authorized staff member."
+          : paymentDone
+            ? "Payment verified."
+            : "Awaiting verified payment.",
     },
   ];
 
