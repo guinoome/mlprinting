@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { validateUpload } from "./validation";
+import { uploadSignatureMatches } from "./signature";
 import type { UploadKind, UploadResult, UploadFailure } from "./types";
 
 /**
@@ -66,6 +67,12 @@ export async function uploadFile({
     kind,
   );
   if (failure) return failure;
+  if (!(await uploadSignatureMatches(file, kind))) {
+    return {
+      code: "wrong-type",
+      message: "The file contents do not match the selected file type.",
+    };
+  }
 
   const supabase = createClient();
   const { error } = await supabase.storage.from(bucket).upload(path, file, {
@@ -102,6 +109,26 @@ export async function removeFile(
     return false;
   }
   return true;
+}
+
+/** Read a private object after the caller has already proved ownership. */
+export async function downloadFile(
+  bucket: Bucket,
+  path: string,
+): Promise<Buffer | null> {
+  if (!isSupabaseConfigured()) return null;
+
+  const supabase = createClient();
+  const { data, error } = await supabase.storage.from(bucket).download(path);
+  if (error || !data) {
+    logger.report(error ?? new Error("Storage download returned no data"), {
+      at: "downloadFile",
+      bucket,
+    });
+    return null;
+  }
+
+  return Buffer.from(await data.arrayBuffer());
 }
 
 /** Public URL for an object in a public bucket. */

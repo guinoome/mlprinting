@@ -7,6 +7,7 @@ import { routes, features } from "@/lib/config";
 import { getInvitationForManage } from "@/features/website-generator/repository";
 import { PublishForm } from "@/features/website-generator/components/publish-form";
 import { env } from "@/lib/env";
+import { getPublicationReadiness } from "@/services/commerce";
 
 export const metadata: Metadata = { title: "Manage Website" };
 
@@ -53,6 +54,7 @@ export default async function EventWebsitePage({
   const publicUrl = invitation.slug
     ? `${env.app.url}${routes.publicEvent(invitation.slug)}`
     : null;
+  const readiness = await getPublicationReadiness(profile.id, invitation.id);
 
   return (
     <>
@@ -71,6 +73,14 @@ export default async function EventWebsitePage({
         currentSlug={invitation.slug}
         isPublished={invitation.isPublished}
         publicUrl={publicUrl}
+        publishAllowed={readiness?.allowed ?? false}
+        blockedReason={
+          readiness && !readiness.allowed
+            ? readiness.reason
+            : readiness
+              ? null
+              : "Publication readiness could not be verified."
+        }
       />
     </>
   );

@@ -7,6 +7,7 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { routes } from "@/lib/config";
 import { OrderSearch } from "@/features/orders/components/order-search";
 import { ORDER_STATUS_LABELS as STATUS_LABELS } from "@/features/orders/labels";
+import { SettlementControls } from "@/features/payments/components/settlement-controls";
 
 export const metadata: Metadata = {
   title: "Bookings",
@@ -34,7 +35,7 @@ export default async function AdminBookingsPage({
 
       <header className="space-y-1">
         <h1 className="text-2xl font-semibold">Bookings</h1>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           Every order, newest first.
         </p>
       </header>
@@ -54,12 +55,13 @@ export default async function AdminBookingsPage({
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[40rem] text-sm">
-            <thead className="text-muted-foreground text-left">
+            <thead className="text-left text-muted-foreground">
               <tr className="border-b">
                 <th className="py-2 pr-4 font-medium">Reference</th>
                 <th className="py-2 pr-4 font-medium">Customer</th>
                 <th className="py-2 pr-4 font-medium">Status</th>
                 <th className="py-2 pr-4 font-medium">Items</th>
+                <th className="py-2 pr-4 font-medium">Settlement</th>
                 <th className="py-2 font-medium">Created</th>
               </tr>
             </thead>
@@ -74,6 +76,12 @@ export default async function AdminBookingsPage({
                     {STATUS_LABELS[order.status] ?? order.status}
                   </td>
                   <td className="py-2 pr-4">{order.items.length}</td>
+                  <td className="py-2 pr-4">
+                    <SettlementControls
+                      orderId={order.id}
+                      status={order.payment?.status ?? null}
+                    />
+                  </td>
                   <td className="py-2">
                     {order.createdAt.toLocaleDateString()}
                   </td>

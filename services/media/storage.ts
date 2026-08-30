@@ -18,8 +18,24 @@ export interface AssetObjectWrite {
 }
 
 export type WriteAssetObjectsResult =
-  | { ok: true }
-  | { ok: false; error: string; written: string[] };
+  { ok: true } | { ok: false; error: string; written: string[] };
+
+export async function writeMediaObject(
+  write: Omit<AssetObjectWrite, "variant">,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const filename = write.path.split("/").pop() ?? "asset";
+  const file = new File([write.buffer as BlobPart], filename, {
+    type: write.contentType,
+  });
+  const result = await uploadFile({
+    bucket: BUCKETS.media,
+    path: write.path,
+    file,
+    kind: "image",
+    upsert: false,
+  });
+  return "code" in result ? { ok: false, error: result.message } : { ok: true };
+}
 
 /**
  * Writes each object in order, stopping at the first failure. Returns which

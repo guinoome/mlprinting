@@ -13,9 +13,11 @@ import { InvitationActions } from "./invitation-actions";
 import { MusicPlayer } from "./music-player";
 import { QrFooter } from "./qr-footer";
 import { MUSIC_TRACKS, moodForEventKind } from "@/lib/invitation/music";
-import { layoutFor } from "../layouts/registry";
 import type { SectionId } from "../layouts/types";
 import { visibleSections } from "../layouts/visible-sections";
+import { resolveExperience } from "../experience/registry";
+import { features } from "@/lib/config";
+import { MotionStage } from "./motion-stage";
 
 /** The hero's opening line, tuned to the celebration. */
 const EYEBROW: Record<EventKind, string> = {
@@ -162,7 +164,10 @@ function calendarUrl(
   location: string | undefined,
 ): string {
   const fmt = (d: Date) =>
-    d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    d
+      .toISOString()
+      .replace(/[-:]/g, "")
+      .replace(/\.\d{3}/, "");
   const end = new Date(start.getTime() + 3 * 60 * 60 * 1000);
   const params = new URLSearchParams({
     action: "TEMPLATE",
@@ -173,26 +178,12 @@ function calendarUrl(
   return `https://www.google.com/calendar/render?${params.toString()}`;
 }
 
-function Section({
-  label,
-  children,
-}: {
-  label?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="inv-section" data-reveal>
-      {label ? <p className="inv-label">{label}</p> : null}
-      {children}
-    </section>
-  );
-}
-
 export function EventSite({
   invitationId,
   model,
   countdownTarget,
   qrSrc,
+  memoryHref,
 }: {
   invitationId: string;
   model: PreviewModel;
@@ -203,6 +194,7 @@ export function EventSite({
    * serves it from a cached route while a sample generates its own.
    */
   qrSrc?: string | null;
+  memoryHref?: string | null;
 }) {
   const { style } = model;
 
@@ -227,7 +219,10 @@ export function EventSite({
     ? `${model.dateLine}${model.timeLine ? ` · ${model.timeLine}` : ""}`
     : null;
 
-  const layout = layoutFor(model.eventKind);
+  const experience = resolveExperience(model.eventKind, {
+    enabled: features.interactiveExperiences,
+  });
+  const { layout } = experience;
 
   const eyebrow = EYEBROW[model.eventKind];
   const confetti: ConfettiConfig | undefined = layout.celebratory
@@ -254,9 +249,9 @@ export function EventSite({
    */
   const nodes: Record<SectionId, React.ReactNode> = {
     welcome: (
-      <Section>
+      <MotionStage name="welcome">
         <p className="inv-lead">{model.welcomeMessage}</p>
-      </Section>
+      </MotionStage>
     ),
 
     /**
@@ -269,7 +264,7 @@ export function EventSite({
      * clear, and repeating it down the page would be wallpaper.
      */
     countdown: countdownTarget ? (
-      <Section>
+      <MotionStage name="countdown">
         {layout.ornament === "none" ? (
           <div className="inv-ornament" aria-hidden="true" />
         ) : (
@@ -279,33 +274,33 @@ export function EventSite({
           </div>
         )}
         <Countdown targetDate={countdownTarget} />
-      </Section>
+      </MotionStage>
     ) : null,
 
     actions: calendar ? (
-      <Section>
+      <MotionStage name="actions">
         <InvitationActions title={model.title} calendarUrl={calendar} />
-      </Section>
+      </MotionStage>
     ) : null,
 
     invitation: (
-      <Section>
+      <MotionStage name="invitation">
         <p className="inv-lead" style={{ whiteSpace: "pre-line" }}>
           {model.invitationMessage}
         </p>
-      </Section>
+      </MotionStage>
     ),
 
     hosts: (
-      <Section>
+      <MotionStage name="hosts">
         <p className="inv-couplet">
           {model.hosts.map((h) => h.name).join("  &  ")}
         </p>
-      </Section>
+      </MotionStage>
     ),
 
     parents: (
-      <Section label="Parents">
+      <MotionStage name="parents" label="Parents">
         <ul className="inv-list">
           {model.parents.map((person) => (
             <li key={person.id}>
@@ -316,21 +311,21 @@ export function EventSite({
             </li>
           ))}
         </ul>
-      </Section>
+      </MotionStage>
     ),
 
     sponsors: (
-      <Section label="Principal Sponsors">
+      <MotionStage name="sponsors" label="Principal Sponsors">
         <ul className="inv-list">
           {model.sponsors.map((person) => (
             <li key={person.id}>{person.name}</li>
           ))}
         </ul>
-      </Section>
+      </MotionStage>
     ),
 
     venues: (
-      <Section label="Where">
+      <MotionStage name="venues" label="Where">
         <div>
           {model.venues.map((venue) => (
             <div key={venue.id} className="inv-venue">
@@ -360,11 +355,11 @@ export function EventSite({
             </div>
           ))}
         </div>
-      </Section>
+      </MotionStage>
     ),
 
     program: (
-      <Section label="Programme">
+      <MotionStage name="program" label="Programme">
         <div className="inv-timeline">
           {model.program.map((item) => (
             <div key={item.id} className="inv-timeline-item">
@@ -386,7 +381,7 @@ export function EventSite({
             </div>
           ))}
         </div>
-      </Section>
+      </MotionStage>
     ),
 
     /**
@@ -399,7 +394,7 @@ export function EventSite({
      * followed by a grid of hard corners.
      */
     gallery: (
-      <Section>
+      <MotionStage name="gallery">
         <div className="inv-gallery">
           {model.galleryUrls.map((url) => (
             <PhotoFrame
@@ -411,33 +406,37 @@ export function EventSite({
             />
           ))}
         </div>
-      </Section>
+      </MotionStage>
     ),
 
     "dress-code": (
-      <Section label="Dress code">
+      <MotionStage name="dress-code" label="Dress code">
         <p style={{ textAlign: "center" }}>{model.dressCode}</p>
-      </Section>
+      </MotionStage>
     ),
 
     gifts: (
-      <Section label="Gifts">
-        <p style={{ textAlign: "center", whiteSpace: "pre-line", opacity: 0.9 }}>
+      <MotionStage name="gifts" label="Gifts">
+        <p
+          style={{ textAlign: "center", whiteSpace: "pre-line", opacity: 0.9 }}
+        >
           {model.giftsPreference}
         </p>
-      </Section>
+      </MotionStage>
     ),
 
     notes: (
-      <Section label="Notes">
-        <p style={{ textAlign: "center", whiteSpace: "pre-line", opacity: 0.9 }}>
+      <MotionStage name="notes" label="Notes">
+        <p
+          style={{ textAlign: "center", whiteSpace: "pre-line", opacity: 0.9 }}
+        >
           {model.specialNotes}
         </p>
-      </Section>
+      </MotionStage>
     ),
 
     rsvp: (
-      <Section label="RSVP">
+      <MotionStage name="rsvp" label="RSVP">
         <div className="inv-rsvp">
           {model.rsvpLine ? (
             <p
@@ -452,14 +451,19 @@ export function EventSite({
             </p>
           ) : null}
           <RsvpForm invitationId={invitationId} accentColor={style.accent} />
+          {memoryHref ? (
+            <a href={memoryHref} className="inv-maplink mt-4 inline-block">
+              Share Your Memories
+            </a>
+          ) : null}
         </div>
-      </Section>
+      </MotionStage>
     ),
 
     closing: (
-      <Section>
+      <MotionStage name="closing">
         <p className="inv-lead">{model.closingMessage}</p>
-      </Section>
+      </MotionStage>
     ),
 
     qr: qrSrc ? (
@@ -472,7 +476,11 @@ export function EventSite({
       monogram={monogram}
       coupleLine={coupleLine}
       confetti={confetti}
-      motion={layout.motion}
+      motion={experience.motionStyle}
+      experienceEnabled={experience.source === "experience"}
+      experienceId={experience.config.id}
+      motionProfile={experience.config.motionProfile}
+      motionLevel={experience.motionLevel}
       style={invVars(style)}
     >
       <div
@@ -516,7 +524,11 @@ export function EventSite({
         {/* The customer's own upload wins; otherwise the invitation still gets
             a track, chosen to suit the occasion (FDG-ML-DEP-STD-015 §6). A
             memorial resolves to the cinematic track, never a celebratory one. */}
-        <MusicPlayer src={model.musicUrl ?? MUSIC_TRACKS[moodForEventKind(model.eventKind)]} />
+        <MusicPlayer
+          src={
+            model.musicUrl ?? MUSIC_TRACKS[moodForEventKind(model.eventKind)]
+          }
+        />
       </div>
     </InvitationShell>
   );

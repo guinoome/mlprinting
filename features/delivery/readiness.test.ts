@@ -10,7 +10,7 @@ const base: DeliveryInput = {
   },
   pdfGenerations: [{ status: "READY" }],
   order: { reference: "ML-0001", status: "IN_PROGRESS" },
-  paymentRequired: false,
+  payment: { status: "CAPTURED" },
 };
 
 const stepOf = (input: DeliveryInput, id: string) =>
@@ -55,7 +55,10 @@ describe("deliveryReadiness", () => {
 
     it("tells an unpublished customer which of the two things to do", () => {
       const noSlug = stepOf(
-        { ...base, invitation: { ...base.invitation, slug: null, isPublished: false } },
+        {
+          ...base,
+          invitation: { ...base.invitation, slug: null, isPublished: false },
+        },
         "website",
       );
       expect(noSlug.detail).toContain("address");
@@ -101,28 +104,40 @@ describe("deliveryReadiness", () => {
         ...base,
         pdfGenerations: [{ status: "READY" }, { status: "FAILED" }],
       });
-      expect(stepOf({ ...base, pdfGenerations: [{ status: "READY" }, { status: "FAILED" }] }, "print").state).toBe("done");
+      expect(
+        stepOf(
+          {
+            ...base,
+            pdfGenerations: [{ status: "READY" }, { status: "FAILED" }],
+          },
+          "print",
+        ).state,
+      ).toBe("done");
       expect(result.attention).toBe(false);
       expect(result.delivered).toBe(true);
     });
   });
 
   describe("payment", () => {
-    /**
-     * Payments are paused at the owner's instruction, so nothing can satisfy
-     * the gate. The step is still reported — a checklist that omits payment
-     * reads as "payment is not part of this" rather than "payment is off".
-     */
-    it("is declared but inert while payments are paused", () => {
+    it("is complete only after a server-verified settlement", () => {
       const step = stepOf(base, "payment");
-      expect(step.state).toBe("not-required");
+      expect(step.state).toBe("done");
       expect(deliveryReadiness(base).delivered).toBe(true);
     });
 
-    it("blocks delivery the moment it is switched on", () => {
-      const result = deliveryReadiness({ ...base, paymentRequired: true });
+    it("blocks delivery while payment is absent", () => {
+      const result = deliveryReadiness({ ...base, payment: null });
       expect(result.delivered).toBe(false);
       expect(result.nextStep?.id).toBe("payment");
+    });
+
+    it("accepts an explicit staff waiver", () => {
+      const step = stepOf(
+        { ...base, payment: { status: "WAIVED" } },
+        "payment",
+      );
+      expect(step.state).toBe("done");
+      expect(step.detail).toContain("waived");
     });
   });
 
@@ -153,7 +168,7 @@ describe("deliveryReadiness", () => {
       { ...base, pdfGenerations: [] },
       { ...base, pdfGenerations: [{ status: "FAILED" }] },
       { ...base, order: null },
-      { ...base, paymentRequired: true },
+      { ...base, payment: null },
     ];
     for (const input of permutations) {
       const result = deliveryReadiness(input);

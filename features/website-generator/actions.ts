@@ -2,8 +2,14 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { getProfile } from "@/lib/auth/session";
 import { features, routes } from "@/lib/config";
+import { scheduleLifecycleNotifications } from "@/services/lifecycle-notifications";
+import {
+  enforcePublicRateLimit,
+  requestAddress,
+} from "@/services/security/rate-limit";
 import { normalizeSlug, validateSlug } from "./slug";
 import {
   createRsvp,
@@ -49,6 +55,18 @@ export async function submitRsvp(
   }
 
   const invitationId = String(formData.get("invitationId") ?? "");
+  const rate = await enforcePublicRateLimit({
+    scope: `rsvp:${invitationId}`,
+    address: requestAddress(headers()),
+    limit: 10,
+    windowMs: 10 * 60 * 1000,
+  });
+  if (!rate.allowed) {
+    return {
+      error:
+        "Too many replies from this connection. Please wait and try again.",
+    };
+  }
 
   const accepts = await invitationAcceptsRsvps(invitationId);
   if (!accepts) {
@@ -76,6 +94,8 @@ export async function submitRsvp(
   });
 
   if (!result.ok) return { error: result.error };
+
+  await scheduleLifecycleNotifications(invitationId);
 
   return { success: true };
 }

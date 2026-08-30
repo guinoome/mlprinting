@@ -1,8 +1,12 @@
 import "server-only";
 
 import { logger } from "@/lib/logger";
-import { toPreviewModel, type PreviewInput } from "@/lib/invitation/preview-model";
+import {
+  toPreviewModel,
+  type PreviewInput,
+} from "@/lib/invitation/preview-model";
 import { completionErrors } from "@/lib/invitation/completeness";
+import { resolveDesignIdentity } from "@/lib/invitation/design-identity";
 import { getAsset, type AssetRow } from "@/services/media";
 import {
   GENERATOR_VERSION,
@@ -16,7 +20,6 @@ import {
   markGenerationReady,
   nextVersionFor,
   pageSpecFor,
-  printColours,
   renderPdf,
   storePdf,
   type PdfSizeSlug,
@@ -68,11 +71,19 @@ export async function generatePrintFile(
     };
   }
 
+  if (invitation.template && !invitation.template.printCompatible) {
+    return {
+      ok: false,
+      report: null,
+      message:
+        "This experience is digital-only. Choose a print-compatible design for a matching card.",
+    };
+  }
+
   const spec = pageSpecFor(input.pageSize);
-  const themeSlug = invitation.personalization?.colorTheme ?? "classic-ivory";
-  const typographySlug =
-    invitation.personalization?.typography ?? "classic-serif";
-  const colours = printColours(themeSlug);
+  const identity = resolveDesignIdentity(invitation.personalization);
+  const typographySlug = identity.typographySlug;
+  const colours = identity.print;
   const hidden = new Set(invitation.personalization?.hiddenSections ?? []);
 
   // mediaUrls is deliberately empty: print addresses assets by id and fetches
@@ -183,11 +194,24 @@ export async function generatePrintFile(
   for (const item of placed) {
     const asset = await getAsset(input.profileId, item.assetId);
     if (!asset) continue;
-    assetsById.set(asset.id, asset);
+    const usage = invitation.media.find((link) => link.assetId === asset.id);
+    const derivative = usage?.derivative;
+    const selectedAsset: AssetRow =
+      derivative && derivative.sourceVersion === asset.version
+        ? {
+            ...asset,
+            storagePath: derivative.storagePath,
+            mimeType: derivative.mimeType,
+            bytes: derivative.bytes,
+            width: derivative.width,
+            height: derivative.height,
+          }
+        : asset;
+    assetsById.set(asset.id, selectedAsset);
     images.push({
       assetId: asset.id,
-      width: asset.width,
-      height: asset.height,
+      width: selectedAsset.width,
+      height: selectedAsset.height,
       boxWidthPt: item.box.width,
       boxHeightPt: item.box.height,
     });

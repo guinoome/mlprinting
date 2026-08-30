@@ -3,11 +3,16 @@ import "server-only";
 import { logger } from "@/lib/logger";
 import { isDatabaseConfigured } from "@/lib/db";
 import { extensionOf } from "@/services/upload";
-import { BUCKETS } from "@/services/upload/storage";
+import { BUCKETS, downloadFile } from "@/services/upload/storage";
 import { processImage } from "./processing";
 import { mediaKindForMime } from "./kind";
-import { assetObjectPath, hasVariants } from "./paths";
-import { writeAssetObjects, removeAssetObjects } from "./storage";
+import { assetObjectPath, hasVariants, remasterObjectPath } from "./paths";
+import {
+  writeAssetObjects,
+  writeMediaObject,
+  removeAssetObjects,
+} from "./storage";
+import { getRemasterProvider } from "./remaster/provider";
 import {
   insertAsset,
   findAssetById,
@@ -21,6 +26,13 @@ import {
   deleteAssetRow,
   findBlockingUsages,
   getQuota as repoGetQuota,
+  findCurrentRemaster,
+  listCurrentRemasters as repoListCurrentRemasters,
+  insertRemaster,
+  findDerivativeById,
+  isDerivativePublic as repoIsDerivativePublic,
+  listDerivativesForAsset,
+  deleteDerivativesForVersion,
 } from "./repository";
 import { computeByEvent, computeByType } from "./folders";
 import { parseMediaCriteria } from "./criteria";
@@ -51,7 +63,7 @@ export {
 } from "./criteria";
 export type { ByEventView, ByTypeView, EventFolder } from "./folders";
 export type { Quota, QuotaByEvent } from "./repository";
-export { hasVariants, assetObjectPath } from "./paths";
+export { hasVariants, assetObjectPath, remasterObjectPath } from "./paths";
 
 /**
  * Proxy URL for one variant of one asset — never a Supabase signed URL
@@ -83,6 +95,124 @@ export function previewUrl(asset: {
   return assetVariantUrl(asset, hasVariants(asset) ? "preview" : "original");
 }
 
+export function remasterUrl(
+  asset: { id: string; version: number },
+  derivative: { id: string },
+): string {
+  return `/api/media/${asset.id}/${asset.version}/remaster/${derivative.id}`;
+}
+
+export type CreateRemasterResult =
+  | {
+      ok: true;
+      derivative: NonNullable<Awaited<ReturnType<typeof findCurrentRemaster>>>;
+    }
+  | { ok: false; error: string };
+
+/** Generate an optional derivative without altering the source asset or path. */
+export async function createRemaster(
+  profileId: string,
+  assetId: string,
+): Promise<CreateRemasterResult> {
+  if (!isDatabaseConfigured())
+    return { ok: false, error: "Media is not available on this deployment." };
+
+  const asset = await findAssetById(profileId, assetId);
+  if (!asset || asset.kind !== "IMAGE")
+    return { ok: false, error: "That image is not available." };
+
+  const provider = getRemasterProvider();
+  const existing = await findCurrentRemaster(asset.id, asset.version);
+  if (
+    existing &&
+    existing.provider === provider.id &&
+    existing.providerVersion === provider.version
+  ) {
+    return { ok: true, derivative: existing };
+  }
+
+  const original = await downloadFile(
+    asset.bucket as "media" | "avatars",
+    asset.storagePath,
+  );
+  if (!original)
+    return { ok: false, error: "Could not read the original image." };
+
+  const output = await provider.remaster(original);
+  if (!output)
+    return { ok: false, error: "This image could not be remastered." };
+
+  const derivativeId = crypto.randomUUID();
+  const path = remasterObjectPath(
+    profileId,
+    asset.id,
+    asset.version,
+    derivativeId,
+  );
+  const written = await writeMediaObject({
+    path,
+    buffer: output.buffer,
+    contentType: output.contentType,
+  });
+  if (!written.ok) return { ok: false, error: written.error };
+
+  try {
+    const derivative = await insertRemaster({
+      id: derivativeId,
+      assetId: asset.id,
+      sourceVersion: asset.version,
+      provider: provider.id,
+      providerVersion: provider.version,
+      storagePath: path,
+      mimeType: output.contentType,
+      bytes: output.buffer.byteLength,
+      width: output.width,
+      height: output.height,
+    });
+    return { ok: true, derivative };
+  } catch (error) {
+    logger.report(error, { at: "createRemaster", profileId, assetId });
+    await removeAssetObjects([path]);
+    const raced = await findCurrentRemaster(asset.id, asset.version);
+    if (
+      raced &&
+      raced.provider === provider.id &&
+      raced.providerVersion === provider.version
+    ) {
+      return { ok: true, derivative: raced };
+    }
+    return { ok: false, error: "Could not save that remaster." };
+  }
+}
+
+export async function listCurrentRemasters(
+  profileId: string,
+  assets: AssetRow[],
+) {
+  const rows = await repoListCurrentRemasters(
+    profileId,
+    assets.map((asset) => asset.id),
+  );
+  const versions = new Map(assets.map((asset) => [asset.id, asset.version]));
+  const current = new Map<string, (typeof rows)[number]>();
+  for (const row of rows) {
+    if (
+      row.sourceVersion === versions.get(row.assetId) &&
+      !current.has(row.assetId)
+    )
+      current.set(row.assetId, row);
+  }
+  return current;
+}
+
+export async function getDerivative(derivativeId: string) {
+  return findDerivativeById(derivativeId);
+}
+
+export async function isDerivativePublic(derivativeId: string) {
+  return repoIsDerivativePublic(derivativeId);
+}
+
 function objectPathsFor(
   profileId: string,
   assetId: string,
@@ -94,8 +224,20 @@ function objectPathsFor(
     assetObjectPath(profileId, assetId, version, "original", originalExtension),
     ...(includeVariants
       ? [
-          assetObjectPath(profileId, assetId, version, "thumbnail", originalExtension),
-          assetObjectPath(profileId, assetId, version, "preview", originalExtension),
+          assetObjectPath(
+            profileId,
+            assetId,
+            version,
+            "thumbnail",
+            originalExtension,
+          ),
+          assetObjectPath(
+            profileId,
+            assetId,
+            version,
+            "preview",
+            originalExtension,
+          ),
         ]
       : []),
   ];
@@ -109,8 +251,7 @@ export interface CreateAssetInput {
 }
 
 export type CreateAssetResult =
-  | { ok: true; assetId: string }
-  | { ok: false; error: string };
+  { ok: true; assetId: string } | { ok: false; error: string };
 
 /**
  * Store a file and record it as an asset — design doc's processing pipeline.
@@ -161,7 +302,13 @@ export async function createAsset({
       ? [
           {
             variant: "thumbnail" as const,
-            path: assetObjectPath(profileId, assetId, 1, "thumbnail", extension),
+            path: assetObjectPath(
+              profileId,
+              assetId,
+              1,
+              "thumbnail",
+              extension,
+            ),
             buffer: processed.thumbnail.buffer,
             contentType: processed.thumbnail.contentType,
           },
@@ -231,6 +378,7 @@ export async function replaceAsset(
   if (!existing) return { ok: false, error: "That image no longer exists." };
 
   const nextVersion = existing.version + 1;
+  const previousDerivatives = await listDerivativesForAsset(assetId);
   const extension = extensionOf(file.name);
   const buffer = Buffer.from(await file.arrayBuffer());
   const processed = await processImage(buffer);
@@ -238,7 +386,13 @@ export async function replaceAsset(
   const writes = [
     {
       variant: "original" as const,
-      path: assetObjectPath(profileId, assetId, nextVersion, "original", extension),
+      path: assetObjectPath(
+        profileId,
+        assetId,
+        nextVersion,
+        "original",
+        extension,
+      ),
       buffer,
       contentType: file.type,
     },
@@ -246,13 +400,25 @@ export async function replaceAsset(
       ? [
           {
             variant: "thumbnail" as const,
-            path: assetObjectPath(profileId, assetId, nextVersion, "thumbnail", extension),
+            path: assetObjectPath(
+              profileId,
+              assetId,
+              nextVersion,
+              "thumbnail",
+              extension,
+            ),
             buffer: processed.thumbnail.buffer,
             contentType: processed.thumbnail.contentType,
           },
           {
             variant: "preview" as const,
-            path: assetObjectPath(profileId, assetId, nextVersion, "preview", extension),
+            path: assetObjectPath(
+              profileId,
+              assetId,
+              nextVersion,
+              "preview",
+              extension,
+            ),
             buffer: processed.preview.buffer,
             contentType: processed.preview.contentType,
           },
@@ -295,13 +461,18 @@ export async function replaceAsset(
     hasVariants(existing),
   );
   await removeAssetObjects(previousPaths);
+  await deleteDerivativesForVersion(assetId, existing.version);
+  await removeAssetObjects(
+    previousDerivatives
+      .filter((row) => row.sourceVersion === existing.version)
+      .map((row) => row.storagePath),
+  );
 
   return { ok: true };
 }
 
 export type DeleteAssetResult =
-  | { ok: true }
-  | { ok: false; error: string; usedBy?: string[] };
+  { ok: true } | { ok: false; error: string; usedBy?: string[] };
 
 /**
  * Delete an asset — Ph4.md §11 (Delete Protection). Extends Phase 3's version
@@ -326,6 +497,8 @@ export async function deleteAsset(
     };
   }
 
+  const derivatives = await listDerivativesForAsset(assetId);
+
   try {
     await deleteAssetRow(asset.id);
   } catch (error) {
@@ -347,6 +520,7 @@ export async function deleteAsset(
     hasVariants(asset),
   );
   await removeAssetObjects(paths);
+  await removeAssetObjects(derivatives.map((row) => row.storagePath));
 
   return { ok: true };
 }
@@ -363,7 +537,9 @@ export async function getAsset(
  * published invitation. Not scoped to any session; this is the guest-facing
  * counterpart to `getAsset`, which is scoped to a profile.
  */
-export async function getPublicAsset(assetId: string): Promise<AssetRow | null> {
+export async function getPublicAsset(
+  assetId: string,
+): Promise<AssetRow | null> {
   const isPublic = await isAssetPublic(assetId);
   if (!isPublic) return null;
   return findAssetByIdUnscoped(assetId);

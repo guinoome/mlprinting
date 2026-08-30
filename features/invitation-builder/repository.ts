@@ -35,6 +35,7 @@ const FULL_INCLUDE = {
   media: {
     orderBy: { sortOrder: "asc" },
     include: {
+      derivative: { select: { id: true, sourceVersion: true } },
       asset: {
         select: {
           id: true,

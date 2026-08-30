@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getProfile } from "@/lib/auth/session";
-import { deleteAsset } from "@/services/media";
+import { createRemaster, deleteAsset } from "@/services/media";
 import { routes } from "@/lib/config";
 
 /**
@@ -30,6 +30,21 @@ export async function removeMedia(
     return { error: result.error, usedBy: result.usedBy };
   }
 
+  revalidatePath(routes.builder, "layout");
+  return {};
+}
+
+export async function remasterMedia(
+  _prev: MediaUploadState,
+  formData: FormData,
+): Promise<MediaUploadState> {
+  const profile = await getProfile();
+  if (!profile) return { error: "Please sign in again." };
+  const result = await createRemaster(
+    profile.id,
+    String(formData.get("assetId") ?? ""),
+  );
+  if (!result.ok) return { error: result.error };
   revalidatePath(routes.builder, "layout");
   return {};
 }

@@ -1,4 +1,4 @@
-import { colorTheme, typography } from "@/lib/config/design-vocabulary";
+import { resolveDesignIdentity } from "./design-identity";
 
 /**
  * The preview's view model — Ph3.md §10, §12.
@@ -114,7 +114,8 @@ export function deriveEventKind(
   if (/homecoming|get-?together/.test(haystack)) return "reunion";
   if (/handaan|salu-?salo|family celebration/.test(haystack)) return "family";
   if (/santo|patron|barrio fiesta|sinulog/.test(haystack)) return "fiesta";
-  if (/mass|blessing|novena|thanksgiving|church/.test(haystack)) return "religious";
+  if (/mass|blessing|novena|thanksgiving|church/.test(haystack))
+    return "religious";
   if (/barangay|assembly|civic|community/.test(haystack)) return "community";
   if (/betroth|proposal|engaged/.test(haystack)) return "engagement";
   if (/baptism|dedication|christening/.test(haystack)) return "christening";
@@ -189,12 +190,7 @@ export interface PreviewInput {
  * shape is written out by hand in every consumer.
  */
 export type MediaSlotKey =
-  | "COVER"
-  | "COUPLE"
-  | "FAMILY"
-  | "LOGO"
-  | "MUSIC"
-  | "VIDEO";
+  "COVER" | "COUPLE" | "FAMILY" | "LOGO" | "MUSIC" | "VIDEO";
 
 /** Resolved design values, ready to hand to a renderer as CSS. */
 export interface PreviewStyle {
@@ -322,10 +318,7 @@ export function formatTime(time: string, language: string): string {
 }
 
 export function toPreviewModel(input: PreviewInput): PreviewModel {
-  const theme = colorTheme(
-    input.personalization?.colorTheme ?? "classic-ivory",
-  );
-  const type = typography(input.personalization?.typography ?? "classic-serif");
+  const identity = resolveDesignIdentity(input.personalization);
   const language = input.language || "en";
 
   const dateLine = input.eventDate
@@ -410,13 +403,9 @@ export function toPreviewModel(input: PreviewInput): PreviewModel {
     ),
 
     style: {
-      background: theme.swatch.background,
-      foreground: theme.swatch.foreground,
-      accent: theme.swatch.accent,
-      headingFont: type.preview.heading,
-      bodyFont: type.preview.body,
-      backgroundStyle: input.personalization?.backgroundStyle ?? "plain",
-      decorativeStyle: input.personalization?.decorativeStyle ?? "none",
+      ...identity.screen,
+      backgroundStyle: identity.backgroundStyle,
+      decorativeStyle: identity.decorativeStyle,
     },
 
     hidden: new Set(input.personalization?.hiddenSections ?? []),

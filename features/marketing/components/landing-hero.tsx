@@ -45,7 +45,7 @@ export function LandingHero({
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link href={routes.templates}>
+              <Link href={routes.acquisitionTemplates("home-hero")}>
                 Browse templates
                 <ArrowRight aria-hidden="true" />
               </Link>

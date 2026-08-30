@@ -51,7 +51,11 @@ export async function getDeliverySnapshot(
         orders: {
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: { reference: true, status: true },
+          select: {
+            reference: true,
+            status: true,
+            payment: { select: { status: true } },
+          },
         },
       },
     });
@@ -71,11 +75,10 @@ export async function getDeliverySnapshot(
       pdfGenerations: invitation.pdfGenerations.map((g) => ({
         status: g.status,
       })),
-      order: order ? { reference: order.reference, status: order.status } : null,
-      // Payments are paused at the owner's instruction, so nothing can satisfy
-      // the gate and delivery must not wait on it. One flag, one place to
-      // change when the module lands — see readiness.ts.
-      paymentRequired: false,
+      order: order
+        ? { reference: order.reference, status: order.status }
+        : null,
+      payment: order?.payment ?? null,
       files: invitation.pdfGenerations.map((g) => ({
         id: g.id,
         createdAt: g.createdAt,

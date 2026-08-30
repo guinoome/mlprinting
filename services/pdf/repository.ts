@@ -30,7 +30,20 @@ const PRINT_INCLUDE = {
   personalization: true,
   media: {
     orderBy: { sortOrder: "asc" },
-    include: { asset: { select: { id: true } } },
+    include: {
+      asset: { select: { id: true, version: true } },
+      derivative: {
+        select: {
+          id: true,
+          sourceVersion: true,
+          storagePath: true,
+          mimeType: true,
+          bytes: true,
+          width: true,
+          height: true,
+        },
+      },
+    },
   },
 } satisfies Prisma.InvitationInclude;
 

@@ -70,37 +70,6 @@ export const FAQS: Faq[] = [
   {
     question: "What does it cost?",
     answer:
-      "Pricing depends on the template and whether you are printing. Browse the catalogue and talk to us — online ordering and payment are still being finished.",
-  },
-];
-
-export interface Testimonial {
-  quote: string;
-  attribution: string;
-}
-
-/**
- * Placeholder copy, and labelled as such where it renders.
- *
- * These are illustrative examples written in-house, not real customer
- * feedback. Presenting invented quotes as genuine reviews would be a lie told
- * to every visitor, so the section says plainly what they are until ML Printing
- * supplies quotes from actual customers to replace them.
- */
-export const TESTIMONIALS: Testimonial[] = [
-  {
-    quote:
-      "We sent the link in the family group chat and had sixty replies before the weekend was over.",
-    attribution: "Example — wedding, 200 guests",
-  },
-  {
-    quote:
-      "The printed suite arrived matching the website exactly. Our ninang framed hers.",
-    attribution: "Example — debut, Cebu City",
-  },
-  {
-    quote:
-      "Being able to see the head count update was the part that saved us with the caterer.",
-    attribution: "Example — christening, Mandaue",
+      "Pricing depends on the experience and whether you are printing. Browse the catalogue, then message ML Printing for a confirmed quote. Verified cash and bank-transfer settlements are supported; an online payment provider has not been selected yet.",
   },
 ];

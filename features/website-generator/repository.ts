@@ -3,6 +3,8 @@ import "server-only";
 import type { Prisma } from "@prisma/client";
 import { prisma, isDatabaseConfigured } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { decidePublication, loadPublicationContext } from "@/services/commerce";
+import type { RsvpCriteria } from "./rsvp-intelligence";
 
 /**
  * Website-generator reads/writes — Ph5.md. The only module that queries the
@@ -22,9 +24,13 @@ const PUBLIC_INCLUDE = {
   people: { orderBy: [{ group: "asc" }, { sortOrder: "asc" }] },
   program: { orderBy: { sortOrder: "asc" } },
   personalization: true,
+  memorySettings: true,
   media: {
     orderBy: { sortOrder: "asc" },
     include: {
+      derivative: {
+        select: { id: true, sourceVersion: true },
+      },
       asset: {
         select: {
           id: true,
@@ -127,23 +133,41 @@ export async function publishInvitation(
   }
 
   try {
-    const invitation = await prisma.invitation.findFirst({
-      where: { id: invitationId, profileId },
-      select: { status: true },
-    });
-    if (!invitation) return { ok: false, error: "That invitation no longer exists." };
-    if (invitation.status !== "COMPLETED") {
-      return { ok: false, error: "Finish the invitation before publishing it." };
-    }
+    return await prisma.$transaction(async (tx) => {
+      const context = await loadPublicationContext(tx, profileId, invitationId);
+      if (!context) {
+        return { ok: false, error: "That invitation no longer exists." };
+      }
+      const decision = decidePublication({
+        invitationStatus: context.status,
+        order: context.orders[0] ?? null,
+      });
+      if (!decision.allowed) return { ok: false, error: decision.reason };
 
-    const available = await isSlugAvailable(slug, invitationId);
-    if (!available) return { ok: false, error: "That web address is already taken." };
+      const existing = await tx.invitation.findUnique({
+        where: { slug },
+        select: { id: true },
+      });
+      if (existing && existing.id !== invitationId) {
+        return { ok: false, error: "That web address is already taken." };
+      }
 
-    await prisma.invitation.update({
-      where: { id: invitationId },
-      data: { slug, isPublished: true },
+      await tx.invitation.update({
+        where: { id: invitationId },
+        data: { slug, isPublished: true },
+      });
+      await tx.orderEvent.create({
+        data: {
+          orderId: decision.orderId,
+          actorId: profileId,
+          type: "PUBLICATION",
+          fromStatus: "UNPUBLISHED",
+          toStatus: "PUBLISHED",
+          message: `Invitation published at /e/${slug}.`,
+        },
+      });
+      return { ok: true };
     });
-    return { ok: true };
   } catch (error) {
     logger.report(error, { at: "publishInvitation", invitationId });
     return { ok: false, error: "Could not publish. Please try again." };
@@ -160,17 +184,44 @@ export async function unpublishInvitation(
   }
 
   try {
-    const found = await prisma.invitation.findFirst({
-      where: { id: invitationId, profileId },
-      select: { id: true },
-    });
-    if (!found) return { ok: false, error: "That invitation no longer exists." };
+    return await prisma.$transaction(async (tx) => {
+      const found = await tx.invitation.findFirst({
+        where: { id: invitationId, profileId },
+        select: {
+          id: true,
+          slug: true,
+          orders: {
+            where: { status: { not: "CANCELLED" } },
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: { id: true },
+          },
+        },
+      });
+      if (!found)
+        return { ok: false, error: "That invitation no longer exists." };
 
-    await prisma.invitation.update({
-      where: { id: invitationId },
-      data: { isPublished: false },
+      await tx.invitation.update({
+        where: { id: invitationId },
+        data: { isPublished: false },
+      });
+      const order = found.orders[0];
+      if (order) {
+        await tx.orderEvent.create({
+          data: {
+            orderId: order.id,
+            actorId: profileId,
+            type: "PUBLICATION",
+            fromStatus: "PUBLISHED",
+            toStatus: "UNPUBLISHED",
+            message: found.slug
+              ? `Invitation unpublished from /e/${found.slug}.`
+              : "Invitation unpublished.",
+          },
+        });
+      }
+      return { ok: true };
     });
-    return { ok: true };
   } catch (error) {
     logger.report(error, { at: "unpublishInvitation", invitationId });
     return { ok: false, error: "Could not unpublish. Please try again." };
@@ -233,25 +284,89 @@ export async function invitationAcceptsRsvps(
   }
 }
 
-export async function listRsvps(profileId: string, invitationId: string) {
+export async function listRsvps(
+  profileId: string,
+  invitationId: string,
+  criteria: RsvpCriteria = { query: "", status: "all" },
+) {
   if (!isDatabaseConfigured()) return [];
+  if (criteria.status === "pending") return [];
 
   try {
     // Scoped through the invitation's own owner check — an RSVP row has no
     // profileId of its own, so ownership is proven via this join, not a
     // column on rsvp_responses.
-    const invitation = await prisma.invitation.findFirst({
-      where: { id: invitationId, profileId },
-      select: { id: true },
-    });
-    if (!invitation) return [];
-
     return await prisma.rsvpResponse.findMany({
-      where: { invitationId },
+      where: {
+        invitationId,
+        invitation: { profileId },
+        ...(criteria.query
+          ? {
+              OR: [
+                {
+                  guestName: { contains: criteria.query, mode: "insensitive" },
+                },
+                { message: { contains: criteria.query, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+        ...(criteria.status === "attending"
+          ? { attending: true }
+          : criteria.status === "declined"
+            ? { attending: false }
+            : {}),
+      },
       orderBy: { createdAt: "desc" },
     });
   } catch (error) {
     logger.report(error, { at: "listRsvps", invitationId });
     return [];
+  }
+}
+
+export interface RsvpSummary {
+  responseCount: number;
+  attendingResponses: number;
+  attendingGuests: number;
+  declinedResponses: number;
+  /** Null until a guest manifest exists; zero would falsely mean nobody is pending. */
+  pendingGuests: number | null;
+}
+
+export async function getRsvpSummary(
+  profileId: string,
+  invitationId: string,
+): Promise<RsvpSummary> {
+  const empty = {
+    responseCount: 0,
+    attendingResponses: 0,
+    attendingGuests: 0,
+    declinedResponses: 0,
+    pendingGuests: null,
+  };
+  if (!isDatabaseConfigured()) return empty;
+
+  try {
+    const where = { invitationId, invitation: { profileId } };
+    const [responseCount, attendingResponses, declinedResponses, attending] =
+      await prisma.$transaction([
+        prisma.rsvpResponse.count({ where }),
+        prisma.rsvpResponse.count({ where: { ...where, attending: true } }),
+        prisma.rsvpResponse.count({ where: { ...where, attending: false } }),
+        prisma.rsvpResponse.aggregate({
+          where: { ...where, attending: true },
+          _sum: { guestCount: true },
+        }),
+      ]);
+    return {
+      responseCount,
+      attendingResponses,
+      attendingGuests: attending._sum.guestCount ?? 0,
+      declinedResponses,
+      pendingGuests: null,
+    };
+  } catch (error) {
+    logger.report(error, { at: "getRsvpSummary", invitationId });
+    return empty;
   }
 }

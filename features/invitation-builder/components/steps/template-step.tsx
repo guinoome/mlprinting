@@ -28,6 +28,7 @@ export interface TemplateChoice {
   categoryName: string;
   coverImageUrl: string;
   orientation: "PORTRAIT" | "LANDSCAPE" | "SQUARE";
+  recommendationReasons: string[];
 }
 
 const ASPECT = {
@@ -40,10 +41,12 @@ export function TemplateStep({
   invitationId,
   templates,
   selectedSlug,
+  eventTypeLabel,
 }: {
   invitationId: string;
   templates: TemplateChoice[];
   selectedSlug: string | null;
+  eventTypeLabel: string | null;
 }) {
   const [selected, setSelected] = React.useState(selectedSlug);
 
@@ -82,10 +85,22 @@ export function TemplateStep({
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-medium">
+            Recommended for {eventTypeLabel ?? "your event"}
+          </p>
+          <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+            A small set based on your event and saved preferences. You can still
+            explore the full catalogue at any time.
+          </p>
+        </div>
         <Button asChild variant="outline" size="sm">
-          <Link href={routes.templates}>Browse all templates</Link>
+          <Link href={routes.templates}>Browse all experiences</Link>
         </Button>
+      </div>
+
+      <div className="mb-4 flex justify-end">
         <SaveIndicator autosave={autosave} />
       </div>
 
@@ -130,6 +145,16 @@ export function TemplateStep({
               <p className="truncate text-xs text-muted-foreground">
                 {template.categoryName}
               </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {template.recommendationReasons.slice(0, 2).map((reason) => (
+                  <span
+                    key={reason}
+                    className="rounded-full bg-muted px-2 py-1 text-[11px] leading-none text-muted-foreground"
+                  >
+                    {reason}
+                  </span>
+                ))}
+              </div>
             </button>
           );
         })}

@@ -19,8 +19,8 @@ describe("BUILDER_STEPS — shape", () => {
     for (const slug of slugs) expect(slug).toMatch(/^[a-z0-9-]+$/);
   });
 
-  it("starts at the template and ends at the preview, per Ph3 §1", () => {
-    expect(FIRST_STEP).toBe("template");
+  it("starts with event context and ends at the preview", () => {
+    expect(FIRST_STEP).toBe("event");
     expect(LAST_STEP).toBe("preview");
   });
 
@@ -44,7 +44,7 @@ describe("BUILDER_STEPS — shape", () => {
   });
 
   it("marks the steps an invitation cannot do without", () => {
-    expect(REQUIRED_STEPS).toEqual(["template", "event", "hosts", "venue"]);
+    expect(REQUIRED_STEPS).toEqual(["event", "template", "hosts", "venue"]);
   });
 
   it("treats content, media, and styling as optional", () => {
@@ -71,7 +71,7 @@ describe("isBuilderStep", () => {
 
 describe("stepNumber", () => {
   it("is 1-based, for 'Step 3 of 8'", () => {
-    expect(stepNumber("template")).toBe(1);
+    expect(stepNumber("event")).toBe(1);
     expect(stepNumber("preview")).toBe(BUILDER_STEPS.length);
   });
 
@@ -91,7 +91,7 @@ describe("nextStep / previousStep", () => {
   });
 
   it("walks backward to the start", () => {
-    expect(previousStep("event")).toBe("template");
+    expect(previousStep("template")).toBe("event");
     expect(previousStep(FIRST_STEP)).toBeNull();
   });
 

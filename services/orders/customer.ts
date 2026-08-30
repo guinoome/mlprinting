@@ -33,7 +33,10 @@ export function revisionNumberFrom(priorRevisions: number): number {
 }
 
 const CUSTOMER_ORDER_INCLUDE = {
-  invitation: { select: { id: true, title: true, slug: true, isPublished: true } },
+  invitation: {
+    select: { id: true, title: true, slug: true, isPublished: true },
+  },
+  payment: true,
   items: {
     orderBy: { createdAt: "asc" },
     include: {
@@ -118,7 +121,11 @@ export async function approveItem(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const { orderId, status } = await loadReviewableItem(tx, profileId, itemId);
+      const { orderId, status } = await loadReviewableItem(
+        tx,
+        profileId,
+        itemId,
+      );
 
       await tx.orderItem.update({
         where: { id: itemId },
@@ -164,10 +171,18 @@ export async function requestRevision(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const { orderId, status } = await loadReviewableItem(tx, profileId, itemId);
+      const { orderId, status } = await loadReviewableItem(
+        tx,
+        profileId,
+        itemId,
+      );
 
       const priorRevisions = await tx.orderEvent.count({
-        where: { orderItemId: itemId, type: "STATUS_CHANGE", toStatus: "REVISION" },
+        where: {
+          orderItemId: itemId,
+          type: "STATUS_CHANGE",
+          toStatus: "REVISION",
+        },
       });
       const revision = revisionNumberFrom(priorRevisions);
 
@@ -199,7 +214,10 @@ export async function requestRevision(
       );
       if (!derived) return;
 
-      await tx.order.update({ where: { id: orderId }, data: { status: derived } });
+      await tx.order.update({
+        where: { id: orderId },
+        data: { status: derived },
+      });
       await tx.orderEvent.create({
         data: {
           orderId,

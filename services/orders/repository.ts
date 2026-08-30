@@ -16,15 +16,8 @@ import {
 } from "./status";
 import { deriveOrderStatus } from "./derive";
 import { nextReference } from "./reference";
-import {
-  buildOrderSearchWhere,
-  type OrderSearchCriteria,
-} from "./search";
-import {
-  summarise,
-  type OrderReport,
-  type StatusCounts,
-} from "./reporting";
+import { buildOrderSearchWhere, type OrderSearchCriteria } from "./search";
+import { summarise, type OrderReport, type StatusCounts } from "./reporting";
 
 /**
  * Order persistence — Ph7.md §1, §2, §12.
@@ -80,6 +73,7 @@ const ORDER_INCLUDE = {
   assignedTo: { select: { id: true, displayName: true } },
   invitation: { select: { id: true, title: true } },
   items: { orderBy: { createdAt: "asc" } },
+  payment: true,
 } satisfies Prisma.OrderInclude;
 
 export type OrderWithItems = Prisma.OrderGetPayload<{
@@ -140,7 +134,8 @@ export async function getOrderReport(): Promise<OrderReport> {
 
     const itemStatusCounts: StatusCounts<OrderItemStatusValue> = {};
     for (const group of itemGroups) {
-      itemStatusCounts[group.status as OrderItemStatusValue] = group._count._all;
+      itemStatusCounts[group.status as OrderItemStatusValue] =
+        group._count._all;
     }
 
     return summarise({ orderStatusCounts, itemStatusCounts });
@@ -285,7 +280,10 @@ export async function moveItem(
       const from = item.status as OrderItemStatusValue;
       if (!canTransitionItem(from, to)) throw new TransitionError(from, to);
 
-      await tx.orderItem.update({ where: { id: itemId }, data: { status: to } });
+      await tx.orderItem.update({
+        where: { id: itemId },
+        data: { status: to },
+      });
       await tx.orderEvent.create({
         data: {
           orderId: item.orderId,
