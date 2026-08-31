@@ -22,7 +22,7 @@ export const HIGHLIGHTS: Highlight[] = [
   {
     icon: "mail-open",
     title: "An invitation that opens",
-    body: "Guests tap a link and a sealed envelope opens into your invitation — photos, countdown, and all. It works in any browser, with no app to install.",
+    body: "Guests tap a link and enter an opening scene designed for the occasion — not a recycled envelope. Photos, countdown and details work in any browser, with no app to install.",
   },
   {
     icon: "clipboard-check",

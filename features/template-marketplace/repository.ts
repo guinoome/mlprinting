@@ -7,6 +7,7 @@ import { logger } from "@/lib/logger";
 import { getProfile } from "@/lib/auth/session";
 import type { Criteria } from "./criteria";
 import { buildWhere, buildOrderBy, buildPagination, totalPages } from "./query";
+import { LAUNCH_COLLECTION_SLUGS } from "@/lib/invitation/launch-collection";
 
 /**
  * Catalog reads — Ph2.md §1, §10.
@@ -146,7 +147,15 @@ export const getCategories = unstable_cache(
 
     try {
       return await prisma.templateCategory.findMany({
-        where: { isActive: true },
+        where: {
+          isActive: true,
+          templates: {
+            some: {
+              slug: { in: [...LAUNCH_COLLECTION_SLUGS] },
+              publishedAt: { not: null, lte: new Date() },
+            },
+          },
+        },
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
         select: { slug: true, name: true, description: true },
       });
@@ -177,7 +186,10 @@ export const getFacets = unstable_cache(
 
     try {
       const rows = await prisma.template.findMany({
-        where: { publishedAt: { not: null } },
+        where: {
+          publishedAt: { not: null },
+          slug: { in: [...LAUNCH_COLLECTION_SLUGS] },
+        },
         select: { colors: true, styles: true },
       });
 
@@ -203,7 +215,10 @@ export const getTemplateBySlug = cache(async (slug: string) => {
       // publishedAt is checked here too. A draft has a slug, and a slug is
       // guessable — "is it published?" is not a question the catalog list can
       // answer on this page's behalf.
-      where: { slug, publishedAt: { not: null, lte: new Date() } },
+      where: {
+        slug: { equals: slug, in: [...LAUNCH_COLLECTION_SLUGS] },
+        publishedAt: { not: null, lte: new Date() },
+      },
       include: {
         category: { select: { slug: true, name: true } },
         screenshots: { orderBy: [{ kind: "asc" }, { sortOrder: "asc" }] },

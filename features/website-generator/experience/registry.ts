@@ -2,6 +2,7 @@ import type { EventKind } from "@/lib/invitation/preview-model";
 import { LAYOUTS, layoutFor } from "../layouts/registry";
 import type { InvitationLayout } from "../layouts/types";
 import { MOTION_PROFILES } from "./profiles";
+import { FINAL_50 } from "./final-50";
 import type {
   ExperienceConfig,
   InteractionId,
@@ -95,7 +96,7 @@ export const EXPERIENCE_REGISTRY = Object.fromEntries(
 const PROOF_LAYOUTS: Record<string, InvitationLayout> = {
   "capiz-window": {
     id: "capiz-window-cultural",
-    hero: "type-led",
+    hero: "full-bleed",
     sections: [
       "welcome",
       "countdown",
@@ -116,7 +117,7 @@ const PROOF_LAYOUTS: Record<string, InvitationLayout> = {
   },
   "neon-eighteen": {
     id: "neon-eighteen-nightlife",
-    hero: "flat-bold",
+    hero: "full-bleed",
     sections: [
       "welcome",
       "countdown",
@@ -213,6 +214,34 @@ const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
   },
 };
 
+const FINAL_50_EXPERIENCES = Object.fromEntries(
+  FINAL_50.map((entry) => {
+    const interactions =
+      entry.motionProfile === "mp-12-quiet"
+        ? STANDARD_INTERACTIONS.filter(
+            (interaction) => interaction !== "music" && interaction !== "countdown",
+          )
+        : [...STANDARD_INTERACTIONS];
+    const config: ExperienceConfig = {
+      id: `${entry.slug}-v1`,
+      version: 1,
+      slug: entry.slug,
+      eventKind: entry.eventKind,
+      layoutId: layoutFor(entry.eventKind).id,
+      visualThemeId: entry.visualThemeId,
+      motionProfile: entry.motionProfile,
+      interactions,
+      mediaProfile:
+        entry.performanceClass === "cinematic" ? "cinematic" : "portrait",
+      performanceClass: entry.performanceClass,
+      motionLevel: entry.motionLevel,
+      printCompatible: entry.visualThemeId !== "neon-nightlife",
+      signature: entry.signature,
+    };
+    return [entry.slug, config];
+  }),
+) as Record<string, ExperienceConfig>;
+
 export const PROOF_EXPERIENCE_SLUGS = Object.freeze(
   Object.keys(PROOF_EXPERIENCES),
 );
@@ -221,7 +250,10 @@ export function experienceConfigFor(
   kind: EventKind,
   slug?: string | null,
 ): ExperienceConfig {
-  return (slug && PROOF_EXPERIENCES[slug]) || EXPERIENCE_REGISTRY[kind];
+  return (
+    (slug && (PROOF_EXPERIENCES[slug] || FINAL_50_EXPERIENCES[slug])) ||
+    EXPERIENCE_REGISTRY[kind]
+  );
 }
 
 export function resolveExperience(
@@ -233,7 +265,8 @@ export function resolveExperience(
   },
 ): ResolvedExperience {
   const config = experienceConfigFor(kind, options.slug);
-  const layout = (config.slug && PROOF_LAYOUTS[config.slug]) || layoutFor(kind);
+  const layout =
+    (config.slug && PROOF_LAYOUTS[config.slug]) || layoutFor(config.eventKind);
   const reducedMotion = options.reducedMotion === true;
   const profile = MOTION_PROFILES[config.motionProfile];
 

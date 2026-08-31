@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import type { Criteria, Sort } from "./criteria";
 import { NEW_WINDOW_DAYS } from "./criteria";
+import { LAUNCH_COLLECTION_SLUGS } from "@/lib/invitation/launch-collection";
 
 /**
  * Criteria → Prisma query — Ph2.md §3, §4, §5.
@@ -93,6 +94,7 @@ export function buildWhere(
 ): Prisma.TemplateWhereInput {
   const and: Prisma.TemplateWhereInput[] = [
     { publishedAt: { not: null, lte: now } },
+    { slug: { in: [...LAUNCH_COLLECTION_SLUGS] } },
   ];
 
   if (criteria.q) and.push(searchClause(criteria.q));

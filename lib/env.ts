@@ -86,6 +86,20 @@ export const env = {
       return urlVar("NEXT_PUBLIC_APP_URL", value);
     },
   },
+  paymongo: {
+    get secretKey() {
+      return required(
+        "PAYMONGO_SECRET_KEY",
+        process.env.PAYMONGO_SECRET_KEY,
+      );
+    },
+    get webhookSecret() {
+      return required(
+        "PAYMONGO_WEBHOOK_SECRET",
+        process.env.PAYMONGO_WEBHOOK_SECRET,
+      );
+    },
+  },
 } as const;
 
 /** True when Supabase env vars are present. Lets code degrade gracefully. */
@@ -94,5 +108,12 @@ export function isSupabaseConfigured(): boolean {
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
       (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+  );
+}
+
+/** Checkout and signed callbacks must both be configured before payment is shown. */
+export function isPayMongoConfigured(): boolean {
+  return Boolean(
+    process.env.PAYMONGO_SECRET_KEY && process.env.PAYMONGO_WEBHOOK_SECRET,
   );
 }

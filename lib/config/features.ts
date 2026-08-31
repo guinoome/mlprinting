@@ -53,11 +53,12 @@ export const features = {
     return flag("NEXT_PUBLIC_FEATURE_BOOKING", true);
   },
   /**
-   * Ph8 — Payments. Still a phase gate: default off until the phase ships. This
-   * is the one capability deliberately left dark.
+   * Ph8 — verified offline settlements are shipped and default on. This does
+   * not claim an online gateway exists: cash/bank-transfer receipts remain
+   * staff-verified until a provider, checkout and signed webhook are added.
    */
   get payments() {
-    return flag("NEXT_PUBLIC_FEATURE_PAYMENTS");
+    return flag("NEXT_PUBLIC_FEATURE_PAYMENTS", true);
   },
   /** Ph5 — Website Generator. Shipped, so this defaults on (kill switch); public event pages need only the database. */
   get websiteGenerator() {

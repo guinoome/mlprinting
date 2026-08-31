@@ -8,6 +8,7 @@ import { routes } from "@/lib/config";
 import { OrderSearch } from "@/features/orders/components/order-search";
 import { ORDER_STATUS_LABELS as STATUS_LABELS } from "@/features/orders/labels";
 import { SettlementControls } from "@/features/payments/components/settlement-controls";
+import { isPayMongoConfigured } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Bookings",
@@ -23,6 +24,7 @@ export default async function AdminBookingsPage({
   const criteria = parseOrderSearch(searchParams);
   const orders = await searchOrders(criteria);
   const filtered = Boolean(criteria.q || criteria.status.length > 0);
+  const onlineAvailable = isPayMongoConfigured();
 
   return (
     <div className="space-y-6 p-6">
@@ -80,6 +82,11 @@ export default async function AdminBookingsPage({
                     <SettlementControls
                       orderId={order.id}
                       status={order.payment?.status ?? null}
+                      onlineAvailable={onlineAvailable}
+                      provider={order.payment?.provider ?? null}
+                      providerReference={
+                        order.payment?.providerReference ?? null
+                      }
                     />
                   </td>
                   <td className="py-2">

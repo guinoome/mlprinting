@@ -18,7 +18,7 @@ afterEach(() => {
 describe("feature flags", () => {
   it("uses the default when the variable is absent", () => {
     expect(features.templateMarketplace).toBe(true);
-    expect(features.payments).toBe(false);
+    expect(features.payments).toBe(true);
   });
 
   it("treats a declared-but-empty variable as unset, not as off", () => {
@@ -30,7 +30,7 @@ describe("feature flags", () => {
     expect(features.templateMarketplace).toBe(true);
 
     process.env[PAYMENTS] = "";
-    expect(features.payments).toBe(false);
+    expect(features.payments).toBe(true);
   });
 
   it("ignores surrounding whitespace", () => {
@@ -56,7 +56,7 @@ describe("feature flags", () => {
     }
   });
 
-  it("keeps payments off by default — the one capability still dark", () => {
-    expect(features.payments).toBe(false);
+  it("ships staff-verified offline settlements by default", () => {
+    expect(features.payments).toBe(true);
   });
 });

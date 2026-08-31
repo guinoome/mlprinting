@@ -51,6 +51,7 @@ export const routes = {
     root: "/dashboard",
     events: "/dashboard/events",
     orders: "/dashboard/orders",
+    order: (id: string) => `/dashboard/orders/${id}`,
     media: "/dashboard/media",
     notifications: "/dashboard/notifications",
     account: "/dashboard/account",

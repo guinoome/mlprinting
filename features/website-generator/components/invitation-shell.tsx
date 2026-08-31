@@ -107,22 +107,22 @@ function fireConfetti(
 }
 
 /**
- * The envelope intro — Ph5. A shared invitation should feel like receiving one,
- * so the guest lands on a sealed envelope bearing the monogram; it opens (flap
- * lifts, the card rises), confetti bursts, and the invitation unfurls beneath.
+ * The interactive opening — every experience gets an intentional threshold,
+ * not a universal envelope. The first launch experiences use a capiz light gate,
+ * a nightlife title sequence, and a quiet memorial arrival; the remaining
+ * portfolio can add vocabulary through the same controlled theme seam.
  *
  * This component owns only the interaction. The invitation itself is `children`,
  * server-rendered and always present in the DOM — the envelope is an overlay on
- * top, never a gate the content lives behind. Three ways in, so no one is ever
- * stuck: tap the envelope, the Open button, or the auto-open after a few
- * seconds. `prefers-reduced-motion` skips the animation and confetti entirely,
+ * top, never a gate the content lives behind. The action is an ordinary focused
+ * button, with no timer racing a desktop click. `prefers-reduced-motion` skips
+ * the animation and confetti entirely,
  * and a `<noscript>` reveals everything when scripts do not run.
  *
  * It also drives the scroll-reveal: sections tagged `data-reveal` fade in as
  * they enter the viewport, once the invitation is shown.
  */
 export function InvitationShell({
-  monogram,
   coupleLine,
   confetti,
   style,
@@ -180,7 +180,7 @@ export function InvitationShell({
         }
       }, 550);
     }
-    window.setTimeout(() => setOpened(true), 1500);
+    window.setTimeout(() => setOpened(true), reduce ? 0 : 900);
   }, [confetti]);
 
   React.useEffect(() => {
@@ -192,13 +192,11 @@ export function InvitationShell({
       return;
     }
     document.body.style.overflow = "hidden";
-    const timer = window.setTimeout(open, 4500);
     return () => {
-      window.clearTimeout(timer);
       document.body.style.overflow = "";
       cancelConfetti.current();
     };
-  }, [open]);
+  }, []);
 
   React.useEffect(() => {
     if (opened) document.body.style.overflow = "";
@@ -267,27 +265,46 @@ export function InvitationShell({
       ) : null}
 
       {!opened ? (
-        <div className={opening ? "inv-overlay is-opening" : "inv-overlay"}>
-          <button
-            type="button"
-            onClick={open}
-            className={opening ? "inv-env is-opening" : "inv-env"}
-            aria-label="Open invitation"
-          >
-            <span className="inv-env-body">
-              <span className="inv-env-card">
-                <span className="inv-env-k">You are invited</span>
-                <span className="inv-env-n">{coupleLine}</span>
-              </span>
-              <span className="inv-pocket" />
-            </span>
-            <span className="inv-flap" />
-            <span className="inv-seal">{monogram}</span>
-          </button>
-          <p className="inv-hint">Tap to open</p>
-          <button type="button" onClick={open} className="inv-open-btn">
-            Open invitation
-          </button>
+        <div
+          className={`inv-overlay inv-entry inv-entry--${visualThemeId}${opening ? " is-opening" : ""}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Invitation from ${coupleLine}`}
+        >
+          <div className="inv-entry-shade" aria-hidden="true" />
+          <div className="inv-entry-brand" aria-hidden="true">
+            <span>ML</span>
+            <small>Printing</small>
+          </div>
+          <div className="inv-entry-copy">
+            <p className="inv-entry-kicker">
+              {visualThemeId === "neon-nightlife"
+                ? "One night. Eighteen years in the making."
+                : visualThemeId === "memorial-quiet"
+                  ? "A life remembered"
+                  : visualThemeId === "capiz-luminous"
+                    ? "A Filipino celebration of light and love"
+                    : "You are invited"}
+            </p>
+            <p className="inv-entry-title">{coupleLine}</p>
+            <button
+              type="button"
+              onClick={open}
+              className="inv-entry-action"
+              disabled={opening}
+            >
+              {opening
+                ? "Opening…"
+                : visualThemeId === "neon-nightlife"
+                  ? "Enter the night"
+                  : visualThemeId === "capiz-luminous"
+                    ? "Open the light"
+                    : visualThemeId === "memorial-quiet"
+                      ? "View the tribute"
+                      : "Open invitation"}
+            </button>
+          </div>
+          <p className="inv-entry-access">Press the button to continue</p>
         </div>
       ) : null}
 

@@ -1,128 +1,126 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { routes } from "@/lib/config";
-import { PROOF_EXPERIENCES } from "@/features/website-generator/experience/proofs";
 
-function ProofArtwork({ slug }: { slug: string }) {
-  if (slug === "capiz-window") {
-    return (
-      <div className="relative h-64 overflow-hidden rounded-[1.5rem] border border-[#b88a38]/35 bg-[#f7f0dc] text-[#27372f] shadow-[inset_0_0_80px_rgba(184,138,56,0.13)]">
-        <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 opacity-60">
-          {Array.from({ length: 12 }, (_, index) => (
-            <span
-              key={index}
-              className="border-b border-r border-[#b88a38]/25 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,.95),transparent_60%)]"
-            />
-          ))}
-        </div>
-        <div className="absolute inset-x-10 top-10 rounded-t-full border border-[#b88a38]/40 bg-white/45 px-6 py-10 text-center backdrop-blur-[2px]">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.34em] text-[#7c642e]">
-            Together with our families
-          </p>
-          <p className="mt-5 font-serif text-3xl leading-none">Maria</p>
-          <p className="my-1 font-serif text-base text-[#b88a38]">&amp;</p>
-          <p className="font-serif text-3xl leading-none">Jose</p>
-        </div>
-        <div className="absolute -right-20 -top-10 h-52 w-28 rotate-[24deg] bg-white/40 blur-xl" />
-      </div>
-    );
-  }
+const LAUNCH = [
+  {
+    slug: "capiz-window",
+    number: "01",
+    name: "Capiz Window",
+    type: "Signature · Filipino wedding",
+    image: "/experiences/capiz-window-hero.png",
+    alt: "Wedding couple in front of a luminous capiz installation",
+    opening: "Open the light",
+    story:
+      "The guest enters through a luminous capiz threshold, then moves through ceremony, reception, map and RSVP as one editorial story.",
+    meta: ["MP-14 cultural ceremony", "M3 motion", "Print companion"],
+  },
+  {
+    slug: "neon-eighteen",
+    number: "02",
+    name: "Neon Eighteen",
+    type: "Immersive · Debut nightlife",
+    image: "/experiences/neon-eighteen-hero.png",
+    alt: "Debutante on a violet and cyan live-event stage",
+    opening: "Enter the night",
+    story:
+      "A live-event entrance gives way to a kinetic programme, countdown, dress code, optional soundtrack and a high-contrast RSVP.",
+    meta: ["MP-09 neon pulse", "M4 motion", "Digital-first"],
+  },
+] as const;
 
-  if (slug === "neon-eighteen") {
-    return (
-      <div className="relative h-64 overflow-hidden rounded-[1.5rem] border border-fuchsia-400/30 bg-[#070611] text-white shadow-[0_0_45px_rgba(255,63,191,0.18)]">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(68,242,255,.13)_1px,transparent_1px),linear-gradient(90deg,rgba(255,63,191,.13)_1px,transparent_1px)] bg-[size:28px_28px] [transform:perspective(320px)_rotateX(28deg)_scale(1.25)]" />
-        <div className="absolute left-5 top-5 rounded-full border border-cyan-300/50 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.3em] text-cyan-200">
-          Enter the night
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-[8rem] font-black leading-none tracking-[-0.1em] text-transparent [-webkit-text-stroke:2px_#ff3fbf] [text-shadow:0_0_24px_rgba(255,63,191,.75)]">
-            18
-          </p>
-        </div>
-        <p className="absolute bottom-5 left-5 text-xl font-black uppercase tracking-tight [text-shadow:0_0_12px_#44f2ff]">
-          Isabella
-        </p>
-        <span className="absolute bottom-6 right-5 size-3 rounded-full bg-cyan-300 shadow-[0_0_18px_#44f2ff]" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative h-64 overflow-hidden rounded-[1.5rem] border border-stone-300 bg-[#f3f1ec] text-[#30322f]">
-      <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(#6f756b_0.55px,transparent_0.55px)] [background-size:5px_5px]" />
-      <div className="absolute inset-x-0 top-8 text-center">
-        <p className="text-[9px] uppercase tracking-[0.36em] text-[#6f756b]">
-          In loving memory
-        </p>
-        <div className="mx-auto mt-5 flex h-28 w-24 items-center justify-center rounded-t-full border border-[#8d9189]/55 bg-[linear-gradient(145deg,#d6d5d0,#a7aaa4)] font-serif text-3xl text-white shadow-sm">
-          RS
-        </div>
-        <p className="mt-4 font-serif text-2xl">Rosario Santos</p>
-        <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-[#6f756b]">
-          1948 — 2026
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/** The WP20 validation set — always visible, even when the DB is unavailable. */
 export function ExperienceProofShowcase() {
   return (
-    <section
-      id="experience-proofs"
-      className="border-b border-border bg-[#f7f6f2]"
-    >
-      <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-        <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-            Three live experience proofs
+    <section id="experience-proofs" className="bg-[#f2eee5] text-[#171713]">
+      <header className="mx-auto grid max-w-7xl gap-6 px-5 py-20 md:grid-cols-[1fr_0.7fr] md:px-8 md:py-28">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#8b6735]">
+            The launch collection
           </p>
-          <h2 className="mt-4 text-balance font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
-            One platform. Three completely different feelings.
+          <h2 className="mt-5 max-w-3xl text-balance font-serif text-5xl leading-[0.96] tracking-[-0.04em] md:text-7xl">
+            Fewer designs. Far more feeling.
           </h2>
-          <p className="mt-5 max-w-xl text-pretty leading-relaxed text-muted-foreground">
-            These are not static cover designs. Open each one to experience its
-            own reveal, pacing, layout, and interaction language.
+        </div>
+        <div className="self-end border-l border-black/20 pl-6">
+          <p className="max-w-md text-sm leading-7 text-black/62">
+            We are releasing only experiences that have their own opening,
+            visual language and guest journey. Two are live first; the remaining
+            Final 50 portfolio is added in deliberate releases rather than as
+            unfinished variations.
           </p>
         </div>
+      </header>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {PROOF_EXPERIENCES.map((proof, index) => (
-            <article
-              key={proof.slug}
-              className="group rounded-[2rem] border border-black/10 bg-white p-3 shadow-[0_20px_60px_rgba(34,31,24,0.08)] transition-transform duration-300 hover:-translate-y-1"
-            >
-              <ProofArtwork slug={proof.slug} />
-              <div className="px-3 pb-4 pt-6">
-                <div className="flex flex-wrap items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <span aria-hidden="true">·</span>
-                  <span>{proof.tier}</span>
-                  <span aria-hidden="true">·</span>
-                  <span>{proof.motionLevel}</span>
-                  <span aria-hidden="true">·</span>
-                  <span>{proof.motionProfile}</span>
-                </div>
-                <h3 className="mt-3 font-serif text-2xl">{proof.name}</h3>
-                <p className="mt-1 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                  {proof.occasion}
+      {LAUNCH.map((experience, index) => (
+        <article
+          key={experience.slug}
+          className="group border-t border-black/15 px-5 py-8 md:px-8 md:py-12"
+        >
+          <div className={`mx-auto grid max-w-7xl overflow-hidden bg-[#0b0b0d] text-white lg:min-h-[76vh] lg:grid-cols-[minmax(0,1.55fr)_minmax(330px,.75fr)] ${index % 2 ? "lg:[&>div:first-child]:order-2" : ""}`}>
+            <div className="relative min-h-[52vh] overflow-hidden lg:min-h-full">
+              <Image
+                src={experience.image}
+                alt={experience.alt}
+                fill
+                sizes="(min-width: 1024px) 68vw, 100vw"
+                className="object-cover transition-transform duration-1000 motion-reduce:transition-none group-hover:scale-[1.025]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-black/15" />
+              <span className="absolute left-6 top-6 font-serif text-4xl text-white/80">
+                {experience.number}
+              </span>
+            </div>
+
+            <div className="flex flex-col justify-between p-7 sm:p-10 lg:p-12">
+              <div>
+                <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#dfbd7e]">
+                  {experience.type}
                 </p>
-                <p className="mt-4 min-h-12 text-sm leading-relaxed text-muted-foreground">
-                  {proof.promise}
+                <h3 className="mt-5 font-serif text-5xl leading-none tracking-[-0.035em]">
+                  {experience.name}
+                </h3>
+                <p className="mt-7 text-sm leading-7 text-white/64">
+                  {experience.story}
                 </p>
-                <Link
-                  href={routes.templateLivePreview(proof.slug)}
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold underline decoration-black/25 underline-offset-4 transition-colors hover:decoration-black"
-                  aria-label={`Open the live ${proof.name} experience`}
-                >
-                  Open live experience
-                  <ArrowUpRight className="size-4" aria-hidden="true" />
-                </Link>
+                <ul className="mt-8 space-y-3 border-t border-white/15 pt-6 text-[10px] uppercase tracking-[0.2em] text-white/55">
+                  {experience.meta.map((item) => (
+                    <li key={item} className="flex items-center justify-between gap-4">
+                      {item}<span aria-hidden="true">—</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </article>
-          ))}
+
+              <Link
+                href={routes.templateLivePreview(experience.slug)}
+                className="mt-12 inline-flex min-h-12 items-center justify-between border-b border-[#dfbd7e] pb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition hover:text-[#dfbd7e] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                {experience.opening}
+                <ArrowUpRight className="size-5" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </article>
+      ))}
+
+      <div className="border-t border-black/15 px-5 py-20 md:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-end">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#8b6735]">
+              In the studio
+            </p>
+            <p className="mt-4 max-w-3xl font-serif text-3xl leading-tight md:text-5xl">
+              Editorial, memory-film, Filipino cultural, children, corporate,
+              digital-light and live-event families follow next.
+            </p>
+          </div>
+          <Link
+            href={routes.templates}
+            className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.2em] underline decoration-black/25 underline-offset-8"
+          >
+            Browse current catalogue
+          </Link>
         </div>
       </div>
     </section>

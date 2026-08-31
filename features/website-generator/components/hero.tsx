@@ -441,7 +441,6 @@ function PhotoBandHero({
   timeLine,
   monogram,
   coverImageUrl,
-  heroVideoUrl,
   galleryUrls,
   fallbackBackground,
 }: HeroProps) {
@@ -638,7 +637,6 @@ function PhotoGridHero({
   timeLine,
   monogram,
   coverImageUrl,
-  heroVideoUrl,
   galleryUrls,
   fallbackBackground,
 }: HeroProps) {

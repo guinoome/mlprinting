@@ -50,6 +50,13 @@ describe("buildWhere — publication", () => {
     });
   });
 
+  it("exposes only launch-ready experiences to customers", () => {
+    const where = buildWhere(parseCriteria({}), { now: NOW });
+    expect(clauseWith(where, "slug")).toEqual({
+      slug: { in: ["capiz-window", "neon-eighteen"] },
+    });
+  });
+
   it("excludes templates scheduled for the future", () => {
     const clause = clauseWith(
       buildWhere(parseCriteria({}), { now: NOW }),
@@ -164,7 +171,7 @@ describe("buildWhere — filters (Ph2 §4)", () => {
 
   it("omits absent filters entirely", () => {
     const where = buildWhere(parseCriteria({}), { now: NOW });
-    expect(clauses(where)).toHaveLength(1); // publication only
+    expect(clauses(where)).toHaveLength(2); // publication + launch gate
   });
 });
 

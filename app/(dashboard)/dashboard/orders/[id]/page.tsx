@@ -6,6 +6,9 @@ import { routes } from "@/lib/config";
 import { getOrderForCustomer } from "@/services/orders";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ReviewControls } from "@/features/orders/components/review-controls";
+import { Button } from "@/components/ui/button";
+import { startPayMongoCheckoutAction } from "@/features/payments/checkout-action";
+import { isPayMongoConfigured } from "@/lib/env";
 import {
   ORDER_STATUS_LABELS,
   ITEM_STATUS_LABELS,
@@ -18,14 +21,20 @@ export const metadata: Metadata = {
 
 export default async function OrderDetailPage({
   params,
+  searchParams,
 }: {
   params: { id: string };
+  searchParams: { payment?: string };
 }) {
   const profile = await getProfile();
   if (!profile) redirect(routes.login);
 
   const order = await getOrderForCustomer(profile.id, params.id);
   if (!order) notFound();
+  const canPayOnline =
+    isPayMongoConfigured() &&
+    order.payment?.provider === "paymongo" &&
+    order.payment.status === "PENDING";
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-6">
@@ -57,8 +66,35 @@ export default async function OrderDetailPage({
             ? `${order.payment.currency} ${(order.payment.amountMinor / 100).toFixed(2)} verified.`
             : order.payment?.status === "WAIVED"
               ? "Payment was waived by authorized staff."
-              : "Awaiting verified payment."}
+              : order.payment?.provider === "paymongo"
+                ? `PHP ${(order.payment.amountMinor / 100).toFixed(2)} is awaiting payment.`
+                : "Awaiting verified payment."}
         </p>
+        {searchParams.payment === "submitted" ? (
+          <p className="mt-3 text-sm" role="status">
+            Payment was submitted. Verification can take a moment; refresh this
+            page if it still shows pending.
+          </p>
+        ) : searchParams.payment === "cancelled" ? (
+          <p className="mt-3 text-sm" role="status">
+            Checkout was closed. You can continue with the same secure link.
+          </p>
+        ) : searchParams.payment ? (
+          <p className="mt-3 text-sm text-destructive" role="alert">
+            Online checkout is not available for this order yet. Please contact
+            ML Printing.
+          </p>
+        ) : null}
+        {canPayOnline ? (
+          <form action={startPayMongoCheckoutAction} className="mt-4">
+            <input type="hidden" name="orderId" value={order.id} />
+            <Button type="submit">Pay with GCash, Maya, or QR Ph</Button>
+            <p className="mt-2 text-xs text-muted-foreground">
+              You will continue on PayMongo&apos;s secure checkout. ML Printing
+              does not receive your wallet credentials.
+            </p>
+          </form>
+        ) : null}
       </section>
 
       <ul className="space-y-4">

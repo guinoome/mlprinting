@@ -27,8 +27,7 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionLevel: "M3",
     motionProfile: "MP-14",
     promise: "Layered capiz panes turn light into a ceremonial reveal.",
-    sampleCover:
-      "/api/placeholder/desktop/capiz-window?label=Maria%20%26%20Jose&caption=Filipino%20Wedding",
+    sampleCover: "/experiences/capiz-window-hero.png",
   },
   {
     slug: "neon-eighteen",
@@ -39,8 +38,7 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionLevel: "M4",
     motionProfile: "MP-09",
     promise: "A neon pulse makes the invitation feel like entering the event.",
-    sampleCover:
-      "/api/placeholder/desktop/neon-eighteen?label=Isabella%20at%20Eighteen&caption=Debut%20Nightlife",
+    sampleCover: "/experiences/neon-eighteen-hero.png",
   },
   {
     slug: "in-loving-memory",
