@@ -17,9 +17,12 @@ const initialState: RsvpFormState = {};
 export function RsvpForm({
   invitationId,
   accentColor,
+  tone = "celebratory",
 }: {
   invitationId: string;
   accentColor: string;
+  /** Keeps memorial, religious, and public-service replies appropriately plain. */
+  tone?: "celebratory" | "quiet";
 }) {
   const [state, formAction] = useFormState(submitRsvp, initialState);
   const [attending, setAttending] = React.useState<"yes" | "no">("yes");
@@ -33,14 +36,29 @@ export function RsvpForm({
           style={{ borderColor: accentColor, color: accentColor }}
           aria-hidden="true"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12l4 4 10-10" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              d="M5 12l4 4 10-10"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
         <p style={{ color: accentColor, fontFamily: "var(--inv-heading)" }}>
           {attending === "yes"
-            ? "Thank you — we can't wait to celebrate with you."
-            : "Thank you for letting us know. You'll be missed."}
+            ? tone === "quiet"
+              ? "Thank you for confirming your attendance."
+              : "Thank you — we can't wait to celebrate with you."
+            : tone === "quiet"
+              ? "Thank you for letting us know."
+              : "Thank you for letting us know. You'll be missed."}
         </p>
       </div>
     );
@@ -54,7 +72,15 @@ export function RsvpForm({
         onClick={() => setAttending(value)}
         aria-pressed={on}
         className={on ? "inv-seg-btn is-on" : "inv-seg-btn"}
-        style={on ? { background: accentColor, borderColor: accentColor, color: "#fff" } : undefined}
+        style={
+          on
+            ? {
+                background: accentColor,
+                borderColor: accentColor,
+                color: "#fff",
+              }
+            : undefined
+        }
       >
         {label}
       </button>
@@ -70,11 +96,20 @@ export function RsvpForm({
       <label htmlFor="guestName" className="sr-only">
         Your name
       </label>
-      <Input id="guestName" name="guestName" placeholder="Your name" required maxLength={120} />
+      <Input
+        id="guestName"
+        name="guestName"
+        placeholder="Your name"
+        required
+        maxLength={120}
+      />
 
       <div className="inv-seg" role="group" aria-label="Will you attend?">
-        {segment("yes", "Joyfully accept")}
-        {segment("no", "Regretfully decline")}
+        {segment("yes", tone === "quiet" ? "Will attend" : "Joyfully accept")}
+        {segment(
+          "no",
+          tone === "quiet" ? "Unable to attend" : "Regretfully decline",
+        )}
       </div>
 
       {attending === "yes" ? (

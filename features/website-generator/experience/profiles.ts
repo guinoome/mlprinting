@@ -60,4 +60,25 @@ export const MOTION_PROFILES: Record<MotionProfileId, MotionProfile> = {
     level: "M3",
     performanceClass: "standard",
   },
+  "mp-09-neon-pulse": {
+    id: "mp-09-neon-pulse",
+    normal: "pop",
+    reduced: "fade",
+    level: "M4",
+    performanceClass: "cinematic",
+  },
+  "mp-12-quiet-tribute": {
+    id: "mp-12-quiet-tribute",
+    normal: "fade",
+    reduced: "fade",
+    level: "M2",
+    performanceClass: "light",
+  },
+  "mp-14-cultural-ceremony": {
+    id: "mp-14-cultural-ceremony",
+    normal: "sweep",
+    reduced: "fade",
+    level: "M3",
+    performanceClass: "standard",
+  },
 };

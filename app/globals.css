@@ -127,7 +127,11 @@
   justify-content: center;
   gap: 26px;
   padding: 24px;
-  background: radial-gradient(120% 120% at 50% 28%, var(--inv-bg) 0%, var(--inv-bg2) 100%);
+  background: radial-gradient(
+    120% 120% at 50% 28%,
+    var(--inv-bg) 0%,
+    var(--inv-bg2) 100%
+  );
 }
 .inv-env {
   position: relative;
@@ -210,8 +214,12 @@
   justify-content: center;
   font-family: var(--inv-heading);
   font-size: 19px;
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.28), inset 0 1px 3px rgba(255, 255, 255, 0.35);
-  transition: opacity 0.35s, transform 0.35s;
+  box-shadow:
+    0 5px 12px rgba(0, 0, 0, 0.28),
+    inset 0 1px 3px rgba(255, 255, 255, 0.35);
+  transition:
+    opacity 0.35s,
+    transform 0.35s;
 }
 .inv-hint {
   font-family: var(--inv-heading);
@@ -847,8 +855,8 @@ video.inv-hero-photo {
  */
 .inv-reveal-root {
   --inv-reveal-from: translateY(26px);
-  --inv-reveal-ease: opacity 0.8s ease,
-    transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --inv-reveal-ease:
+    opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .inv-reveal-root [data-reveal] {
   opacity: 0;
@@ -864,8 +872,8 @@ video.inv-hero-photo {
    a little, matching the flat-bold hero's register. */
 .inv-reveal-root[data-motion="pop"] {
   --inv-reveal-from: scale(0.94);
-  --inv-reveal-ease: opacity 0.5s ease,
-    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --inv-reveal-ease:
+    opacity 0.5s ease, transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* sweep — anniversary, graduation, reunion. Alternating sides, so a column of
@@ -1066,10 +1074,15 @@ video.inv-hero-photo {
   position: absolute;
   inset: 0;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 70%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14),
+    transparent 70%
+  );
 }
 .inv-env-body {
-  box-shadow: 0 34px 80px rgba(0, 0, 0, 0.28),
+  box-shadow:
+    0 34px 80px rgba(0, 0, 0, 0.28),
     inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
@@ -1199,7 +1212,10 @@ video.inv-hero-photo {
     radial-gradient(circle at 15% 18%, var(--inv-soft) 0 1px, transparent 2px),
     radial-gradient(circle at 84% 76%, var(--inv-soft) 0 1px, transparent 2px),
     radial-gradient(90% 80% at 50% 35%, var(--inv-bg) 0%, var(--inv-bg2) 100%);
-  background-size: 38px 38px, 52px 52px, auto;
+  background-size:
+    38px 38px,
+    52px 52px,
+    auto;
 }
 
 .inv-reveal-root[data-motion-profile="luxury"] .inv-overlay::before,
@@ -1300,8 +1316,7 @@ video.inv-hero-photo {
   transition: transform 0.9s 0.18s cubic-bezier(0.2, 0.75, 0.2, 1);
 }
 
-.inv-reveal-root[data-motion-profile="luxury"]
-  .inv-motion-stage.vis::before {
+.inv-reveal-root[data-motion-profile="luxury"] .inv-motion-stage.vis::before {
   transform: scaleX(1);
 }
 
@@ -1357,6 +1372,335 @@ video.inv-hero-photo {
   }
 }
 
+/* WP20-500A — Capiz Window. The grid is structural rather than decorative:
+   translucent panes, warm joins and one travelling light field make the
+   reveal read as capiz before any invitation copy appears. */
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-overlay,
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-hero--type {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(184, 138, 56, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184, 138, 56, 0.2) 1px, transparent 1px),
+    radial-gradient(circle at 50% 32%, #fffdf5 0%, #f4e5bd 48%, #d8b66d 125%);
+  background-size:
+    72px 72px,
+    72px 72px,
+    auto;
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-overlay::before,
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-hero--type::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      38deg,
+      rgba(255, 255, 255, 0.22) 0 2px,
+      transparent 2px 17px
+    ),
+    repeating-linear-gradient(
+      -31deg,
+      rgba(126, 102, 56, 0.05) 0 1px,
+      transparent 1px 23px
+    );
+  mix-blend-mode: soft-light;
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-overlay::after,
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-hero--type::after {
+  content: "";
+  position: absolute;
+  inset: -35% auto -35% -46%;
+  width: 32%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.74),
+    transparent
+  );
+  filter: blur(12px);
+  transform: skewX(-12deg);
+  animation: inv-capiz-light 7.5s ease-in-out infinite;
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-env {
+  filter: drop-shadow(0 34px 45px rgba(83, 64, 29, 0.24));
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-env-body,
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-pocket {
+  background:
+    linear-gradient(rgba(184, 138, 56, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184, 138, 56, 0.2) 1px, transparent 1px),
+    rgba(248, 238, 210, 0.88);
+  background-size: 38px 38px;
+  border: 1px solid rgba(143, 103, 34, 0.32);
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-flap {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.18), transparent),
+    linear-gradient(180deg, #c29a4d, #806128);
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-seal {
+  background: #9a722b;
+  box-shadow:
+    0 8px 24px rgba(75, 54, 20, 0.34),
+    inset 0 0 0 2px rgba(255, 247, 215, 0.45),
+    inset 0 0 0 6px rgba(65, 44, 14, 0.1);
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-hero--type {
+  min-height: 100svh;
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-type-card {
+  z-index: 1;
+  border: 1px solid rgba(151, 111, 43, 0.52);
+  background: rgba(255, 252, 240, 0.72);
+  box-shadow:
+    inset 0 0 0 8px rgba(255, 255, 255, 0.24),
+    0 35px 90px rgba(88, 65, 24, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-type-card::before {
+  content: "";
+  display: block;
+  width: 84px;
+  height: 42px;
+  margin: 0 auto 24px;
+  border-radius: 84px 84px 0 0;
+  background: repeating-conic-gradient(
+    from 270deg at 50% 100%,
+    #b88a38 0 5deg,
+    transparent 5deg 12deg
+  );
+  opacity: 0.78;
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-motion-stage {
+  padding: clamp(26px, 5vw, 42px);
+  border: 1px solid rgba(184, 138, 56, 0.2);
+  background: rgba(255, 253, 245, 0.5);
+  box-shadow: 0 18px 55px rgba(94, 68, 22, 0.06);
+}
+
+@keyframes inv-capiz-light {
+  0%,
+  18% {
+    transform: translateX(0) skewX(-12deg);
+    opacity: 0;
+  }
+  36% {
+    opacity: 0.78;
+  }
+  68%,
+  100% {
+    transform: translateX(470%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+/* WP20-500B — Neon Eighteen. P3 effects stay scoped to this visual theme so
+   CORE/P1 experiences never pay for or inherit the nightlife vocabulary. */
+.inv-reveal-root[data-visual-theme="neon-nightlife"] {
+  color-scheme: dark;
+  --inv-line: rgba(255, 63, 191, 0.34);
+  --inv-surface: rgba(255, 255, 255, 0.055);
+  --inv-paper: #100d1d;
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-overlay,
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-hero--bold {
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 15% 22%,
+      rgba(36, 228, 255, 0.2),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 84% 70%,
+      rgba(255, 36, 172, 0.28),
+      transparent 31%
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    #070611;
+  background-size:
+    auto,
+    auto,
+    42px 42px,
+    42px 42px,
+    auto;
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-overlay::before,
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-hero--bold::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(36, 228, 255, 0.12) 48%,
+    rgba(255, 63, 191, 0.16) 52%,
+    transparent 58%
+  );
+  animation: inv-neon-scan 5.8s linear infinite;
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-env {
+  filter: drop-shadow(0 0 18px rgba(255, 63, 191, 0.72))
+    drop-shadow(0 0 38px rgba(36, 228, 255, 0.28));
+  animation: inv-neon-float 2.8s ease-in-out infinite;
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-env-body,
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-pocket {
+  background: #100d1d;
+  border: 1px solid rgba(36, 228, 255, 0.64);
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-env-card {
+  color: #fff7ff;
+  background: linear-gradient(145deg, #191229, #0b0914);
+  border: 1px solid rgba(255, 63, 191, 0.62);
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-flap {
+  background: linear-gradient(180deg, #ff3fbf, #45114a 64%, #130d23);
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-seal {
+  background: #070611;
+  border: 2px solid #ff3fbf;
+  color: #fff;
+  text-shadow: 0 0 8px #24e4ff;
+  box-shadow:
+    0 0 14px rgba(255, 63, 191, 0.9),
+    0 0 34px rgba(36, 228, 255, 0.48);
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-names--bold {
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: -0.035em;
+  text-shadow:
+    -3px 0 0 rgba(36, 228, 255, 0.78),
+    3px 0 0 rgba(255, 63, 191, 0.9),
+    0 0 28px rgba(255, 63, 191, 0.58);
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-motion-stage {
+  padding: clamp(24px, 4vw, 38px);
+  border-left: 2px solid #ff3fbf;
+  border-right: 1px solid rgba(36, 228, 255, 0.38);
+  background: linear-gradient(
+    110deg,
+    rgba(255, 63, 191, 0.07),
+    transparent 38%
+  );
+  box-shadow: -12px 0 40px rgba(255, 63, 191, 0.08);
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-count-u,
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-venue,
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-rsvp {
+  border-color: rgba(36, 228, 255, 0.42);
+  box-shadow: 0 0 24px rgba(255, 63, 191, 0.12);
+}
+
+@keyframes inv-neon-scan {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(110%);
+  }
+}
+
+@keyframes inv-neon-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-0.4deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(0.4deg);
+  }
+}
+
+/* WP20-500C — In Loving Memory. Service information is foregrounded through
+   spacing and rules; effects remain almost static and never read as festive. */
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-overlay {
+  background:
+    linear-gradient(rgba(111, 117, 107, 0.045) 1px, transparent 1px), #f3f1ec;
+  background-size: 100% 42px;
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-env {
+  filter: drop-shadow(0 22px 38px rgba(40, 43, 39, 0.16));
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-env-body,
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-pocket {
+  background: #e5e2da;
+  border: 1px solid rgba(72, 76, 70, 0.22);
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-flap {
+  background: linear-gradient(180deg, #8a8e86, #5f635d);
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-seal {
+  background: #656a62;
+  box-shadow: 0 5px 14px rgba(37, 39, 36, 0.22);
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-hero--arch {
+  padding-top: clamp(36px, 6vh, 64px);
+  padding-bottom: clamp(38px, 7vh, 72px);
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-arch-portrait {
+  max-width: 264px;
+  filter: grayscale(0.72) contrast(0.96);
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-names {
+  letter-spacing: 0.01em;
+  text-shadow: none;
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-motion-stage {
+  margin-top: clamp(38px, 6vw, 58px);
+  padding-top: clamp(28px, 4vw, 36px);
+  border-top: 1px solid rgba(83, 88, 80, 0.2);
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"]
+  .inv-motion-stage[data-experience-stage="venues"],
+.inv-reveal-root[data-visual-theme="memorial-quiet"]
+  .inv-motion-stage[data-experience-stage="program"] {
+  border: 1px solid rgba(83, 88, 80, 0.22);
+  padding: clamp(26px, 5vw, 42px);
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.inv-reveal-root[data-visual-theme="memorial-quiet"] .inv-venue {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 12px 0 22px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .inv-reveal-root[data-experience-enabled="true"] .inv-overlay::before,
   .inv-reveal-root[data-experience-enabled="true"] .inv-overlay::after,
@@ -1369,5 +1713,13 @@ video.inv-hero-photo {
   .inv-reveal-root[data-experience-enabled="true"] .inv-motion-stage::before {
     transform: scaleX(1);
     transition: none;
+  }
+
+  .inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-overlay::after,
+  .inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-hero--type::after,
+  .inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-overlay::before,
+  .inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-hero--bold::before,
+  .inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-env {
+    animation: none;
   }
 }

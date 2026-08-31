@@ -1,6 +1,6 @@
 import { TEMPLATES, type SeedTemplate } from "@/prisma/seed-data";
 import type { EventKind } from "@/lib/invitation/preview-model";
-import { EXPERIENCE_REGISTRY } from "./registry";
+import { experienceConfigFor } from "./registry";
 
 export type CatalogueAction =
   "KEEP" | "ENHANCE" | "REDESIGN" | "MERGE" | "REPOSITION" | "RETIRE";
@@ -90,7 +90,7 @@ export function catalogueMetadataFor(
   const action = ACTION_BY_SLUG[template.slug];
   if (!action) throw new Error(`Missing evolution action for ${template.slug}`);
   const eventKind = kindFor(template.category);
-  const experience = EXPERIENCE_REGISTRY[eventKind];
+  const experience = experienceConfigFor(eventKind, template.slug);
   return {
     slug: template.slug,
     name: template.name,

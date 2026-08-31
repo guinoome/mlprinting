@@ -345,6 +345,7 @@ export default async function BuilderStepPage({
           <PreviewStep
             invitationId={draft!.id}
             model={model}
+            experienceSlug={draft!.template?.slug ?? null}
             issues={completionErrors(snapshot)}
             isCompleted={draft!.status === "COMPLETED"}
           />

@@ -1,5 +1,6 @@
 import type { EventKind } from "@/lib/invitation/preview-model";
 import { LAYOUTS, layoutFor } from "../layouts/registry";
+import type { InvitationLayout } from "../layouts/types";
 import { MOTION_PROFILES } from "./profiles";
 import type {
   ExperienceConfig,
@@ -73,6 +74,7 @@ export const EXPERIENCE_REGISTRY = Object.fromEntries(
       version: 1,
       eventKind: kind,
       layoutId: layout.id,
+      visualThemeId: "inherit",
       motionProfile: profile.id,
       interactions: [...STANDARD_INTERACTIONS],
       mediaProfile:
@@ -90,12 +92,148 @@ export const EXPERIENCE_REGISTRY = Object.fromEntries(
   }),
 ) as Record<EventKind, ExperienceConfig>;
 
+const PROOF_LAYOUTS: Record<string, InvitationLayout> = {
+  "capiz-window": {
+    id: "capiz-window-cultural",
+    hero: "type-led",
+    sections: [
+      "welcome",
+      "countdown",
+      "actions",
+      "hosts",
+      "invitation",
+      "venues",
+      "program",
+      "gallery",
+      "dress-code",
+      "gifts",
+    ],
+    ornament: "filigree",
+    photoShape: "arch",
+    dateStyle: "row",
+    motion: "sweep",
+    celebratory: true,
+  },
+  "neon-eighteen": {
+    id: "neon-eighteen-nightlife",
+    hero: "flat-bold",
+    sections: [
+      "welcome",
+      "countdown",
+      "actions",
+      "program",
+      "hosts",
+      "invitation",
+      "gallery",
+      "venues",
+      "dress-code",
+    ],
+    ornament: "none",
+    photoShape: "circle",
+    dateStyle: "row",
+    motion: "pop",
+    celebratory: true,
+  },
+  "in-loving-memory": {
+    id: "in-loving-memory-tribute",
+    hero: "arch-portrait",
+    sections: [
+      "welcome",
+      "venues",
+      "program",
+      "invitation",
+      "hosts",
+      "gallery",
+      "notes",
+    ],
+    ornament: "none",
+    photoShape: "oval",
+    dateStyle: "line",
+    motion: "fade",
+    celebratory: false,
+  },
+};
+
+const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
+  "capiz-window": {
+    id: "capiz-window-v1",
+    version: 1,
+    slug: "capiz-window",
+    eventKind: "wedding",
+    layoutId: PROOF_LAYOUTS["capiz-window"].id,
+    visualThemeId: "capiz-luminous",
+    motionProfile: "mp-14-cultural-ceremony",
+    interactions: [...STANDARD_INTERACTIONS],
+    mediaProfile: "portrait",
+    performanceClass: "standard",
+    motionLevel: "M3",
+    printCompatible: true,
+    signature:
+      "Light travels through layered capiz panes before revealing the couple and ceremony.",
+  },
+  "neon-eighteen": {
+    id: "neon-eighteen-v1",
+    version: 1,
+    slug: "neon-eighteen",
+    eventKind: "debut",
+    layoutId: PROOF_LAYOUTS["neon-eighteen"].id,
+    visualThemeId: "neon-nightlife",
+    motionProfile: "mp-09-neon-pulse",
+    interactions: [...STANDARD_INTERACTIONS],
+    mediaProfile: "cinematic",
+    performanceClass: "cinematic",
+    motionLevel: "M4",
+    printCompatible: false,
+    signature: "The debut feels like entering a live nightlife event.",
+  },
+  "in-loving-memory": {
+    id: "in-loving-memory-v1",
+    version: 1,
+    slug: "in-loving-memory",
+    eventKind: "funeral",
+    layoutId: PROOF_LAYOUTS["in-loving-memory"].id,
+    visualThemeId: "memorial-quiet",
+    motionProfile: "mp-12-quiet-tribute",
+    interactions: [
+      "opening-reveal",
+      "gallery",
+      "programme",
+      "map",
+      "calendar",
+      "rsvp",
+      "share",
+      "qr",
+    ],
+    mediaProfile: "portrait",
+    performanceClass: "light",
+    motionLevel: "M2",
+    printCompatible: true,
+    signature:
+      "A quiet portrait preserves dignity while service information remains effortless to find.",
+  },
+};
+
+export const PROOF_EXPERIENCE_SLUGS = Object.freeze(
+  Object.keys(PROOF_EXPERIENCES),
+);
+
+export function experienceConfigFor(
+  kind: EventKind,
+  slug?: string | null,
+): ExperienceConfig {
+  return (slug && PROOF_EXPERIENCES[slug]) || EXPERIENCE_REGISTRY[kind];
+}
+
 export function resolveExperience(
   kind: EventKind,
-  options: { enabled: boolean; reducedMotion?: boolean },
+  options: {
+    enabled: boolean;
+    reducedMotion?: boolean;
+    slug?: string | null;
+  },
 ): ResolvedExperience {
-  const layout = layoutFor(kind);
-  const config = EXPERIENCE_REGISTRY[kind] ?? EXPERIENCE_REGISTRY.general;
+  const config = experienceConfigFor(kind, options.slug);
+  const layout = (config.slug && PROOF_LAYOUTS[config.slug]) || layoutFor(kind);
   const reducedMotion = options.reducedMotion === true;
   const profile = MOTION_PROFILES[config.motionProfile];
 

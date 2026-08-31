@@ -18,6 +18,7 @@ import { visibleSections } from "../layouts/visible-sections";
 import { resolveExperience } from "../experience/registry";
 import { features } from "@/lib/config";
 import { MotionStage } from "./motion-stage";
+import { styleForExperience } from "../experience/themes";
 
 /** The hero's opening line, tuned to the celebration. */
 const EYEBROW: Record<EventKind, string> = {
@@ -184,6 +185,7 @@ export function EventSite({
   countdownTarget,
   qrSrc,
   memoryHref,
+  experienceSlug,
 }: {
   invitationId: string;
   model: PreviewModel;
@@ -195,8 +197,19 @@ export function EventSite({
    */
   qrSrc?: string | null;
   memoryHref?: string | null;
+  /** Template slug selects a named experience; event kind remains the fallback. */
+  experienceSlug?: string | null;
 }) {
-  const { style } = model;
+  const experience = resolveExperience(model.eventKind, {
+    enabled: features.interactiveExperiences,
+    slug: experienceSlug,
+  });
+  const style = styleForExperience(
+    model.style,
+    experience.source === "experience"
+      ? experience.config.visualThemeId
+      : "inherit",
+  );
 
   const coupleLine =
     model.hosts.length > 0
@@ -219,9 +232,6 @@ export function EventSite({
     ? `${model.dateLine}${model.timeLine ? ` · ${model.timeLine}` : ""}`
     : null;
 
-  const experience = resolveExperience(model.eventKind, {
-    enabled: features.interactiveExperiences,
-  });
   const { layout } = experience;
 
   const eyebrow = EYEBROW[model.eventKind];
@@ -450,7 +460,11 @@ export function EventSite({
               {model.rsvpLine}
             </p>
           ) : null}
-          <RsvpForm invitationId={invitationId} accentColor={style.accent} />
+          <RsvpForm
+            invitationId={invitationId}
+            accentColor={style.accent}
+            tone={layout.celebratory ? "celebratory" : "quiet"}
+          />
           {memoryHref ? (
             <a href={memoryHref} className="inv-maplink mt-4 inline-block">
               Share Your Memories
@@ -481,6 +495,7 @@ export function EventSite({
       experienceId={experience.config.id}
       motionProfile={experience.config.motionProfile}
       motionLevel={experience.motionLevel}
+      visualThemeId={experience.config.visualThemeId}
       style={invVars(style)}
     >
       <div
@@ -521,14 +536,16 @@ export function EventSite({
           <p className="inv-footer">{coupleLine} · Made with ML Printing</p>
         </main>
 
-        {/* The customer's own upload wins; otherwise the invitation still gets
-            a track, chosen to suit the occasion (FDG-ML-DEP-STD-015 §6). A
-            memorial resolves to the cinematic track, never a celebratory one. */}
-        <MusicPlayer
-          src={
-            model.musicUrl ?? MUSIC_TRACKS[moodForEventKind(model.eventKind)]
-          }
-        />
+        {/* The customer's own upload wins; otherwise the invitation gets an
+            occasion-matched track. Profiles can deliberately omit music — the
+            quiet memorial proof does — and the renderer honours that contract. */}
+        {experience.config.interactions.includes("music") ? (
+          <MusicPlayer
+            src={
+              model.musicUrl ?? MUSIC_TRACKS[moodForEventKind(model.eventKind)]
+            }
+          />
+        ) : null}
       </div>
     </InvitationShell>
   );

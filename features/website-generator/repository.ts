@@ -16,7 +16,12 @@ import type { RsvpCriteria } from "./rsvp-intelligence";
 
 const PUBLIC_INCLUDE = {
   template: {
-    select: { id: true, name: true, category: { select: { slug: true } } },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      category: { select: { slug: true } },
+    },
   },
   hosts: { orderBy: { sortOrder: "asc" } },
   venues: { orderBy: { sortOrder: "asc" } },
