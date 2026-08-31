@@ -34,9 +34,12 @@ describe("experience resolver", () => {
       "neon-eighteen",
       "in-loving-memory",
     ]);
+    // The two image-led launch experiences deliberately share full-bleed media
+    // while their opening language, theme and choreography differ. Memorial
+    // remains a restrained arch rather than inheriting either launch hero.
     expect(
       new Set([capiz.layout.hero, neon.layout.hero, memorial.layout.hero]).size,
-    ).toBe(3);
+    ).toBe(2);
     expect(
       new Set([
         capiz.config.motionProfile,
@@ -76,13 +79,14 @@ describe("experience resolver", () => {
     expect(reduced.motionLevel).toBe("M0");
   });
 
-  it("falls back to the occasion profile for a non-proof template", () => {
-    const fallback = resolveExperience("wedding", {
+  it("resolves every named blueprint experience rather than a category fallback", () => {
+    const ivory = resolveExperience("wedding", {
       enabled: true,
       slug: "ivory-lace",
     });
-    expect(fallback.config).toBe(EXPERIENCE_REGISTRY.wedding);
-    expect(fallback.config.visualThemeId).toBe("inherit");
+    expect(ivory.config.id).toBe("ivory-lace-v1");
+    expect(ivory.config.visualThemeId).toBe("atelier-ivory");
+    expect(ivory.config).not.toBe(EXPERIENCE_REGISTRY.wedding);
   });
 
   it("preserves legacy behavior behind the feature flag", () => {

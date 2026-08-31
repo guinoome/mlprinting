@@ -158,13 +158,13 @@ function CatalogHero({
       </p>
 
       <h1 className="mt-4 max-w-2xl text-balance font-serif text-4xl leading-[1.1] tracking-tight md:text-5xl">
-        Invitations worth opening.
+        Experiences worth entering.
       </h1>
 
       <p className="mt-4 max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground md:text-base">
-        Every design here becomes a shareable animated invitation — an envelope
-        that opens, a countdown, and RSVPs that come straight back to you. Print
-        it too, if you like.
+        The public collection contains only launch-ready experiences with their
+        own opening scene, guest journey and RSVP. New designs are added as they
+        pass interaction and visual QA—not as unfinished variations.
       </p>
 
       {/* One scrolling line on a phone, wrapped rows once there is room.

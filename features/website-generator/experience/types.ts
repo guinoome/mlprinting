@@ -11,10 +11,40 @@ export type MotionProfileId =
   | "storybook"
   | "mp-09-neon-pulse"
   | "mp-12-quiet-tribute"
-  | "mp-14-cultural-ceremony";
+  | "mp-14-cultural-ceremony"
+  | "mp-01-editorial"
+  | "mp-02-luxe-reveal"
+  | "mp-03-cinematic"
+  | "mp-04-sealed-reveal"
+  | "mp-06-botanical"
+  | "mp-07-memory"
+  | "mp-08-celebration"
+  | "mp-10-live-event"
+  | "mp-11-product"
+  | "mp-12-quiet"
+  | "mp-13-digital-light"
+  | "mp-15-guided-story";
 
 export type VisualThemeId =
-  "inherit" | "capiz-luminous" | "neon-nightlife" | "memorial-quiet";
+  | "inherit"
+  | "atelier-ivory"
+  | "botanical-romance"
+  | "midnight-metallic"
+  | "coastal-air"
+  | "filipino-craft"
+  | "celebration-pop"
+  | "memory-film"
+  | "storybook-play"
+  | "neon-nightlife"
+  | "cinematic-frame"
+  | "quiet-ceremony"
+  | "corporate-precision"
+  | "digital-light"
+  | "festival-pulse"
+  | "romantic-seal"
+  | "guided-story"
+  | "capiz-luminous"
+  | "memorial-quiet";
 
 export type InteractionId =
   | "opening-reveal"

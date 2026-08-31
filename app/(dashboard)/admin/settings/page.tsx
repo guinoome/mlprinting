@@ -45,7 +45,11 @@ const FLAGS: { label: string; enabled: boolean; phase: string }[] = [
     phase: "Phase 6",
   },
   { label: "Booking", enabled: features.booking, phase: "Phase 7" },
-  { label: "Payments", enabled: features.payments, phase: "Phase 8" },
+  {
+    label: "Staff-verified payments",
+    enabled: features.payments,
+    phase: "Cash / bank transfer",
+  },
   {
     label: "Self-service registration",
     enabled: features.registration,

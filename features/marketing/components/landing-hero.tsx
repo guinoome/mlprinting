@@ -1,114 +1,125 @@
-import Link from "next/link";
+"use client";
+
+import * as React from "react";
 import Image from "next/image";
-import { ArrowDownRight, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { branding, routes } from "@/lib/config";
+import Link from "next/link";
+import { ArrowRight, Volume2 } from "lucide-react";
+import { routes } from "@/lib/config";
 
-/**
- * The hero.
- *
- * The visual is a fanned stack of real covers from the catalogue, not stock
- * photography or an illustration of a product — this is the product. The page
- * chrome stays on the neutral design tokens so the artwork supplies all the
- * colour, and so the whole thing still works in dark mode.
- *
- * The primary action is the catalogue rather than sign-up: browsing needs no
- * account, and sending someone to a registration form before they have seen
- * anything is how a shop window loses people.
- */
-export function LandingHero({
-  covers,
-}: {
-  /** Up to three cover images, front-most first. */
-  covers: { src: string; alt: string }[];
-}) {
+const LAUNCH_EXPERIENCES = [
+  {
+    slug: "capiz-window",
+    label: "01 / Filipino wedding",
+    kicker: "Crafted in Cebu · Signature experience",
+    title: "Your story. Beautifully invited.",
+    description:
+      "Capiz light, cinematic portraiture and a ceremony-first journey—built as an invitation guests can explore, not a card they scroll past.",
+    image: "/experiences/capiz-window-hero.png",
+    imageAlt:
+      "A Filipino wedding couple standing before a luminous capiz installation",
+    action: "Open Capiz Window",
+  },
+  {
+    slug: "neon-eighteen",
+    label: "02 / Debut nightlife",
+    kicker: "Immersive debut · Live-event energy",
+    title: "Eighteen enters after dark.",
+    description:
+      "A high-impact debut experience with event-poster type, a timed programme, music controls and an RSVP that feels part of the night.",
+    image: "/experiences/neon-eighteen-hero.png",
+    imageAlt: "A debutante in a violet gown on a cinematic nightlife stage",
+    action: "Enter Neon Eighteen",
+  },
+] as const;
+
+export function LandingHero() {
+  const [active, setActive] = React.useState(0);
+  const experience = LAUNCH_EXPERIENCES[active];
+
   return (
-    <section className="relative overflow-hidden border-b border-white/10 bg-[#090711] text-white">
-      <div className="pointer-events-none absolute -right-40 -top-52 size-[34rem] rounded-full bg-fuchsia-500/15 blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-48 left-1/3 size-[30rem] rounded-full bg-cyan-400/10 blur-[110px]" />
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 md:grid-cols-2 md:gap-8 md:px-8 md:py-24">
-        <div className="relative z-10">
-          <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/55">
-            Interactive motion invitations · {branding.company}
+    <section className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden bg-black text-white">
+      <Image
+        key={experience.slug}
+        src={experience.image}
+        alt={experience.imageAlt}
+        fill
+        priority
+        sizes="100vw"
+        className="z-0 animate-in object-cover fade-in duration-500 motion-reduce:animate-none"
+      />
+
+      <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(3,4,6,.96)_0%,rgba(3,4,6,.72)_38%,rgba(3,4,6,.10)_74%),linear-gradient(0deg,rgba(3,4,6,.78),transparent_48%)]" />
+      <div className="absolute inset-x-0 top-0 z-10 h-px bg-white/20" />
+
+      <div className="relative z-20 mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col justify-between px-5 py-9 md:px-8 md:py-12">
+        <div className="flex items-start justify-between gap-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[#e3c486]">
+            ML Printing<br />
+            <span className="text-[7px] tracking-[0.42em] text-white/55">Digital invitations</span>
           </p>
-
-          <h1 className="mt-5 text-balance font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-            Choose an experience, not just a template.
-          </h1>
-
-          <p className="mt-5 max-w-lg text-pretty leading-relaxed text-white/70">
-            Capiz light for a Filipino wedding. A neon pulse for an eighteenth.
-            Quiet clarity for a tribute. Each invitation now has its own reveal,
-            rhythm, and way of guiding guests.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button
-              asChild
-              size="lg"
-              className="bg-white text-black hover:bg-white/90"
-            >
-              <Link href="#experience-proofs">
-                Explore live experiences
-                <ArrowDownRight aria-hidden="true" />
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white"
-            >
-              <Link href={routes.acquisitionTemplates("home-hero")}>
-                Browse catalogue
-                <ArrowRight aria-hidden="true" />
-              </Link>
-            </Button>
-          </div>
-
-          <p className="mt-6 text-xs text-white/50">
-            Open all three live. No account needed.
+          <p className="hidden max-w-44 text-right text-[10px] uppercase leading-relaxed tracking-[0.2em] text-white/55 sm:block">
+            Two launch experiences.<br />
+            More added as they earn their place.
           </p>
         </div>
 
-        {/* Decorative: the covers are shown for their design, and each one is
-            reachable as a real template from the showcase below. */}
-        {covers.length > 0 ? (
-          <div
-            className="relative mx-auto h-[340px] w-full max-w-sm sm:h-[420px]"
-            aria-hidden="true"
-          >
-            {covers.slice(0, 3).map((cover, index) => (
-              <div
-                key={cover.src}
-                style={{ position: "absolute" }}
-                className={[
-                  "absolute left-1/2 top-1/2 aspect-[4/5] w-[62%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl border border-white/20 bg-white/10 shadow-2xl",
-                  index === 0
-                    ? "z-30 rotate-[-3deg]"
-                    : index === 1
-                      ? "z-20 translate-x-[-90%] rotate-[-11deg]"
-                      : "z-10 translate-x-[-10%] rotate-[8deg]",
-                ].join(" ")}
+        <div className="grid items-end gap-10 pb-10 lg:grid-cols-[minmax(0,1fr)_260px] lg:pb-0">
+          <div key={experience.slug} className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 motion-reduce:animate-none">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#e3c486]">
+              {experience.kicker}
+            </p>
+            <h1 className="mt-5 max-w-3xl text-balance font-serif text-5xl leading-[0.94] tracking-[-0.045em] sm:text-6xl md:text-7xl lg:text-[6.6rem]">
+              {experience.title}
+            </h1>
+            <p className="mt-6 max-w-xl text-pretty text-sm leading-7 text-white/72 sm:text-base">
+              {experience.description}
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link
+                href={routes.templateLivePreview(experience.slug)}
+                className="inline-flex min-h-12 items-center gap-3 bg-[#a4773c] px-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-[#be9152] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
               >
-                <Image
-                  src={cover.src}
-                  alt=""
-                  width={800}
-                  height={1000}
-                  sizes="(min-width: 768px) 20vw, 45vw"
-                  // All three are above the fold and are the first thing the
-                  // page is judged on. Lazy-loading them buys nothing and
-                  // costs a visible pop-in on the hero.
-                  priority
-                  unoptimized={cover.src.startsWith("/api/placeholder/")}
-                  className="size-full object-cover"
-                />
-              </div>
-            ))}
+                {experience.action}
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+              <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/55">
+                <Volume2 className="size-4" aria-hidden="true" />
+                Sound optional · motion adaptable
+              </span>
+            </div>
           </div>
-        ) : null}
+
+          <div className="border-t border-white/25 pt-5 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
+            <p className="mb-4 text-[9px] uppercase tracking-[0.28em] text-white/45">
+              Choose the opening scene
+            </p>
+            <div className="grid gap-1" role="tablist" aria-label="Launch experiences">
+              {LAUNCH_EXPERIENCES.map((item, index) => (
+                <button
+                  key={item.slug}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === active}
+                  onClick={() => setActive(index)}
+                  className={`flex min-h-12 items-center justify-between border-b py-3 text-left text-[10px] font-semibold uppercase tracking-[0.2em] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                    index === active
+                      ? "border-[#e3c486] text-white"
+                      : "border-white/15 text-white/45 hover:text-white"
+                  }`}
+                >
+                  {item.label}
+                  <span aria-hidden="true">{index === active ? "●" : "○"}</span>
+                </button>
+              ))}
+            </div>
+            <Link
+              href={routes.acquisitionTemplates("home-hero")}
+              className="mt-5 inline-flex text-[10px] uppercase tracking-[0.22em] text-white/65 underline decoration-white/30 underline-offset-4 hover:text-white"
+            >
+              Browse the full catalogue
+            </Link>
+          </div>
+        </div>
       </div>
     </section>
   );

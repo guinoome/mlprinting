@@ -28,6 +28,6 @@ export interface PaymentProvider {
   readonly id: string;
   verify(input: {
     body: string;
-    signature: string;
+    headers: Headers;
   }): Promise<VerifiedPaymentEvent | null>;
 }
