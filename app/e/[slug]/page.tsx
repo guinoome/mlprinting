@@ -133,6 +133,7 @@ export default async function PublicEventPage({
       invitationId={invitation.id}
       model={model}
       countdownTarget={countdownTarget}
+      experienceSlug={invitation.template?.slug ?? null}
       // Served by the cached, publication-gated route rather than generated
       // per request: the encoded URL cannot change without a new slug.
       qrSrc={`/api/qr/${encodeURIComponent(params.slug)}`}

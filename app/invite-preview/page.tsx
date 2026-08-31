@@ -5,6 +5,7 @@ import { getTemplateBySlug } from "@/features/template-marketplace/repository";
 import { isDatabaseConfigured } from "@/lib/db";
 import { generateQrPng } from "@/lib/qr";
 import { env } from "@/lib/env";
+import { proofExperienceForSlug } from "@/features/website-generator/experience/proofs";
 
 /**
  * A live sample invitation — the same renderer a real shared link uses, filled
@@ -70,6 +71,24 @@ const KINDS: Record<EventKind, KindSpec> = {
     bg: "#fbf1ec",
     fg: "#5a3f3a",
     accent: "#bd8b6e",
+    invitation:
+      "With my family, I invite you to step into the night and celebrate this milestone with me.",
+    venues: [
+      {
+        label: "Debut",
+        name: "Oakridge Pavilion",
+        address: "A. S. Fortuna St, Mandaue City",
+        time: "6:00 PM",
+      },
+    ],
+    program: [
+      { time: "6:00 PM", title: "Doors open" },
+      { time: "7:00 PM", title: "Grand entrance" },
+      { time: "7:30 PM", title: "Eighteen roses and candles" },
+      { time: "9:00 PM", title: "Dance floor" },
+    ],
+    gifts: null,
+    closing: "Meet me under the neon lights.",
   },
   birthday: {
     title: "Emma turns Seven",
@@ -391,6 +410,15 @@ export default async function InvitePreviewPage({
     "/api/placeholder/desktop/ivory-lace?label=Maria%20%26%20Jose&caption=Wedding";
 
   const slug = searchParams.template;
+  const proof = proofExperienceForSlug(slug);
+  if (proof) {
+    // Proof routes must remain truthful when CI, a local checkout, or a brief
+    // database outage cannot load catalogue rows. Their slug is an exact,
+    // platform-owned contract rather than a best-effort visual hint.
+    kind = proof.eventKind;
+    cover = proof.sampleCover;
+  }
+
   if (slug && isDatabaseConfigured()) {
     const template = await getTemplateBySlug(slug);
     if (template) {
@@ -420,6 +448,7 @@ export default async function InvitePreviewPage({
       model={sampleModel(kind, cover, dates)}
       countdownTarget={dates.eventDate}
       qrSrc={qrSrc}
+      experienceSlug={slug}
     />
   );
 }

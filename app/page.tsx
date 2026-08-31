@@ -15,6 +15,8 @@ import { LandingHero } from "@/features/marketing/components/landing-hero";
 import { FeatureHighlights } from "@/features/marketing/components/feature-highlights";
 import { TemplateShowcase } from "@/features/marketing/components/template-showcase";
 import { FaqSection } from "@/features/marketing/components/faq-section";
+import { ExperienceProofShowcase } from "@/features/marketing/components/experience-proof-showcase";
+import { PROOF_EXPERIENCES } from "@/features/website-generator/experience/proofs";
 
 /**
  * Landing page.
@@ -58,10 +60,15 @@ export default async function Home() {
     : [null, []];
 
   const templates = page?.templates ?? [];
-  const covers = templates.slice(0, 3).map((template) => ({
-    src: template.coverImageUrl,
-    alt: template.name,
-  }));
+  const covers = PROOF_EXPERIENCES.map((proof) => {
+    const template = templates.find(
+      (candidate) => candidate.slug === proof.slug,
+    );
+    return {
+      src: template?.coverImageUrl ?? proof.sampleCover,
+      alt: proof.name,
+    };
+  });
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -81,10 +88,9 @@ export default async function Home() {
       />
 
       <main className="flex-1">
-        <LandingHero
-          covers={covers}
-          livePreviewSlug={templates[0]?.slug ?? null}
-        />
+        <LandingHero covers={covers} />
+
+        <ExperienceProofShowcase />
 
         <FeatureHighlights />
 

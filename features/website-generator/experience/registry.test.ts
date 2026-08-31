@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { EXPERIENCE_REGISTRY, resolveExperience } from "./registry";
+import {
+  EXPERIENCE_REGISTRY,
+  PROOF_EXPERIENCE_SLUGS,
+  resolveExperience,
+} from "./registry";
 
 describe("experience resolver", () => {
   it("defines a complete configuration for every existing occasion", () => {
@@ -13,35 +17,72 @@ describe("experience resolver", () => {
   });
 
   it("proves materially different experiences through one resolver", () => {
-    const capizLike = resolveExperience("wedding", { enabled: true });
-    const neonLike = resolveExperience("birthday", { enabled: true });
-    const memorial = resolveExperience("funeral", { enabled: true });
+    const capiz = resolveExperience("wedding", {
+      enabled: true,
+      slug: "capiz-window",
+    });
+    const neon = resolveExperience("debut", {
+      enabled: true,
+      slug: "neon-eighteen",
+    });
+    const memorial = resolveExperience("funeral", {
+      enabled: true,
+      slug: "in-loving-memory",
+    });
+    expect(PROOF_EXPERIENCE_SLUGS).toEqual([
+      "capiz-window",
+      "neon-eighteen",
+      "in-loving-memory",
+    ]);
     expect(
-      new Set([
-        capizLike.layout.hero,
-        neonLike.layout.hero,
-        memorial.layout.hero,
-      ]).size,
+      new Set([capiz.layout.hero, neon.layout.hero, memorial.layout.hero]).size,
     ).toBe(3);
     expect(
       new Set([
-        capizLike.config.motionProfile,
-        neonLike.config.motionProfile,
+        capiz.config.motionProfile,
+        neon.config.motionProfile,
         memorial.config.motionProfile,
       ]).size,
     ).toBe(3);
+    expect(
+      new Set([
+        capiz.config.visualThemeId,
+        neon.config.visualThemeId,
+        memorial.config.visualThemeId,
+      ]).size,
+    ).toBe(3);
+    expect(capiz.config.id).toBe("capiz-window-v1");
+    expect(neon.config.motionLevel).toBe("M4");
     expect(memorial.layout.celebratory).toBe(false);
+    expect(memorial.layout.sections.slice(0, 3)).toEqual([
+      "welcome",
+      "venues",
+      "program",
+    ]);
   });
 
   it("derives a near-static accessible mode without hiding content", () => {
-    const normal = resolveExperience("birthday", { enabled: true });
-    const reduced = resolveExperience("birthday", {
+    const normal = resolveExperience("debut", {
+      enabled: true,
+      slug: "neon-eighteen",
+    });
+    const reduced = resolveExperience("debut", {
       enabled: true,
       reducedMotion: true,
+      slug: "neon-eighteen",
     });
     expect(reduced.layout.sections).toEqual(normal.layout.sections);
     expect(reduced.motionStyle).toBe("fade");
     expect(reduced.motionLevel).toBe("M0");
+  });
+
+  it("falls back to the occasion profile for a non-proof template", () => {
+    const fallback = resolveExperience("wedding", {
+      enabled: true,
+      slug: "ivory-lace",
+    });
+    expect(fallback.config).toBe(EXPERIENCE_REGISTRY.wedding);
+    expect(fallback.config.visualThemeId).toBe("inherit");
   });
 
   it("preserves legacy behavior behind the feature flag", () => {

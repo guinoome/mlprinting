@@ -10,6 +10,7 @@ import {
 } from "@/lib/invitation/preview-model";
 import { features } from "@/lib/config";
 import { resolveExperience } from "@/features/website-generator/experience/registry";
+import { styleForExperience } from "@/features/website-generator/experience/themes";
 
 /**
  * The live preview — Ph3.md §10.
@@ -87,15 +88,22 @@ export function InvitationPreview({
   model,
   surface,
   className,
+  experienceSlug,
 }: {
   model: PreviewModel;
   surface: PreviewSurface;
   className?: string;
+  experienceSlug?: string | null;
 }) {
-  const { style } = model;
   const experience = resolveExperience(model.eventKind, {
     enabled: features.interactiveExperiences,
+    slug: experienceSlug,
   });
+  const visualThemeId =
+    experience.source === "experience"
+      ? experience.config.visualThemeId
+      : "inherit";
+  const style = styleForExperience(model.style, visualThemeId);
 
   const background =
     style.backgroundStyle === "soft-gradient"
@@ -107,6 +115,7 @@ export function InvitationPreview({
       data-experience-id={experience.config.id}
       data-motion-profile={experience.config.motionProfile}
       data-motion-level={experience.motionLevel}
+      data-visual-theme={visualThemeId}
       className={cn(
         "overflow-hidden rounded-lg border border-border shadow-sm",
         FRAME[surface],
@@ -333,7 +342,13 @@ export function InvitationPreview({
  * the preview snap back the moment the window moves, would be the tool arguing
  * with the person using it.
  */
-export function PreviewPane({ model }: { model: PreviewModel }) {
+export function PreviewPane({
+  model,
+  experienceSlug,
+}: {
+  model: PreviewModel;
+  experienceSlug?: string | null;
+}) {
   const [surface, setSurface] = React.useState<PreviewSurface>("desktop");
   const [pinned, setPinned] = React.useState(false);
 
@@ -378,7 +393,11 @@ export function PreviewPane({ model }: { model: PreviewModel }) {
       </div>
 
       <div className="rounded-lg bg-muted/40 p-3 sm:p-4">
-        <InvitationPreview model={model} surface={surface} />
+        <InvitationPreview
+          model={model}
+          surface={surface}
+          experienceSlug={experienceSlug}
+        />
       </div>
 
       {surface === "print" ? (

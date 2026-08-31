@@ -8,7 +8,13 @@ export type MotionProfileId =
   | "playful"
   | "neon"
   | "tropical"
-  | "storybook";
+  | "storybook"
+  | "mp-09-neon-pulse"
+  | "mp-12-quiet-tribute"
+  | "mp-14-cultural-ceremony";
+
+export type VisualThemeId =
+  "inherit" | "capiz-luminous" | "neon-nightlife" | "memorial-quiet";
 
 export type InteractionId =
   | "opening-reveal"
@@ -34,7 +40,10 @@ export interface ExperienceConfig {
   id: string;
   version: 1;
   eventKind: EventKind;
+  /** Seed/template slug for a named experience; absent on occasion fallbacks. */
+  slug?: string;
   layoutId: string;
+  visualThemeId: VisualThemeId;
   motionProfile: MotionProfileId;
   interactions: InteractionId[];
   mediaProfile: "portrait" | "gallery" | "cinematic";

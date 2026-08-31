@@ -2,7 +2,11 @@
 
 import * as React from "react";
 import type { MotionStyle } from "../layouts/types";
-import type { MotionLevel, MotionProfileId } from "../experience/types";
+import type {
+  MotionLevel,
+  MotionProfileId,
+  VisualThemeId,
+} from "../experience/types";
 
 /** Confetti particle shapes, chosen per event kind by the caller. */
 export type ConfettiShape = "petal" | "circle" | "star" | "rect";
@@ -127,6 +131,7 @@ export function InvitationShell({
   experienceId,
   motionProfile,
   motionLevel = "M0",
+  visualThemeId = "inherit",
   children,
 }: {
   monogram: string;
@@ -148,6 +153,7 @@ export function InvitationShell({
   experienceId?: string;
   motionProfile?: MotionProfileId;
   motionLevel?: MotionLevel;
+  visualThemeId?: VisualThemeId;
   children: React.ReactNode;
 }) {
   const [opened, setOpened] = React.useState(false);
@@ -163,7 +169,9 @@ export function InvitationShell({
     setOpening(true);
     // Fire synchronously, inside the gesture, so audio autoplay is permitted.
     window.dispatchEvent(new CustomEvent("invitation:open"));
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (confetti && canvasRef.current && !reduce) {
       // Let the flap start lifting first, then burst.
       window.setTimeout(() => {
@@ -176,7 +184,9 @@ export function InvitationShell({
   }, [confetti]);
 
   React.useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (reduce) {
       setOpened(true);
       return;
@@ -242,6 +252,7 @@ export function InvitationShell({
       data-experience-id={experienceId}
       data-motion-profile={experienceEnabled ? motionProfile : undefined}
       data-motion-level={experienceEnabled ? motionLevel : "M0"}
+      data-visual-theme={experienceEnabled ? visualThemeId : "inherit"}
       data-opened={opened ? "true" : "false"}
       style={style}
     >
