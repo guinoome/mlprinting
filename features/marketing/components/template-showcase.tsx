@@ -1,72 +1,86 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { routes } from "@/lib/config";
-import { TemplateCard } from "@/features/template-marketplace/components/template-card";
-import type { TemplateCard as TemplateCardData } from "@/features/template-marketplace/repository";
+import { PROOF_EXPERIENCES } from "@/features/website-generator/experience/proofs";
 
 /**
- * A slice of the real catalogue, plus the full list of occasions.
- *
- * Renders the marketplace's own `TemplateCard` rather than a landing-page
- * lookalike: one card component means the "See it live" pill, the badges and
- * the hover behaviour cannot drift between the shop window and the shop.
+ * A cinematic occasion rail rather than a portrait stationery grid. Each panel
+ * opens the real shared renderer, so the imagery sells a working experience.
  */
-export function TemplateShowcase({
-  templates,
-  categories,
-}: {
-  templates: NonNullable<TemplateCardData>[];
-  categories: { slug: string; name: string }[];
-}) {
-  if (templates.length === 0) return null;
+export function TemplateShowcase() {
+  const experiences = PROOF_EXPERIENCES.slice(0, 4);
 
   return (
-    <section className="border-b border-border">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+    <section className="bg-[#f4f0e8] text-[#171713]">
+      <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
+        <header className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <h2 className="text-balance font-serif text-3xl leading-tight tracking-tight">
-              Designs for every occasion.
+            <h2 className="max-w-2xl font-serif text-5xl leading-[.96] tracking-[-.04em] md:text-7xl">
+              Find your experience.
             </h2>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-              Tap any design to see the invitation it becomes, running for real.
+            <p className="text-black/58 mt-5 max-w-xl text-sm leading-7">
+              Four distinct openings are live now. Choose a world to enter, then
+              replace the sample photographs with your own story.
             </p>
           </div>
-
           <Link
             href={routes.templates}
-            className="inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
+            className="text-[10px] font-semibold uppercase tracking-[.22em] underline decoration-black/25 underline-offset-8"
           >
-            See all templates
-            <ArrowRight className="size-4" aria-hidden="true" />
+            Explore the collection
           </Link>
-        </div>
+        </header>
 
-        {categories.length > 0 ? (
-          <ul className="-mx-4 mt-8 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
-            {categories.map((category) => (
-              <li key={category.slug} className="shrink-0">
-                <Link
-                  href={`${routes.templates}?category=${category.slug}`}
-                  className="inline-block whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
-                >
-                  {category.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        <div className="mt-10 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-          {templates.map((template) => (
-            <TemplateCard
-              key={template.id}
-              template={template}
-              favorited={false}
-              showFavorite={false}
-            />
+        <div className="-mx-5 mt-12 flex snap-x snap-mandatory gap-1 overflow-x-auto px-5 pb-3 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
+          {experiences.map((experience, index) => (
+            <article
+              key={experience.slug}
+              className={`group relative min-h-[34rem] min-w-[82vw] snap-center overflow-hidden sm:min-w-[54vw] md:min-w-0 ${
+                index % 2 ? "md:translate-y-8" : ""
+              }`}
+            >
+              <Image
+                src={experience.catalogueCover}
+                alt={`${experience.name} interactive ${experience.occasion} experience`}
+                fill
+                priority={index === 0}
+                sizes="(min-width: 768px) 25vw, 82vw"
+                className="object-cover transition duration-700 group-hover:scale-[1.04] motion-reduce:transition-none"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-black/15" />
+              <Link
+                href={routes.templateLivePreview(experience.slug)}
+                className="absolute inset-0 z-10 flex flex-col justify-between p-6 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+              >
+                <div className="flex items-start justify-between">
+                  <p className="text-white/72 text-[9px] font-semibold uppercase tracking-[.26em]">
+                    {experience.occasion}
+                  </p>
+                  <ArrowUpRight className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-[9px] uppercase tracking-[.24em] text-[#dfbd7e]">
+                    {experience.tier} · {experience.motionLevel}
+                  </p>
+                  <h3 className="mt-3 font-serif text-4xl leading-none">
+                    {experience.name}
+                  </h3>
+                  <p className="text-white/66 mt-4 max-w-xs text-xs leading-5">
+                    {experience.promise}
+                  </p>
+                  <span className="mt-6 inline-block border-b border-[#dfbd7e] pb-2 text-[9px] font-semibold uppercase tracking-[.22em]">
+                    Open live experience
+                  </span>
+                </div>
+              </Link>
+            </article>
           ))}
         </div>
+        <p className="text-black/42 mt-12 text-[9px] uppercase tracking-[.24em] md:mt-16">
+          Swipe or scroll to explore · Every opening works with keyboard and
+          reduced motion
+        </p>
       </div>
     </section>
   );

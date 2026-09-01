@@ -24,17 +24,14 @@ export default function MarketplaceLayout({
   if (!features.templateMarketplace) notFound();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="ml-editorial flex min-h-screen flex-col bg-background text-foreground">
       <SiteHeader />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-8">
         {children}
       </main>
-      <footer className="border-t border-border px-4 py-6 text-center text-xs text-muted-foreground md:px-8">
+      <footer className="border-t border-black/15 bg-[#0a0a09] px-4 py-8 text-center text-xs text-white/50 md:px-8">
         {branding.company} — {branding.location} ·{" "}
-        <Link
-          href={routes.home}
-          className="transition-colors hover:text-foreground"
-        >
+        <Link href={routes.home} className="transition-colors hover:text-white">
           Back to home
         </Link>
         {" · "}
@@ -42,7 +39,7 @@ export default function MarketplaceLayout({
           href={social.messenger}
           target="_blank"
           rel="noreferrer noopener"
-          className="transition-colors hover:text-foreground"
+          className="transition-colors hover:text-white"
         >
           Message us
         </a>
@@ -51,7 +48,7 @@ export default function MarketplaceLayout({
           href={social.facebook}
           target="_blank"
           rel="noreferrer noopener"
-          className="transition-colors hover:text-foreground"
+          className="transition-colors hover:text-white"
         >
           Facebook
         </a>
