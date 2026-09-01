@@ -282,12 +282,51 @@ const KINDS: Record<EventKind, KindSpec> = {
   },
 };
 
+/**
+ * Named launch experiences can be more specific than their broad event kind.
+ * A product reveal that says "Annual Gala" is visually polished and still a
+ * false preview, so release proofs may replace the sample story as one unit.
+ */
+const PROOF_SPECS: Partial<Record<string, KindSpec>> = {
+  "product-launch": {
+    title: "Lumen One",
+    subtitle: "the next form arrives",
+    hosts: ["ML Innovation Studio"],
+    welcome:
+      "A new object of light, movement, and intelligence is ready to leave the stage.",
+    invitation:
+      "Join the live keynote, first reveal, and hands-on preview of Lumen One.",
+    venues: [
+      {
+        label: "Keynote and reveal",
+        name: "NUSTAR Convention Center",
+        address: "South Road Properties, Cebu City",
+        time: "6:30 PM",
+      },
+    ],
+    program: [
+      { time: "5:30 PM", title: "Guest check-in" },
+      { time: "6:30 PM", title: "Vision keynote" },
+      { time: "7:00 PM", title: "Lumen One reveal" },
+      { time: "7:30 PM", title: "First-look experience" },
+    ],
+    gifts: null,
+    rsvpLine: "Registration is required for the live reveal.",
+    closing: "See what arrives next.",
+    dressCode: "Future formal",
+    bg: "#061025",
+    fg: "#eef6ff",
+    accent: "#78aefc",
+  },
+};
+
 function sampleModel(
   kind: EventKind,
   coverImageUrl: string | null,
   dates: ReturnType<typeof sampleDates>,
+  override?: KindSpec,
 ): PreviewModel {
-  const k = KINDS[kind];
+  const k = override ?? KINDS[kind];
   return {
     title: k.title,
     subtitle: k.subtitle,
@@ -445,7 +484,12 @@ export default async function InvitePreviewPage({
   return (
     <EventSite
       invitationId="preview"
-      model={sampleModel(kind, cover, dates)}
+      model={sampleModel(
+        kind,
+        cover,
+        dates,
+        slug ? PROOF_SPECS[slug] : undefined,
+      )}
       countdownTarget={dates.eventDate}
       qrSrc={qrSrc}
       experienceSlug={slug}

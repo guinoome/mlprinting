@@ -8,6 +8,7 @@ import { getProfile } from "@/lib/auth/session";
 import type { Criteria } from "./criteria";
 import { buildWhere, buildOrderBy, buildPagination, totalPages } from "./query";
 import { LAUNCH_COLLECTION_SLUGS } from "@/lib/invitation/launch-collection";
+import { launchArtworkForSlug } from "@/lib/invitation/launch-art";
 
 /**
  * Catalog reads — Ph2.md §1, §10.
@@ -91,6 +92,19 @@ const EMPTY_PAGE: CatalogPage = {
   totalPages: 1,
 };
 
+function withLaunchArtwork<T extends { slug: string; coverImageUrl: string }>(
+  template: T,
+  surface: "catalogue" | "hero" = "catalogue",
+): T {
+  const artwork = launchArtworkForSlug(template.slug);
+  if (!artwork) return template;
+  return {
+    ...template,
+    coverImageUrl:
+      surface === "catalogue" ? artwork.catalogueSrc : artwork.heroSrc,
+  };
+}
+
 /**
  * A page of the catalog — Ph2.md §1, §10.
  *
@@ -123,7 +137,7 @@ export async function getCatalogPage(criteria: Criteria): Promise<CatalogPage> {
     ]);
 
     return {
-      templates,
+      templates: templates.map((template) => withLaunchArtwork(template)),
       totalCount,
       page: criteria.page,
       totalPages: totalPages(totalCount, criteria.perPage),
@@ -211,7 +225,7 @@ export const getTemplateBySlug = cache(async (slug: string) => {
   if (!isDatabaseConfigured()) return null;
 
   try {
-    return await prisma.template.findFirst({
+    const template = await prisma.template.findFirst({
       // publishedAt is checked here too. A draft has a slug, and a slug is
       // guessable — "is it published?" is not a question the catalog list can
       // answer on this page's behalf.
@@ -227,6 +241,10 @@ export const getTemplateBySlug = cache(async (slug: string) => {
         },
       },
     });
+    // The interactive preview needs a wide text-free composition. It must not
+    // reuse the marketplace poster: doing so bakes the old title into the
+    // background and then stacks the customer's live title on top of it.
+    return template ? withLaunchArtwork(template, "hero") : null;
   } catch (error) {
     logger.report(error, { at: "getTemplateBySlug", slug });
     return null;

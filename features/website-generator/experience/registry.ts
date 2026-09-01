@@ -135,6 +135,44 @@ const PROOF_LAYOUTS: Record<string, InvitationLayout> = {
     motion: "pop",
     celebratory: true,
   },
+  "fiesta-banderitas": {
+    id: "fiesta-banderitas-street",
+    hero: "full-bleed",
+    sections: [
+      "welcome",
+      "countdown",
+      "actions",
+      "program",
+      "invitation",
+      "venues",
+      "gallery",
+      "hosts",
+      "dress-code",
+    ],
+    ornament: "confetti",
+    photoShape: "blob",
+    dateStyle: "row",
+    motion: "pop",
+    celebratory: true,
+  },
+  "product-launch": {
+    id: "product-launch-keynote",
+    hero: "full-bleed",
+    sections: [
+      "welcome",
+      "countdown",
+      "actions",
+      "program",
+      "invitation",
+      "venues",
+      "gallery",
+    ],
+    ornament: "none",
+    photoShape: "rect",
+    dateStyle: "line",
+    motion: "sweep",
+    celebratory: false,
+  },
   "in-loving-memory": {
     id: "in-loving-memory-tribute",
     hero: "arch-portrait",
@@ -187,6 +225,38 @@ const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
     printCompatible: false,
     signature: "The debut feels like entering a live nightlife event.",
   },
+  "fiesta-banderitas": {
+    id: "fiesta-banderitas-v1",
+    version: 1,
+    slug: "fiesta-banderitas",
+    eventKind: "fiesta",
+    layoutId: PROOF_LAYOUTS["fiesta-banderitas"].id,
+    visualThemeId: "festival-pulse",
+    motionProfile: "mp-10-live-event",
+    interactions: [...STANDARD_INTERACTIONS],
+    mediaProfile: "cinematic",
+    performanceClass: "standard",
+    motionLevel: "M3",
+    printCompatible: true,
+    signature:
+      "Banderitas sweep across a living Cebu street before the programme unfolds.",
+  },
+  "product-launch": {
+    id: "product-launch-v1",
+    version: 1,
+    slug: "product-launch",
+    eventKind: "corporate",
+    layoutId: PROOF_LAYOUTS["product-launch"].id,
+    visualThemeId: "digital-light",
+    motionProfile: "mp-11-product",
+    interactions: [...STANDARD_INTERACTIONS],
+    mediaProfile: "cinematic",
+    performanceClass: "cinematic",
+    motionLevel: "M4",
+    printCompatible: true,
+    signature:
+      "A keynote-style reveal moves from proposition to programme and registration.",
+  },
   "in-loving-memory": {
     id: "in-loving-memory-v1",
     version: 1,
@@ -219,7 +289,8 @@ const FINAL_50_EXPERIENCES = Object.fromEntries(
     const interactions =
       entry.motionProfile === "mp-12-quiet"
         ? STANDARD_INTERACTIONS.filter(
-            (interaction) => interaction !== "music" && interaction !== "countdown",
+            (interaction) =>
+              interaction !== "music" && interaction !== "countdown",
           )
         : [...STANDARD_INTERACTIONS];
     const config: ExperienceConfig = {

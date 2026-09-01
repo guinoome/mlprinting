@@ -499,7 +499,7 @@ export function EventSite({
       style={invVars(style)}
     >
       <div
-        className="pb-4"
+        className="inv-experience-body pb-4"
         style={{
           background: bodyBackground,
           color: style.foreground,

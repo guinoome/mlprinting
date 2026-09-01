@@ -288,7 +288,12 @@
   z-index: -1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(4, 5, 7, 0.9) 0%, rgba(4, 5, 7, 0.52) 46%, rgba(4, 5, 7, 0.08) 78%),
+    linear-gradient(
+      90deg,
+      rgba(4, 5, 7, 0.9) 0%,
+      rgba(4, 5, 7, 0.52) 46%,
+      rgba(4, 5, 7, 0.08) 78%
+    ),
     linear-gradient(0deg, rgba(4, 5, 7, 0.7), transparent 42%);
 }
 .inv-entry-brand {
@@ -348,7 +353,10 @@
   text-transform: uppercase;
   cursor: pointer;
   backdrop-filter: blur(12px);
-  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
 }
 .inv-entry-action:hover {
   background: #fff;
@@ -396,21 +404,83 @@
   opacity: 1;
 }
 .inv-entry--neon-nightlife .inv-entry-title {
-  font-family: 'Arial Black', Impact, sans-serif;
+  font-family: "Arial Black", Impact, sans-serif;
   font-style: italic;
   text-transform: uppercase;
-  text-shadow: 4px 0 0 #ff2ea6, -3px 0 0 rgba(77, 233, 255, 0.8);
+  text-shadow:
+    4px 0 0 #ff2ea6,
+    -3px 0 0 rgba(77, 233, 255, 0.8);
 }
 .inv-entry--neon-nightlife .inv-entry-action {
   border-color: #ff43b4;
   background: #e9228f;
   box-shadow: 0 0 34px rgba(255, 35, 157, 0.36);
 }
+.inv-entry--festival-pulse {
+  background-image: url("/experiences/fiesta-banderitas-catalogue.png");
+  background-position: 50% 44%;
+}
+.inv-entry--festival-pulse .inv-entry-shade {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(32, 17, 7, 0.88) 0%,
+      rgba(32, 17, 7, 0.36) 46%,
+      transparent 76%
+    ),
+    linear-gradient(0deg, rgba(32, 17, 7, 0.72), transparent 48%);
+}
+.inv-entry--festival-pulse .inv-entry-brand,
+.inv-entry--festival-pulse .inv-entry-kicker {
+  color: #ffe081;
+}
+.inv-entry--festival-pulse .inv-entry-title {
+  max-width: 760px;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  text-shadow: 0 4px 28px rgba(50, 20, 5, 0.55);
+}
+.inv-entry--festival-pulse .inv-entry-action {
+  border-color: #ffe081;
+  background: #d94b32;
+  box-shadow: 8px 8px 0 rgba(16, 91, 118, 0.82);
+}
+.inv-entry--digital-light {
+  background-image: url("/experiences/product-launch-catalogue.png");
+  background-position: center;
+}
+.inv-entry--digital-light .inv-entry-shade {
+  background: linear-gradient(
+    90deg,
+    rgba(2, 8, 29, 0.96) 0%,
+    rgba(2, 8, 29, 0.55) 48%,
+    rgba(2, 8, 29, 0.04) 78%
+  );
+}
+.inv-entry--digital-light .inv-entry-brand,
+.inv-entry--digital-light .inv-entry-kicker {
+  color: #b7dcff;
+}
+.inv-entry--digital-light .inv-entry-title {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.065em;
+  text-shadow: 0 0 38px rgba(108, 168, 255, 0.36);
+}
+.inv-entry--digital-light .inv-entry-action {
+  border-color: rgba(190, 222, 255, 0.86);
+  background: rgba(39, 91, 198, 0.5);
+  box-shadow: 0 0 42px rgba(83, 148, 255, 0.3);
+}
 .inv-entry--memorial-quiet {
   background: linear-gradient(135deg, #262b28, #6b7068);
 }
 .inv-entry--memorial-quiet .inv-entry-shade {
-  background: linear-gradient(90deg, rgba(18, 21, 19, 0.88), rgba(18, 21, 19, 0.18));
+  background: linear-gradient(
+    90deg,
+    rgba(18, 21, 19, 0.88),
+    rgba(18, 21, 19, 0.18)
+  );
 }
 
 @media (max-width: 700px) {
@@ -421,8 +491,19 @@
   .inv-entry--neon-nightlife {
     background-position: 58% center;
   }
+  .inv-entry--festival-pulse {
+    background-position: 54% center;
+  }
+  .inv-entry--digital-light {
+    background-position: 64% center;
+  }
   .inv-entry-shade {
-    background: linear-gradient(0deg, rgba(4, 5, 7, 0.96) 0%, rgba(4, 5, 7, 0.58) 54%, rgba(4, 5, 7, 0.08) 100%);
+    background: linear-gradient(
+      0deg,
+      rgba(4, 5, 7, 0.96) 0%,
+      rgba(4, 5, 7, 0.58) 54%,
+      rgba(4, 5, 7, 0.08) 100%
+    );
   }
   .inv-entry-access {
     left: 28px;
@@ -1651,10 +1732,31 @@ video.inv-hero-photo {
 }
 
 .inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-motion-stage {
-  padding: clamp(26px, 5vw, 42px);
-  border: 1px solid rgba(184, 138, 56, 0.2);
-  background: rgba(255, 253, 245, 0.5);
-  box-shadow: 0 18px 55px rgba(94, 68, 22, 0.06);
+  padding: clamp(18px, 3vw, 30px) 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-experience-body {
+  background:
+    linear-gradient(90deg, rgba(184, 138, 56, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(184, 138, 56, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 50% 0%, #fffdf7, #e9e3d6 72%) !important;
+  background-size:
+    92px 92px,
+    92px 92px,
+    auto !important;
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-count-u,
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-venue,
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-rsvp {
+  border-radius: 0;
+  border-color: rgba(154, 114, 43, 0.28);
+  background: rgba(255, 253, 246, 0.46);
+  box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.24);
+  backdrop-filter: blur(10px);
 }
 
 @keyframes inv-capiz-light {
@@ -1766,7 +1868,7 @@ video.inv-hero-photo {
 }
 
 .inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-motion-stage {
-  padding: clamp(24px, 4vw, 38px);
+  padding: clamp(24px, 4vw, 38px) clamp(18px, 3vw, 30px);
   border-left: 2px solid #ff3fbf;
   border-right: 1px solid rgba(36, 228, 255, 0.38);
   background: linear-gradient(
@@ -1775,6 +1877,21 @@ video.inv-hero-photo {
     transparent 38%
   );
   box-shadow: -12px 0 40px rgba(255, 63, 191, 0.08);
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-experience-body {
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(24, 225, 255, 0.13),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 88% 66%,
+      rgba(255, 35, 171, 0.16),
+      transparent 30%
+    ),
+    #070611 !important;
 }
 
 .inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-count-u,
@@ -1800,6 +1917,249 @@ video.inv-hero-photo {
   }
   50% {
     transform: translateY(-9px) rotate(0.4deg);
+  }
+}
+
+/* Release collection — cinematic text-safe heroes. The campaign posters sell
+   the collection in the catalogue; these wide compositions are deliberately
+   text-free and reserve the left side for live customer content. */
+.inv-reveal-root:is(
+    [data-visual-theme="capiz-luminous"],
+    [data-visual-theme="neon-nightlife"],
+    [data-visual-theme="festival-pulse"],
+    [data-visual-theme="digital-light"]
+  )
+  .inv-hero {
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(96px, 12vh, 148px) clamp(28px, 7vw, 112px)
+    clamp(74px, 10vh, 112px);
+  text-align: left;
+}
+
+.inv-reveal-root:is(
+    [data-visual-theme="capiz-luminous"],
+    [data-visual-theme="neon-nightlife"],
+    [data-visual-theme="festival-pulse"],
+    [data-visual-theme="digital-light"]
+  )
+  .inv-hero-inner {
+  width: min(600px, 44vw);
+}
+
+.inv-reveal-root:is(
+    [data-visual-theme="capiz-luminous"],
+    [data-visual-theme="neon-nightlife"],
+    [data-visual-theme="festival-pulse"],
+    [data-visual-theme="digital-light"]
+  )
+  .inv-hero-rule {
+  margin-left: 0;
+}
+
+.inv-reveal-root:is(
+    [data-visual-theme="capiz-luminous"],
+    [data-visual-theme="neon-nightlife"],
+    [data-visual-theme="festival-pulse"],
+    [data-visual-theme="digital-light"]
+  )
+  .inv-hero-daterow {
+  justify-content: flex-start;
+}
+
+.inv-reveal-root[data-visual-theme="capiz-luminous"] .inv-hero-scrim {
+  background: linear-gradient(
+    90deg,
+    rgba(10, 8, 6, 0.9) 0%,
+    rgba(10, 8, 6, 0.58) 38%,
+    transparent 72%
+  );
+}
+.inv-reveal-root[data-visual-theme="capiz-luminous"]
+  .inv-hero--sample-art
+  .inv-hero-photo,
+.inv-reveal-root[data-visual-theme="neon-nightlife"]
+  .inv-hero--sample-art
+  .inv-hero-photo {
+  object-position: right center;
+}
+
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-hero-scrim {
+  background: linear-gradient(
+    90deg,
+    rgba(2, 5, 23, 0.94) 0%,
+    rgba(2, 5, 23, 0.52) 42%,
+    transparent 72%
+  );
+}
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-hero-inner {
+  text-transform: uppercase;
+}
+.inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-names {
+  font-family: "Arial Black", Impact, sans-serif;
+  font-style: italic;
+  letter-spacing: -0.055em;
+  text-shadow:
+    4px 0 #ff2ea6,
+    -3px 0 rgba(77, 233, 255, 0.82),
+    0 0 30px rgba(255, 46, 166, 0.42);
+}
+
+/* Fiesta Banderitas — a living street procession, not another paper card. */
+.inv-reveal-root[data-visual-theme="festival-pulse"] {
+  --inv-line: rgba(19, 99, 124, 0.28);
+  --inv-surface: rgba(255, 248, 224, 0.62);
+  --inv-paper: #fff5d7;
+}
+.inv-reveal-root[data-visual-theme="festival-pulse"] .inv-hero-scrim {
+  background: linear-gradient(
+    90deg,
+    rgba(35, 15, 4, 0.92) 0%,
+    rgba(35, 15, 4, 0.5) 43%,
+    transparent 74%
+  );
+}
+.inv-reveal-root[data-visual-theme="festival-pulse"]
+  .inv-hero--sample-art
+  .inv-hero-photo {
+  object-position: center;
+}
+.inv-reveal-root[data-visual-theme="festival-pulse"] .inv-names {
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  text-shadow: 0 5px 34px rgba(40, 15, 4, 0.64);
+}
+.inv-reveal-root[data-visual-theme="festival-pulse"] .inv-experience-body {
+  background:
+    linear-gradient(120deg, rgba(228, 76, 48, 0.08), transparent 32%),
+    radial-gradient(
+      circle at 92% 12%,
+      rgba(18, 117, 145, 0.14),
+      transparent 26%
+    ),
+    #fff5d7 !important;
+}
+.inv-reveal-root[data-visual-theme="festival-pulse"] .inv-motion-stage {
+  padding: clamp(28px, 5vw, 46px) clamp(24px, 5vw, 54px);
+  border: 0;
+  border-radius: 42px 10px 42px 10px;
+  background: rgba(255, 250, 231, 0.66);
+  box-shadow: 12px 12px 0 rgba(19, 99, 124, 0.09);
+}
+.inv-reveal-root[data-visual-theme="festival-pulse"]
+  .inv-motion-stage:nth-child(even) {
+  border-radius: 10px 42px 10px 42px;
+  box-shadow: -12px 12px 0 rgba(226, 74, 47, 0.09);
+}
+.inv-reveal-root[data-visual-theme="festival-pulse"] .inv-count-u {
+  border: 0;
+  border-radius: 999px;
+  background: #d94b32;
+  color: #fff;
+  box-shadow: 5px 5px 0 #126f8c;
+}
+.inv-reveal-root[data-visual-theme="festival-pulse"] .inv-action,
+.inv-reveal-root[data-visual-theme="festival-pulse"] .inv-maplink {
+  border-color: #d94b32;
+  background: #fff9e8;
+}
+
+/* Product Launch — full-width keynote rhythm and luminous data modules. */
+.inv-reveal-root[data-visual-theme="digital-light"] {
+  color-scheme: dark;
+  --inv-line: rgba(145, 194, 255, 0.26);
+  --inv-surface: rgba(131, 176, 255, 0.07);
+  --inv-paper: #071129;
+}
+.inv-reveal-root[data-visual-theme="digital-light"] .inv-hero-scrim {
+  background: linear-gradient(
+    90deg,
+    rgba(1, 5, 20, 0.96) 0%,
+    rgba(1, 5, 20, 0.58) 46%,
+    transparent 76%
+  );
+}
+.inv-reveal-root[data-visual-theme="digital-light"]
+  .inv-hero--sample-art
+  .inv-hero-photo {
+  object-position: center;
+}
+.inv-reveal-root[data-visual-theme="digital-light"] .inv-names {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.06em;
+  text-shadow: 0 0 42px rgba(112, 170, 255, 0.42);
+}
+.inv-reveal-root[data-visual-theme="digital-light"] .inv-experience-body {
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(60, 128, 255, 0.16),
+      transparent 32%
+    ),
+    linear-gradient(135deg, #030817, #08152e 60%, #020614) !important;
+}
+.inv-reveal-root[data-visual-theme="digital-light"] .inv-motion-stage {
+  padding: clamp(30px, 5vw, 52px) clamp(22px, 4vw, 48px);
+  border-top: 1px solid rgba(153, 204, 255, 0.28);
+  border-bottom: 1px solid rgba(153, 204, 255, 0.08);
+  background: linear-gradient(90deg, rgba(78, 130, 255, 0.1), transparent 60%);
+  box-shadow: inset 16px 0 40px rgba(85, 148, 255, 0.05);
+}
+.inv-reveal-root[data-visual-theme="digital-light"] .inv-count-u,
+.inv-reveal-root[data-visual-theme="digital-light"] .inv-venue,
+.inv-reveal-root[data-visual-theme="digital-light"] .inv-rsvp {
+  border-radius: 2px;
+  border-color: rgba(153, 204, 255, 0.34);
+  background: rgba(89, 139, 255, 0.07);
+  box-shadow: 0 0 34px rgba(83, 148, 255, 0.08);
+}
+
+@media (max-width: 700px) {
+  .inv-reveal-root:is(
+      [data-visual-theme="capiz-luminous"],
+      [data-visual-theme="neon-nightlife"],
+      [data-visual-theme="festival-pulse"],
+      [data-visual-theme="digital-light"]
+    )
+    .inv-hero {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 118px 26px 78px;
+  }
+  .inv-reveal-root:is(
+      [data-visual-theme="capiz-luminous"],
+      [data-visual-theme="neon-nightlife"],
+      [data-visual-theme="festival-pulse"],
+      [data-visual-theme="digital-light"]
+    )
+    .inv-hero-inner {
+    width: 100%;
+  }
+  .inv-reveal-root:is(
+      [data-visual-theme="capiz-luminous"],
+      [data-visual-theme="neon-nightlife"],
+      [data-visual-theme="festival-pulse"],
+      [data-visual-theme="digital-light"]
+    )
+    .inv-hero-scrim {
+    background: linear-gradient(
+      0deg,
+      rgba(3, 5, 10, 0.95) 0%,
+      rgba(3, 5, 10, 0.5) 52%,
+      transparent 82%
+    );
+  }
+  .inv-reveal-root[data-visual-theme="capiz-luminous"]
+    .inv-hero--sample-art
+    .inv-hero-photo,
+  .inv-reveal-root[data-visual-theme="neon-nightlife"]
+    .inv-hero--sample-art
+    .inv-hero-photo,
+  .inv-reveal-root[data-visual-theme="festival-pulse"]
+    .inv-hero--sample-art
+    .inv-hero-photo {
+    object-position: 68% center;
   }
 }
 

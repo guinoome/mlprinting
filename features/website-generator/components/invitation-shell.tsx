@@ -16,6 +16,31 @@ export interface ConfettiConfig {
   shape: ConfettiShape;
 }
 
+const ENTRY_COPY: Partial<
+  Record<VisualThemeId, { kicker: string; action: string }>
+> = {
+  "capiz-luminous": {
+    kicker: "A Filipino celebration of light and love",
+    action: "Open the light",
+  },
+  "neon-nightlife": {
+    kicker: "One night. Eighteen years in the making.",
+    action: "Enter the night",
+  },
+  "festival-pulse": {
+    kicker: "Cebu moves to the rhythm of fiesta",
+    action: "Join the fiesta",
+  },
+  "digital-light": {
+    kicker: "The next chapter starts on stage",
+    action: "Reveal the launch",
+  },
+  "memorial-quiet": {
+    kicker: "A life remembered",
+    action: "View the tribute",
+  },
+};
+
 function drawShape(
   ctx: CanvasRenderingContext2D,
   shape: ConfettiShape,
@@ -162,6 +187,10 @@ export function InvitationShell({
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const cancelConfetti = React.useRef<() => void>(() => {});
   const openingRef = React.useRef(false);
+  const entryCopy = ENTRY_COPY[visualThemeId] ?? {
+    kicker: "You are invited",
+    action: "Open invitation",
+  };
 
   const open = React.useCallback(() => {
     if (openingRef.current) return;
@@ -266,7 +295,7 @@ export function InvitationShell({
 
       {!opened ? (
         <div
-          className={`inv-overlay inv-entry inv-entry--${visualThemeId}${opening ? " is-opening" : ""}`}
+          className={`inv-overlay inv-entry inv-entry--${visualThemeId}${opening ? "is-opening" : ""}`}
           role="dialog"
           aria-modal="true"
           aria-label={`Invitation from ${coupleLine}`}
@@ -277,15 +306,7 @@ export function InvitationShell({
             <small>Printing</small>
           </div>
           <div className="inv-entry-copy">
-            <p className="inv-entry-kicker">
-              {visualThemeId === "neon-nightlife"
-                ? "One night. Eighteen years in the making."
-                : visualThemeId === "memorial-quiet"
-                  ? "A life remembered"
-                  : visualThemeId === "capiz-luminous"
-                    ? "A Filipino celebration of light and love"
-                    : "You are invited"}
-            </p>
+            <p className="inv-entry-kicker">{entryCopy.kicker}</p>
             <p className="inv-entry-title">{coupleLine}</p>
             <button
               type="button"
@@ -293,15 +314,7 @@ export function InvitationShell({
               className="inv-entry-action"
               disabled={opening}
             >
-              {opening
-                ? "Opening…"
-                : visualThemeId === "neon-nightlife"
-                  ? "Enter the night"
-                  : visualThemeId === "capiz-luminous"
-                    ? "Open the light"
-                    : visualThemeId === "memorial-quiet"
-                      ? "View the tribute"
-                      : "Open invitation"}
+              {opening ? "Opening…" : entryCopy.action}
             </button>
           </div>
           <p className="inv-entry-access">Press the button to continue</p>

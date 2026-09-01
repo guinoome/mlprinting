@@ -6,4 +6,6 @@
 export const LAUNCH_COLLECTION_SLUGS = [
   "capiz-window",
   "neon-eighteen",
+  "fiesta-banderitas",
+  "product-launch",
 ] as const;
