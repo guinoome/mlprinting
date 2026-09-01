@@ -1,16 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/nav/site-header";
 import { MessengerButton } from "@/components/messenger-button";
 import { branding, routes, features, social } from "@/lib/config";
-import { isDatabaseConfigured } from "@/lib/db";
-import {
-  getCatalogPage,
-  getCategories,
-} from "@/features/template-marketplace/repository";
-import { parseCriteria } from "@/features/template-marketplace/criteria";
 import { LandingHero } from "@/features/marketing/components/landing-hero";
 import { FeatureHighlights } from "@/features/marketing/components/feature-highlights";
 import { TemplateShowcase } from "@/features/marketing/components/template-showcase";
@@ -45,20 +40,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const showCatalogue = features.templateMarketplace && isDatabaseConfigured();
-
-  // One page of the catalogue is enough for both the hero stack and the
-  // showcase; asking twice would be two round trips for the same rows.
-  const [page, categories] = showCatalogue
-    ? await Promise.all([
-        // Empty params gives the catalogue's own defaults — recommended order,
-        // which puts featured templates first. Exactly what a shop window wants.
-        getCatalogPage({ ...parseCriteria({}), perPage: 8 }),
-        getCategories(),
-      ])
-    : [null, []];
-
-  const templates = page?.templates ?? [];
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -80,93 +61,109 @@ export default async function Home() {
       <main className="flex-1">
         <LandingHero />
 
+        <TemplateShowcase />
+
         <ExperienceProofShowcase />
 
         <FeatureHighlights />
 
-        <TemplateShowcase
-          templates={templates.slice(0, 4)}
-          categories={categories}
-        />
-
         <FaqSection />
 
-        <section className="border-b border-border">
-          <div className="mx-auto max-w-3xl px-4 py-20 text-center md:px-8">
-            <h2 className="text-balance font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
-              Find the one that feels like your day.
-            </h2>
-            <p className="mx-auto mt-4 max-w-md text-pretty text-sm leading-relaxed text-muted-foreground">
-              Browse the catalogue and open any design to see the invitation it
-              becomes. No account needed.
-            </p>
-            <Button asChild size="lg" className="mt-8">
-              <Link href={routes.acquisitionTemplates("home-closing")}>
-                Browse templates
-                <ArrowRight aria-hidden="true" />
-              </Link>
-            </Button>
+        <section className="bg-[#0d0c0a] text-white">
+          <div className="mx-auto grid max-w-7xl md:grid-cols-2">
+            <div className="relative min-h-[24rem] overflow-hidden md:min-h-[34rem]">
+              <Image
+                src="/experiences/capiz-window-catalogue.png"
+                alt="Filipino wedding couple in a luminous capiz setting"
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            </div>
+            <div className="flex flex-col justify-center px-6 py-16 md:px-14">
+              <p className="text-[9px] font-semibold uppercase tracking-[.28em] text-[#dfbd7e]">
+                Begin with the feeling
+              </p>
+              <h2 className="mt-6 text-balance font-serif text-5xl leading-[.95] tracking-[-.04em] md:text-6xl">
+                Let&apos;s bring your story to life.
+              </h2>
+              <p className="text-white/58 mt-6 max-w-md text-sm leading-7">
+                Open the live experiences, choose the one that feels right, and
+                make it yours with your photographs, words, and event details.
+              </p>
+              <Button
+                asChild
+                size="lg"
+                className="mt-9 w-fit bg-[#b3874b] text-white hover:bg-[#c99b5d]"
+              >
+                <Link href={routes.acquisitionTemplates("home-closing")}>
+                  Find your experience
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
       </main>
 
-      <footer className="mx-auto w-full max-w-7xl px-4 py-10 md:px-8">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold tracking-tight">
-              {branding.company}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {branding.location}
-            </p>
-            {/* Messenger before email: it is how an enquiry actually arrives. */}
-            <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-              <a
-                href={social.messenger}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+      <footer className="w-full bg-[#090909] px-5 py-10 text-white md:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="font-serif text-xl tracking-[.08em] text-[#dfbd7e]">
+                {branding.company}
+              </p>
+              <p className="mt-1 text-xs text-white/45">{branding.location}</p>
+              {/* Messenger before email: it is how an enquiry actually arrives. */}
+              <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                <a
+                  href={social.messenger}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-white/55 underline underline-offset-4 transition-colors hover:text-white"
+                >
+                  Message us
+                </a>
+                <a
+                  href={social.facebook}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-white/55 underline underline-offset-4 transition-colors hover:text-white"
+                >
+                  Facebook
+                </a>
+              </p>
+            </div>
+
+            <nav className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-white/55">
+              <Link
+                href={routes.templates}
+                className="transition-colors hover:text-white"
               >
-                Message us
-              </a>
-              <a
-                href={social.facebook}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+                Templates
+              </Link>
+              <Link
+                href={routes.login}
+                className="transition-colors hover:text-white"
               >
-                Facebook
-              </a>
-            </p>
+                Sign in
+              </Link>
+              {features.registration ? (
+                <Link
+                  href={routes.register}
+                  className="transition-colors hover:text-white"
+                >
+                  Create an account
+                </Link>
+              ) : null}
+            </nav>
           </div>
 
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
-            <Link
-              href={routes.templates}
-              className="transition-colors hover:text-foreground"
-            >
-              Templates
-            </Link>
-            <Link
-              href={routes.login}
-              className="transition-colors hover:text-foreground"
-            >
-              Sign in
-            </Link>
-            {features.registration ? (
-              <Link
-                href={routes.register}
-                className="transition-colors hover:text-foreground"
-              >
-                Create an account
-              </Link>
-            ) : null}
-          </nav>
+          <p className="border-white/12 mt-8 border-t pt-6 text-xs text-white/40">
+            © {new Date().getFullYear()} {branding.company}. {branding.tagline}
+          </p>
         </div>
-
-        <p className="mt-8 border-t border-border pt-6 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {branding.company}. {branding.tagline}
-        </p>
       </footer>
 
       <MessengerButton />

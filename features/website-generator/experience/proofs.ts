@@ -10,6 +10,8 @@ export interface ProofExperienceSummary {
   motionProfile: string;
   promise: string;
   sampleCover: string;
+  /** Wide, text-free artwork used by the public catalogue. */
+  catalogueCover: string;
 }
 
 /**
@@ -28,6 +30,7 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionProfile: "MP-14",
     promise: "Layered capiz panes turn light into a ceremonial reveal.",
     sampleCover: "/experiences/capiz-window-hero.png",
+    catalogueCover: "/experiences/capiz-window-catalogue.png",
   },
   {
     slug: "neon-eighteen",
@@ -39,6 +42,7 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionProfile: "MP-09",
     promise: "A neon pulse makes the invitation feel like entering the event.",
     sampleCover: "/experiences/neon-eighteen-hero.png",
+    catalogueCover: "/experiences/neon-eighteen-catalogue.png",
   },
   {
     slug: "fiesta-banderitas",
@@ -50,6 +54,7 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionProfile: "MP-10",
     promise: "Banderitas sweep guests into a living Cebuano festival route.",
     sampleCover: "/experiences/fiesta-banderitas-hero.png",
+    catalogueCover: "/experiences/fiesta-banderitas-catalogue.png",
   },
   {
     slug: "product-launch",
@@ -61,6 +66,7 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionProfile: "MP-11",
     promise: "Liquid light turns the invitation into a keynote reveal.",
     sampleCover: "/experiences/product-launch-catalogue.png",
+    catalogueCover: "/experiences/product-launch-catalogue.png",
   },
   {
     slug: "in-loving-memory",
@@ -72,6 +78,8 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionProfile: "MP-12",
     promise: "A dignified portrait keeps service information close at hand.",
     sampleCover:
+      "/api/placeholder/desktop/in-loving-memory?label=Rosario%20Santos&caption=In%20Loving%20Memory",
+    catalogueCover:
       "/api/placeholder/desktop/in-loving-memory?label=Rosario%20Santos&caption=In%20Loving%20Memory",
   },
 ] as const;

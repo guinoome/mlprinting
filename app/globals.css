@@ -96,6 +96,31 @@
   }
 }
 
+/* Public catalogue and template detail pages are intentionally editorial and
+   light regardless of a signed-in dashboard theme preference. Keeping the
+   override on one boundary prevents dark dashboard tokens from washing out the
+   invitation artwork or producing the empty navy bands the public redesign
+   replaces. */
+.ml-editorial {
+  --background: 40 33% 95%;
+  --foreground: 45 10% 9%;
+  --card: 40 30% 97%;
+  --card-foreground: 45 10% 9%;
+  --popover: 40 30% 97%;
+  --popover-foreground: 45 10% 9%;
+  --primary: 36 46% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 37 22% 89%;
+  --secondary-foreground: 45 10% 9%;
+  --muted: 37 22% 89%;
+  --muted-foreground: 35 8% 38%;
+  --accent: 37 22% 89%;
+  --accent-foreground: 45 10% 9%;
+  --border: 35 18% 79%;
+  --input: 35 18% 79%;
+  --ring: 36 46% 42%;
+}
+
 /* =========================================================================
    Digital invitation — the public shared event page (Ph5). Themed at runtime
    through --inv-* custom properties the renderer sets from the customer's

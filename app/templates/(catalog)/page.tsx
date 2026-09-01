@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { LayoutTemplate, SearchX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -74,7 +75,10 @@ export default async function TemplatesPage({
 
   return (
     <>
-      <CatalogHero categories={categories} activeCategories={criteria.category} />
+      <CatalogHero
+        categories={categories}
+        activeCategories={criteria.category}
+      />
 
       <div className="flex gap-8">
         {/* Sidebar filters on desktop. The same panel goes in the drawer below. */}
@@ -113,7 +117,7 @@ export default async function TemplatesPage({
                of 375px is still large enough to judge a design by, and twice as
                many designs pass under the thumb per scroll — which is the point
                of browsing by picture. */
-            <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-1 md:grid-cols-2">
               {templates.map((template, index) => (
                 <TemplateCard
                   key={template.id}
@@ -121,6 +125,9 @@ export default async function TemplatesPage({
                   favorited={favorited.has(template.id)}
                   showFavorite={Boolean(profile)}
                   priority={index < ABOVE_THE_FOLD}
+                  layout={
+                    isUnfiltered(criteria) && index >= 2 ? "wide" : "standard"
+                  }
                 />
               ))}
             </div>
@@ -152,34 +159,50 @@ function CatalogHero({
 }) {
   const noneActive = activeCategories.length === 0;
   return (
-    <section className="mb-10 border-b border-border pb-8">
-      <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-muted-foreground">
-        {branding.company} — {branding.location}
-      </p>
+    <section className="relative -mx-4 mb-12 overflow-hidden bg-[#ece6db] px-5 pb-0 pt-14 text-[#171713] md:-mx-8 md:px-10 md:pt-20">
+      <div className="relative z-10 grid min-h-[32rem] gap-10 md:grid-cols-[.8fr_1.2fr] md:items-center">
+        <div className="pb-12 md:pb-20">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.3em] text-[#8b6735]">
+            {branding.company} — {branding.location}
+          </p>
 
-      <h1 className="mt-4 max-w-2xl text-balance font-serif text-4xl leading-[1.1] tracking-tight md:text-5xl">
-        Experiences worth entering.
-      </h1>
+          <h1 className="mt-5 max-w-xl text-balance font-serif text-5xl leading-[.94] tracking-[-.04em] md:text-7xl">
+            Find the experience that feels like your story.
+          </h1>
 
-      <p className="mt-4 max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground md:text-base">
-        The public collection contains only launch-ready experiences with their
-        own opening scene, guest journey and RSVP. New designs are added as they
-        pass interaction and visual QA—not as unfinished variations.
-      </p>
+          <p className="text-black/58 mt-6 max-w-md text-pretty text-sm leading-7">
+            Every design begins with its own opening, visual language, and guest
+            journey. Four are live now; more join through thoughtfully crafted
+            releases.
+          </p>
+        </div>
+
+        <div className="relative min-h-[24rem] self-stretch md:min-h-full">
+          <Image
+            src="/experiences/capiz-window-catalogue.png"
+            alt="Capiz Window Filipino wedding experience"
+            fill
+            priority
+            sizes="(min-width: 768px) 60vw, 100vw"
+            className="object-cover object-[62%_center]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#ece6db] via-transparent to-transparent" />
+        </div>
+      </div>
 
       {/* One scrolling line on a phone, wrapped rows once there is room.
           Sixteen occasions wrapped on a 375px screen pushed the templates
           themselves below the fold. Scrolls within itself; the page does not. */}
       {categories.length > 0 ? (
-        <ul className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+        <ul className="relative z-20 -mx-5 flex gap-6 overflow-x-auto border-t border-black/15 bg-[#f7f3ec] px-5 py-5 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible md:-mx-10 md:px-10 [&::-webkit-scrollbar]:hidden">
           <li className="shrink-0">
             <Link
               href={routes.templates}
               className={cn(
-                "inline-block shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+                "inline-block shrink-0 whitespace-nowrap border-b py-1 text-[9px] font-semibold uppercase tracking-[.2em] transition-colors",
                 noneActive
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                  ? "border-[#a4773c] text-black"
+                  : "border-transparent text-black/45 hover:border-black/30 hover:text-black",
               )}
             >
               All
@@ -192,10 +215,10 @@ function CatalogHero({
                 <Link
                   href={`${routes.templates}?category=${category.slug}`}
                   className={cn(
-                    "inline-block shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+                    "inline-block shrink-0 whitespace-nowrap border-b py-1 text-[9px] font-semibold uppercase tracking-[.2em] transition-colors",
                     active
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                      ? "border-[#a4773c] text-black"
+                      : "border-transparent text-black/45 hover:border-black/30 hover:text-black",
                   )}
                 >
                   {category.name}
