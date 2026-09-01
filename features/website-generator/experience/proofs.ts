@@ -13,7 +13,7 @@ export interface ProofExperienceSummary {
 }
 
 /**
- * The three WP20 proof experiences. This is the public-facing index used by
+ * Release-gated proof experiences. This is the public-facing index used by
  * the homepage and the sample route; renderer configuration remains in the
  * registry so the marketing surface cannot silently point at an unknown slug.
  */
@@ -39,6 +39,28 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionProfile: "MP-09",
     promise: "A neon pulse makes the invitation feel like entering the event.",
     sampleCover: "/experiences/neon-eighteen-hero.png",
+  },
+  {
+    slug: "fiesta-banderitas",
+    name: "Fiesta Banderitas",
+    occasion: "Filipino street fiesta",
+    eventKind: "fiesta",
+    tier: "SIGNATURE",
+    motionLevel: "M3",
+    motionProfile: "MP-10",
+    promise: "Banderitas sweep guests into a living Cebuano festival route.",
+    sampleCover: "/experiences/fiesta-banderitas-hero.png",
+  },
+  {
+    slug: "product-launch",
+    name: "Product Launch",
+    occasion: "Corporate keynote",
+    eventKind: "corporate",
+    tier: "IMMERSIVE",
+    motionLevel: "M4",
+    motionProfile: "MP-11",
+    promise: "Liquid light turns the invitation into a keynote reveal.",
+    sampleCover: "/experiences/product-launch-catalogue.png",
   },
   {
     slug: "in-loving-memory",

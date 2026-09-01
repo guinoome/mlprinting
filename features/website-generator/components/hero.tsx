@@ -242,7 +242,11 @@ function Band({
     >
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="" className={photo ? undefined : "inv-band-texture"} />
+        <img
+          src={src}
+          alt=""
+          className={photo ? undefined : "inv-band-texture"}
+        />
       ) : null}
     </div>
   );
@@ -343,9 +347,10 @@ function FullBleedHero({
   heroVideoUrl,
   fallbackBackground,
 }: HeroProps) {
+  const usesSampleArt = coverImageUrl?.startsWith("/experiences/") ?? false;
   return (
     <header
-      className="inv-hero"
+      className={cn("inv-hero", usesSampleArt && "inv-hero--sample-art")}
       style={coverImageUrl ? undefined : { background: fallbackBackground }}
     >
       <Backdrop videoUrl={heroVideoUrl} coverImageUrl={coverImageUrl} />

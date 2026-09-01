@@ -28,6 +28,30 @@ const LAUNCH = [
       "A live-event entrance gives way to a kinetic programme, countdown, dress code, optional soundtrack and a high-contrast RSVP.",
     meta: ["MP-09 neon pulse", "M4 motion", "Digital-first"],
   },
+  {
+    slug: "fiesta-banderitas",
+    number: "03",
+    name: "Fiesta Banderitas",
+    type: "Signature · Filipino street fiesta",
+    image: "/experiences/fiesta-banderitas-catalogue.png",
+    alt: "Filipina festival host beneath colourful Cebuano banderitas",
+    opening: "Join the fiesta",
+    story:
+      "The invitation behaves like a living street poster: banderitas, programme, route, countdown and RSVP move with the rhythm of a Cebuano fiesta.",
+    meta: ["MP-10 live event", "M3 motion", "Filipino cultural"],
+  },
+  {
+    slug: "product-launch",
+    number: "04",
+    name: "Product Launch",
+    type: "Immersive · Corporate keynote",
+    image: "/experiences/product-launch-catalogue.png",
+    alt: "Pearlescent product reveal on an indigo keynote stage",
+    opening: "Reveal the launch",
+    story:
+      "A liquid-light threshold opens into the proposition, countdown, keynote programme, venue and registration—built like a product reveal, not a memo.",
+    meta: ["MP-11 product reveal", "M4 motion", "Screen-first"],
+  },
 ] as const;
 
 export function ExperienceProofShowcase() {
@@ -43,9 +67,9 @@ export function ExperienceProofShowcase() {
           </h2>
         </div>
         <div className="self-end border-l border-black/20 pl-6">
-          <p className="max-w-md text-sm leading-7 text-black/62">
+          <p className="text-black/62 max-w-md text-sm leading-7">
             We are releasing only experiences that have their own opening,
-            visual language and guest journey. Two are live first; the remaining
+            visual language and guest journey. Four are live now; the remaining
             Final 50 portfolio is added in deliberate releases rather than as
             unfinished variations.
           </p>
@@ -57,14 +81,16 @@ export function ExperienceProofShowcase() {
           key={experience.slug}
           className="group border-t border-black/15 px-5 py-8 md:px-8 md:py-12"
         >
-          <div className={`mx-auto grid max-w-7xl overflow-hidden bg-[#0b0b0d] text-white lg:min-h-[76vh] lg:grid-cols-[minmax(0,1.55fr)_minmax(330px,.75fr)] ${index % 2 ? "lg:[&>div:first-child]:order-2" : ""}`}>
+          <div
+            className={`mx-auto grid max-w-7xl overflow-hidden bg-[#0b0b0d] text-white lg:min-h-[76vh] lg:grid-cols-[minmax(0,1.55fr)_minmax(330px,.75fr)] ${index % 2 ? "lg:[&>div:first-child]:order-2" : ""}`}
+          >
             <div className="relative min-h-[52vh] overflow-hidden lg:min-h-full">
               <Image
                 src={experience.image}
                 alt={experience.alt}
                 fill
                 sizes="(min-width: 1024px) 68vw, 100vw"
-                className="object-cover transition-transform duration-1000 motion-reduce:transition-none group-hover:scale-[1.025]"
+                className="object-cover transition-transform duration-1000 group-hover:scale-[1.025] motion-reduce:transition-none"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-black/15" />
               <span className="absolute left-6 top-6 font-serif text-4xl text-white/80">
@@ -80,13 +106,17 @@ export function ExperienceProofShowcase() {
                 <h3 className="mt-5 font-serif text-5xl leading-none tracking-[-0.035em]">
                   {experience.name}
                 </h3>
-                <p className="mt-7 text-sm leading-7 text-white/64">
+                <p className="text-white/64 mt-7 text-sm leading-7">
                   {experience.story}
                 </p>
                 <ul className="mt-8 space-y-3 border-t border-white/15 pt-6 text-[10px] uppercase tracking-[0.2em] text-white/55">
                   {experience.meta.map((item) => (
-                    <li key={item} className="flex items-center justify-between gap-4">
-                      {item}<span aria-hidden="true">—</span>
+                    <li
+                      key={item}
+                      className="flex items-center justify-between gap-4"
+                    >
+                      {item}
+                      <span aria-hidden="true">—</span>
                     </li>
                   ))}
                 </ul>
@@ -111,8 +141,8 @@ export function ExperienceProofShowcase() {
               In the studio
             </p>
             <p className="mt-4 max-w-3xl font-serif text-3xl leading-tight md:text-5xl">
-              Editorial, memory-film, Filipino cultural, children, corporate,
-              digital-light and live-event families follow next.
+              Editorial, memory-film, children, cultural ceremony and new
+              digital-light families are already moving through the studio.
             </p>
           </div>
           <Link

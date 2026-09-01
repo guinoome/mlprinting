@@ -29,9 +29,19 @@ describe("experience resolver", () => {
       enabled: true,
       slug: "in-loving-memory",
     });
+    const fiesta = resolveExperience("fiesta", {
+      enabled: true,
+      slug: "fiesta-banderitas",
+    });
+    const launch = resolveExperience("corporate", {
+      enabled: true,
+      slug: "product-launch",
+    });
     expect(PROOF_EXPERIENCE_SLUGS).toEqual([
       "capiz-window",
       "neon-eighteen",
+      "fiesta-banderitas",
+      "product-launch",
       "in-loving-memory",
     ]);
     // The two image-led launch experiences deliberately share full-bleed media
@@ -56,6 +66,15 @@ describe("experience resolver", () => {
     ).toBe(3);
     expect(capiz.config.id).toBe("capiz-window-v1");
     expect(neon.config.motionLevel).toBe("M4");
+    expect(fiesta.layout.photoShape).toBe("blob");
+    expect(fiesta.config.visualThemeId).toBe("festival-pulse");
+    expect(launch.layout.sections.slice(0, 4)).toEqual([
+      "welcome",
+      "countdown",
+      "actions",
+      "program",
+    ]);
+    expect(launch.config.visualThemeId).toBe("digital-light");
     expect(memorial.layout.celebratory).toBe(false);
     expect(memorial.layout.sections.slice(0, 3)).toEqual([
       "welcome",

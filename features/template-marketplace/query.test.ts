@@ -53,7 +53,14 @@ describe("buildWhere — publication", () => {
   it("exposes only launch-ready experiences to customers", () => {
     const where = buildWhere(parseCriteria({}), { now: NOW });
     expect(clauseWith(where, "slug")).toEqual({
-      slug: { in: ["capiz-window", "neon-eighteen"] },
+      slug: {
+        in: [
+          "capiz-window",
+          "neon-eighteen",
+          "fiesta-banderitas",
+          "product-launch",
+        ],
+      },
     });
   });
 
