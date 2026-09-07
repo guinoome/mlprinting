@@ -1,110 +1,129 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Play } from "lucide-react";
+import { Sparkles, PlayCircle } from "lucide-react";
 import { routes } from "@/lib/config";
 import { cn } from "@/lib/utils";
-import { proofExperienceForSlug } from "@/features/website-generator/experience/proofs";
 import { isNewTemplate } from "../query";
 import { FavoriteButton } from "./favorite-button";
 import type { TemplateCard as TemplateCardData } from "../repository";
 
 /**
- * Public catalogue experience card. Released proofs receive their cinematic,
- * text-free artwork; other templates keep their database-owned cover so the
- * component remains safe as the curated catalogue grows.
+ * Template card — Ph2.md §2.
+ *
+ * Every element §2 asks for: cover, name, category, short description, preview,
+ * use, favourite. "Preview" is the card itself — the whole cover links to the
+ * preview page, because a separate Preview button next to a clickable card is
+ * two controls doing one job.
+ *
+ * The cover link is a stretched anchor over the image rather than a wrapper
+ * around it, so the "See it live" pill and the favourite button can sit on top
+ * as siblings. An anchor inside an anchor is invalid HTML, and the click
+ * handling that makes it "work" anyway is a keyboard trap.
  */
+
+/** Aspect per orientation, so a landscape template is not letterboxed into a portrait frame. */
+const ASPECT = {
+  PORTRAIT: "aspect-[4/5]",
+  LANDSCAPE: "aspect-[4/3]",
+  SQUARE: "aspect-square",
+} as const;
+
 export function TemplateCard({
   template,
   favorited,
   showFavorite,
   priority,
-  layout = "standard",
 }: {
   template: NonNullable<TemplateCardData>;
   favorited: boolean;
+  /** Only signed-in visitors get a heart — there is nowhere to save it otherwise. */
   showFavorite: boolean;
+  /**
+   * Skip lazy-loading for the first row. Ph2.md §10 asks for lazy images, but
+   * lazy-loading what is already on screen delays the largest paint the visitor
+   * is actually waiting for.
+   */
   priority?: boolean;
-  layout?: "standard" | "wide";
 }) {
-  const proof = proofExperienceForSlug(template.slug);
-  const artwork = proof?.catalogueCover ?? template.coverImageUrl;
-  const isVectorCover = artwork.startsWith("/api/placeholder/");
   const isNew = isNewTemplate(template.publishedAt);
 
+  // Cover art is a first-party SVG from /api/placeholder (a pure function of the
+  // URL, already immutable-cached). Routing it through next/image's optimizer
+  // adds a serverless /_next/image hop per card and gains nothing — SVG is not
+  // rasterised. Load it directly. Real raster photos, when they arrive, keep the
+  // optimizer.
+  const isVectorCover = template.coverImageUrl.startsWith("/api/placeholder/");
+
   return (
-    <article
-      className={cn(
-        "group relative overflow-hidden bg-[#0b0b0d] text-white",
-        layout === "wide" && "md:col-span-2",
-      )}
-    >
+    <article className="group relative">
       <div
         className={cn(
-          "relative min-h-[30rem] overflow-hidden",
-          layout === "wide" ? "md:min-h-[34rem]" : "md:min-h-[38rem]",
+          "relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm transition-shadow duration-300 group-hover:shadow-lg",
+          ASPECT[template.orientation],
         )}
       >
         <Image
-          src={artwork}
-          alt={`${template.name} — ${template.category.name} interactive invitation`}
+          src={template.coverImageUrl}
+          alt=""
           fill
-          sizes={
-            layout === "wide"
-              ? "(min-width: 1024px) 70vw, 100vw"
-              : "(min-width: 1024px) 36vw, 100vw"
-          }
+          // Tells the browser the rendered width per breakpoint so it does not
+          // fetch a 600px image for a 280px slot (Ph2.md §10). Tracks the
+          // catalogue grid: two columns, three from md, four from xl once the
+          // sidebar has taken its 224px.
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
           loading={priority ? "eager" : "lazy"}
           priority={priority}
           unoptimized={isVectorCover}
-          className="object-cover transition duration-1000 group-hover:scale-[1.035] motion-reduce:transition-none"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/5 to-black/25" />
+
+        {/* A scrim only under the pill, and only on hover, so the artwork is
+            never dimmed while the visitor is looking at it. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          aria-hidden="true"
+        />
 
         <Link
           href={routes.template(template.slug)}
-          className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+          className="absolute inset-0 z-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          <span className="sr-only">Explore {template.name}</span>
+          <span className="sr-only">{template.name}</span>
         </Link>
 
-        <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-6 sm:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <p className="text-white/72 text-[9px] font-semibold uppercase tracking-[.28em]">
-              {proof?.occasion ?? template.category.name}
-            </p>
-            <ArrowUpRight className="size-5" aria-hidden="true" />
-          </div>
-
-          <div
-            className={cn(
-              "max-w-lg pb-20",
-              layout === "standard" && "max-w-sm",
-            )}
-          >
-            <p className="text-[9px] font-semibold uppercase tracking-[.24em] text-[#dfbd7e]">
-              {proof
-                ? `${proof.tier} · ${proof.motionLevel} motion`
-                : `${template.tier.toLowerCase()} experience${isNew ? " · new" : ""}`}
-            </p>
-            <h2 className="mt-4 font-serif text-5xl leading-[.9] tracking-[-.035em] sm:text-6xl">
-              {template.name}
-            </h2>
-            <p className="text-white/66 mt-5 max-w-md text-sm leading-6">
-              {proof?.promise ?? template.shortDescription}
-            </p>
-          </div>
+        <div
+          className={cn(
+            "pointer-events-none absolute left-2 top-2 z-20 flex flex-wrap gap-1",
+            // Both badges plus the heart no longer fit across one line of a
+            // half-width card on a phone. Bound the row where the heart begins
+            // so the badges wrap instead of sliding underneath it.
+            showFavorite && "right-11",
+          )}
+        >
+          {template.tier === "PREMIUM" ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-background backdrop-blur">
+              <Sparkles className="size-3" aria-hidden="true" />
+              Premium
+            </span>
+          ) : null}
+          {isNew ? (
+            <span className="rounded-full bg-info/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-info-foreground backdrop-blur">
+              New
+            </span>
+          ) : null}
         </div>
 
+        {/* The catalogue's strongest argument: the design in motion, one tap
+            away. Keyboard users reach it in the normal tab order — it is not
+            hidden, only visually revealed on hover. */}
         <Link
           href={routes.templateLivePreview(template.slug)}
           target="_blank"
           rel="noreferrer"
-          className="absolute bottom-7 right-6 z-30 inline-flex min-h-11 items-center gap-3 border-b border-[#dfbd7e] pb-2 text-[9px] font-semibold uppercase tracking-[.22em] text-white transition hover:text-[#dfbd7e] focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-8"
+          className="absolute inset-x-2 bottom-2 z-20 inline-flex items-center justify-center gap-1.5 rounded-full bg-background/95 py-2 text-xs font-medium opacity-0 shadow-sm backdrop-blur transition-opacity duration-300 hover:bg-background focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
         >
-          <span className="grid size-7 place-items-center rounded-full border border-white/45">
-            <Play className="size-3 fill-current" aria-hidden="true" />
-          </span>
-          Open live experience
+          <PlayCircle className="size-3.5" aria-hidden="true" />
+          See it live
         </Link>
       </div>
 
@@ -112,9 +131,31 @@ export function TemplateCard({
         <FavoriteButton
           slug={template.slug}
           initialFavorited={favorited}
-          className="absolute right-6 top-14 z-30 border border-white/30 bg-black/35 text-white backdrop-blur hover:bg-black/60"
+          className="absolute right-2 top-2 z-20"
         />
       ) : null}
+
+      {/* Name over occasion rather than name beside it: at half a phone's width
+          there is no room for two things on one line, and stacking them makes a
+          column of cards read as a list of name and event type. The name gets
+          two lines then an ellipsis — clipping it to one cut most names in half
+          at that width. */}
+      <div className="mt-3 space-y-1">
+        <h3 className="line-clamp-2 text-sm font-semibold">
+          <Link
+            href={routes.template(template.slug)}
+            className="hover:underline"
+          >
+            {template.name}
+          </Link>
+        </h3>
+        <p className="truncate text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          {template.category.name}
+        </p>
+        <p className="line-clamp-2 text-xs text-muted-foreground">
+          {template.shortDescription}
+        </p>
+      </div>
     </article>
   );
 }

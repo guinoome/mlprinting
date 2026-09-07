@@ -59,6 +59,8 @@ model Profile {
   assignedItems  OrderItem[]  @relation("OrderItemAssignee")
   orderEvents    OrderEvent[] @relation("OrderEventActor")
   orderNotes     OrderNote[]  @relation("OrderNoteAuthor")
+  submittedPaymentProofs PaymentProof[] @relation("PaymentProofSubmitter")
+  reviewedPaymentProofs  PaymentProof[] @relation("PaymentProofReviewer")
 
   @@index([role])
   @@map("profiles")
@@ -1101,6 +1103,7 @@ model Order {
   events  OrderEvent[]
   notes   OrderNote[]
   payment Payment?
+  paymentProofs PaymentProof[]
 
   @@index([status, createdAt])
   @@index([profileId])
@@ -1127,6 +1130,39 @@ model Payment {
   @@unique([provider, providerReference])
   @@index([status, updatedAt])
   @@map("payments")
+}
+
+enum PaymentProofStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Immutable customer-supplied financial evidence. Bytes stay in private
+/// storage and are only served through an owner-or-staff authorized route.
+model PaymentProof {
+  id               String             @id @default(uuid()) @db.Uuid
+  orderId          String             @db.Uuid
+  submittedById    String             @db.Uuid
+  status           PaymentProofStatus @default(PENDING)
+  bucket           String             @default("media")
+  storagePath      String             @unique
+  mimeType         String
+  bytes            Int
+  originalFilename String
+  customerNote     String?
+  reviewedById     String?            @db.Uuid
+  reviewedAt       DateTime?
+  reviewNote       String?
+  createdAt        DateTime           @default(now())
+
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  submittedBy Profile  @relation("PaymentProofSubmitter", fields: [submittedById], references: [id], onDelete: Cascade)
+  reviewedBy  Profile? @relation("PaymentProofReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([orderId, status, createdAt])
+  @@index([submittedById, createdAt])
+  @@map("payment_proofs")
 }
 
 /// One deliverable — a print run, a website, a reprint. This is what the

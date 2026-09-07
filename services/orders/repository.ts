@@ -74,6 +74,16 @@ const ORDER_INCLUDE = {
   invitation: { select: { id: true, title: true } },
   items: { orderBy: { createdAt: "asc" } },
   payment: true,
+  paymentProofs: {
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    select: {
+      id: true,
+      status: true,
+      originalFilename: true,
+      createdAt: true,
+    },
+  },
 } satisfies Prisma.OrderInclude;
 
 export type OrderWithItems = Prisma.OrderGetPayload<{

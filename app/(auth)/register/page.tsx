@@ -16,12 +16,14 @@ export default function RegisterPage() {
 
   return (
     <div>
-      <div className="mb-8 space-y-2 text-center">
-        <h1 className="font-serif text-3xl tracking-tight">
+      <div className="mb-8 space-y-3">
+        <p className="auth-form-kicker">Begin your invitation</p>
+        <h1 className="font-serif text-4xl leading-none tracking-tight sm:text-5xl">
           Create your account
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Start designing your event invitations.
+        <p className="max-w-md text-base leading-relaxed text-muted-foreground">
+          Keep your event details, approvals, orders, and shared invitation in
+          one place.
         </p>
       </div>
 

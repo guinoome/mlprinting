@@ -32,7 +32,7 @@ export function RegisterForm() {
   }
 
   return (
-    <form action={formAction} className="space-y-4" noValidate>
+    <form action={formAction} className="auth-form space-y-5" noValidate>
       <FormStatus state={state} />
 
       <FormField
@@ -41,6 +41,7 @@ export function RegisterForm() {
         autoComplete="name"
         placeholder="Maria Santos"
         required
+        className="h-12 rounded-none border-x-0 border-t-0 bg-transparent px-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
         error={state.fieldErrors?.displayName}
       />
 
@@ -51,6 +52,7 @@ export function RegisterForm() {
         autoComplete="email"
         placeholder="you@example.com"
         required
+        className="h-12 rounded-none border-x-0 border-t-0 bg-transparent px-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
         error={state.fieldErrors?.email}
       />
 
@@ -60,11 +62,12 @@ export function RegisterForm() {
         type="password"
         autoComplete="new-password"
         required
+        className="h-12 rounded-none border-x-0 border-t-0 bg-transparent px-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
         hint="At least 8 characters. Longer beats complicated."
         error={state.fieldErrors?.password}
       />
 
-      <SubmitButton className="w-full" pendingLabel="Creating account…">
+      <SubmitButton className="h-12 w-full rounded-none text-sm uppercase tracking-[0.18em]" pendingLabel="Creating account…">
         Create account
       </SubmitButton>
 

@@ -8,7 +8,38 @@ import type {
   InteractionId,
   MotionProfileId,
   ResolvedExperience,
+  ResponsiveMediaFocalPoint,
 } from "./types";
+
+export const CENTERED_HERO_FOCAL_POINT: ResponsiveMediaFocalPoint = {
+  desktop: { x: 50, y: 50 },
+  tablet: { x: 50, y: 50 },
+  mobile: { x: 50, y: 50 },
+};
+
+const PROOF_HERO_FOCAL_POINTS = {
+  "capiz-window": {
+    desktop: { x: 76, y: 50 },
+    tablet: { x: 79, y: 50 },
+    mobile: { x: 83, y: 50 },
+  },
+  "neon-eighteen": {
+    desktop: { x: 76, y: 48 },
+    tablet: { x: 79, y: 48 },
+    mobile: { x: 82, y: 46 },
+  },
+  "fiesta-banderitas": {
+    desktop: { x: 74, y: 48 },
+    tablet: { x: 78, y: 48 },
+    mobile: { x: 81, y: 46 },
+  },
+  "product-launch": {
+    desktop: { x: 68, y: 52 },
+    tablet: { x: 70, y: 52 },
+    mobile: { x: 72, y: 52 },
+  },
+  "in-loving-memory": CENTERED_HERO_FOCAL_POINT,
+} satisfies Record<string, ResponsiveMediaFocalPoint>;
 
 const STANDARD_INTERACTIONS: InteractionId[] = [
   "opening-reveal",
@@ -84,6 +115,7 @@ export const EXPERIENCE_REGISTRY = Object.fromEntries(
           : layout.photoShape === "rect"
             ? "gallery"
             : "portrait",
+      heroFocalPoint: CENTERED_HERO_FOCAL_POINT,
       performanceClass: profile.performanceClass,
       motionLevel: profile.level,
       printCompatible: true,
@@ -204,6 +236,7 @@ const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
     motionProfile: "mp-14-cultural-ceremony",
     interactions: [...STANDARD_INTERACTIONS],
     mediaProfile: "portrait",
+    heroFocalPoint: PROOF_HERO_FOCAL_POINTS["capiz-window"],
     performanceClass: "standard",
     motionLevel: "M3",
     printCompatible: true,
@@ -220,6 +253,7 @@ const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
     motionProfile: "mp-09-neon-pulse",
     interactions: [...STANDARD_INTERACTIONS],
     mediaProfile: "cinematic",
+    heroFocalPoint: PROOF_HERO_FOCAL_POINTS["neon-eighteen"],
     performanceClass: "cinematic",
     motionLevel: "M4",
     printCompatible: false,
@@ -235,6 +269,7 @@ const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
     motionProfile: "mp-10-live-event",
     interactions: [...STANDARD_INTERACTIONS],
     mediaProfile: "cinematic",
+    heroFocalPoint: PROOF_HERO_FOCAL_POINTS["fiesta-banderitas"],
     performanceClass: "standard",
     motionLevel: "M3",
     printCompatible: true,
@@ -251,6 +286,7 @@ const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
     motionProfile: "mp-11-product",
     interactions: [...STANDARD_INTERACTIONS],
     mediaProfile: "cinematic",
+    heroFocalPoint: PROOF_HERO_FOCAL_POINTS["product-launch"],
     performanceClass: "cinematic",
     motionLevel: "M4",
     printCompatible: true,
@@ -276,6 +312,7 @@ const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
       "qr",
     ],
     mediaProfile: "portrait",
+    heroFocalPoint: PROOF_HERO_FOCAL_POINTS["in-loving-memory"],
     performanceClass: "light",
     motionLevel: "M2",
     printCompatible: true,
@@ -304,6 +341,7 @@ const FINAL_50_EXPERIENCES = Object.fromEntries(
       interactions,
       mediaProfile:
         entry.performanceClass === "cinematic" ? "cinematic" : "portrait",
+      heroFocalPoint: CENTERED_HERO_FOCAL_POINT,
       performanceClass: entry.performanceClass,
       motionLevel: entry.motionLevel,
       printCompatible: entry.visualThemeId !== "neon-nightlife",

@@ -15,6 +15,7 @@ import type {
   OrnamentMotif,
   PhotoShape,
 } from "../layouts/types";
+import type { ResponsiveMediaFocalPoint } from "../experience/types";
 
 /**
  * The seven hero presentations — Increment 2 of
@@ -87,8 +88,26 @@ export interface HeroProps {
   /** The hero's moving background, when one has been uploaded. */
   heroVideoUrl: string | null;
   galleryUrls: string[];
+  focalPoint: ResponsiveMediaFocalPoint;
   /** Gradient shown when there is no photograph. */
   fallbackBackground: string;
+}
+
+type HeroFocalStyle = React.CSSProperties & {
+  "--inv-hero-focus-desktop": string;
+  "--inv-hero-focus-tablet": string;
+  "--inv-hero-focus-mobile": string;
+};
+
+export function focalPointStyle(
+  focalPoint: ResponsiveMediaFocalPoint,
+): HeroFocalStyle {
+  const value = ({ x, y }: { x: number; y: number }) => `${x}% ${y}%`;
+  return {
+    "--inv-hero-focus-desktop": value(focalPoint.desktop),
+    "--inv-hero-focus-tablet": value(focalPoint.tablet),
+    "--inv-hero-focus-mobile": value(focalPoint.mobile),
+  };
 }
 
 /**
@@ -345,13 +364,17 @@ function FullBleedHero({
   monogram,
   coverImageUrl,
   heroVideoUrl,
+  focalPoint,
   fallbackBackground,
 }: HeroProps) {
   const usesSampleArt = coverImageUrl?.startsWith("/experiences/") ?? false;
   return (
     <header
       className={cn("inv-hero", usesSampleArt && "inv-hero--sample-art")}
-      style={coverImageUrl ? undefined : { background: fallbackBackground }}
+      style={{
+        ...focalPointStyle(focalPoint),
+        ...(coverImageUrl ? {} : { background: fallbackBackground }),
+      }}
     >
       <Backdrop videoUrl={heroVideoUrl} coverImageUrl={coverImageUrl} />
       <div className="inv-hero-scrim" />
@@ -593,12 +616,16 @@ function CardOnPhotoHero({
   ornament,
   coverImageUrl,
   heroVideoUrl,
+  focalPoint,
   fallbackBackground,
 }: HeroProps) {
   return (
     <header
       className="inv-hero inv-hero--card"
-      style={coverImageUrl ? undefined : { background: fallbackBackground }}
+      style={{
+        ...focalPointStyle(focalPoint),
+        ...(coverImageUrl ? {} : { background: fallbackBackground }),
+      }}
     >
       <Backdrop videoUrl={heroVideoUrl} coverImageUrl={coverImageUrl} />
       <div className="inv-hero-scrim inv-hero-scrim--soft" />

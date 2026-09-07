@@ -96,29 +96,163 @@
   }
 }
 
-/* Public catalogue and template detail pages are intentionally editorial and
-   light regardless of a signed-in dashboard theme preference. Keeping the
-   override on one boundary prevents dark dashboard tokens from washing out the
-   invitation artwork or producing the empty navy bands the public redesign
-   replaces. */
-.ml-editorial {
-  --background: 40 33% 95%;
-  --foreground: 45 10% 9%;
-  --card: 40 30% 97%;
-  --card-foreground: 45 10% 9%;
-  --popover: 40 30% 97%;
-  --popover-foreground: 45 10% 9%;
-  --primary: 36 46% 42%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 37 22% 89%;
-  --secondary-foreground: 45 10% 9%;
-  --muted: 37 22% 89%;
-  --muted-foreground: 35 8% 38%;
-  --accent: 37 22% 89%;
-  --accent-foreground: 45 10% 9%;
-  --border: 35 18% 79%;
-  --input: 35 18% 79%;
-  --ring: 36 46% 42%;
+/* Authentication — product-led on desktop, task-led on mobile. */
+.auth-stage {
+  color-scheme: light;
+  --background: 40 33% 94%;
+  --foreground: 38 21% 9%;
+  --primary: 38 21% 9%;
+  --primary-foreground: 40 33% 96%;
+  --muted: 38 18% 90%;
+  --muted-foreground: 35 9% 38%;
+  --border: 36 18% 76%;
+  --input: 36 18% 70%;
+  --ring: 35 44% 41%;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(22rem, 44vw) 1fr;
+  background: #f6f2ea;
+  color: #17140f;
+}
+.auth-story {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  color: white;
+}
+.auth-story-image {
+  object-fit: cover;
+  object-position: 78% center;
+}
+.auth-story-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 7, 5, 0.58), transparent 35%),
+    linear-gradient(0deg, rgba(8, 7, 5, 0.9), transparent 62%);
+}
+.auth-brand {
+  position: absolute;
+  z-index: 1;
+  top: clamp(24px, 4vw, 48px);
+  left: clamp(24px, 4vw, 52px);
+  display: grid;
+  gap: 4px;
+  color: white;
+  text-decoration: none;
+}
+.auth-brand span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.auth-brand small {
+  font-size: 0.7rem;
+  opacity: 0.72;
+}
+.auth-story-copy {
+  position: absolute;
+  z-index: 1;
+  left: clamp(24px, 4vw, 52px);
+  right: clamp(24px, 4vw, 52px);
+  bottom: clamp(32px, 6vw, 68px);
+}
+.auth-story-copy p {
+  max-width: 13ch;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.1rem, 4.1vw, 4.2rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+.auth-story-copy span {
+  display: block;
+  max-width: 31rem;
+  margin-top: 18px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  opacity: 0.78;
+}
+.auth-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(40px, 8vw, 96px);
+}
+.auth-card {
+  width: min(100%, 31rem);
+}
+.auth-form-kicker {
+  color: #9a6f36;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.auth-form label {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.auth-footer {
+  width: 100%;
+  margin-top: 52px;
+  color: rgba(23, 20, 15, 0.5);
+  font-size: 0.68rem;
+  text-align: center;
+}
+@media (max-width: 767px) {
+  .auth-stage {
+    display: block;
+  }
+  .auth-story {
+    position: relative;
+    min-height: 15rem;
+    height: 30svh;
+    max-height: 20rem;
+  }
+  .auth-story-image {
+    object-position: 78% 46%;
+  }
+  .auth-story-scrim {
+    background:
+      linear-gradient(180deg, rgba(8, 7, 5, 0.58), transparent 55%),
+      linear-gradient(0deg, rgba(8, 7, 5, 0.76), transparent 58%);
+  }
+  .auth-brand {
+    top: 22px;
+    left: 22px;
+  }
+  .auth-story-copy {
+    left: 22px;
+    right: 22px;
+    bottom: 24px;
+  }
+  .auth-story-copy p {
+    max-width: 18ch;
+    font-size: clamp(1.7rem, 8vw, 2.3rem);
+  }
+  .auth-story-copy span {
+    display: none;
+  }
+  .auth-main {
+    position: relative;
+    z-index: 2;
+    min-height: 70svh;
+    margin-top: -18px;
+    justify-content: flex-start;
+    padding: 44px 24px 32px;
+    border-radius: 20px 20px 0 0;
+    background: #f6f2ea;
+  }
+  .auth-footer {
+    margin-top: 40px;
+  }
 }
 
 /* =========================================================================
@@ -130,6 +264,7 @@
    ========================================================================= */
 .inv-reveal-root {
   --inv-on-accent: #fff;
+  container-type: inline-size;
 
   /*
    * The invitation sizes itself continuously rather than snapping at two or
@@ -561,12 +696,12 @@
   width: 100%;
   height: 140%;
   object-fit: cover;
+  object-position: var(--inv-hero-focus-desktop, 50% 50%);
   will-change: transform;
 }
 /* A paused <video> shows its poster, which must fill the frame the same way
    the photograph would rather than letterboxing inside it. */
 video.inv-hero-photo {
-  object-position: center;
   background: var(--inv-soft);
 }
 .inv-hero-scrim {
@@ -712,8 +847,8 @@ video.inv-hero-photo {
 }
 .inv-band-photo {
   position: relative;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
   aspect-ratio: 16 / 9;
   max-height: 58vh;
   overflow: hidden;
@@ -782,8 +917,8 @@ video.inv-hero-photo {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 4px;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
   margin-bottom: clamp(28px, 5vh, 52px);
 }
 @media (min-width: 640px) {
@@ -1155,6 +1290,16 @@ video.inv-hero-photo {
 }
 .inv-reveal-root[data-motion="sweep"] [data-reveal]:nth-of-type(even) {
   --inv-reveal-from: translateX(34px);
+}
+
+/* Horizontal sweep expands the scrollable canvas while off-screen chapters
+   wait for IntersectionObserver. On phones, keep the cinematic arrival but
+   move it vertically so the page never exposes a sideways gutter. */
+@media (max-width: 639px) {
+  .inv-reveal-root[data-motion="sweep"],
+  .inv-reveal-root[data-motion="sweep"] [data-reveal]:nth-of-type(even) {
+    --inv-reveal-from: translateY(26px);
+  }
 }
 
 /* fade — memorial, religious, community. Opacity only, and slower: no travel,
@@ -2000,14 +2145,6 @@ video.inv-hero-photo {
     transparent 72%
   );
 }
-.inv-reveal-root[data-visual-theme="capiz-luminous"]
-  .inv-hero--sample-art
-  .inv-hero-photo,
-.inv-reveal-root[data-visual-theme="neon-nightlife"]
-  .inv-hero--sample-art
-  .inv-hero-photo {
-  object-position: right center;
-}
 
 .inv-reveal-root[data-visual-theme="neon-nightlife"] .inv-hero-scrim {
   background: linear-gradient(
@@ -2043,11 +2180,6 @@ video.inv-hero-photo {
     rgba(35, 15, 4, 0.5) 43%,
     transparent 74%
   );
-}
-.inv-reveal-root[data-visual-theme="festival-pulse"]
-  .inv-hero--sample-art
-  .inv-hero-photo {
-  object-position: center;
 }
 .inv-reveal-root[data-visual-theme="festival-pulse"] .inv-names {
   font-weight: 750;
@@ -2104,10 +2236,14 @@ video.inv-hero-photo {
     transparent 76%
   );
 }
-.inv-reveal-root[data-visual-theme="digital-light"]
-  .inv-hero--sample-art
+
+@media (max-width: 1024px) {
   .inv-hero-photo {
-  object-position: center;
+    object-position: var(
+      --inv-hero-focus-tablet,
+      var(--inv-hero-focus-desktop, 50% 50%)
+    );
+  }
 }
 .inv-reveal-root[data-visual-theme="digital-light"] .inv-names {
   font-family: Arial, Helvetica, sans-serif;
@@ -2175,16 +2311,11 @@ video.inv-hero-photo {
       transparent 82%
     );
   }
-  .inv-reveal-root[data-visual-theme="capiz-luminous"]
-    .inv-hero--sample-art
-    .inv-hero-photo,
-  .inv-reveal-root[data-visual-theme="neon-nightlife"]
-    .inv-hero--sample-art
-    .inv-hero-photo,
-  .inv-reveal-root[data-visual-theme="festival-pulse"]
-    .inv-hero--sample-art
-    .inv-hero-photo {
-    object-position: 68% center;
+  .inv-hero-photo {
+    object-position: var(
+      --inv-hero-focus-mobile,
+      var(--inv-hero-focus-tablet, 50% 50%)
+    );
   }
 }
 

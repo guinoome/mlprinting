@@ -28,7 +28,7 @@ export function LoginForm() {
   const linkFailed = searchParams.get("authError") === "link";
 
   return (
-    <form action={formAction} className="space-y-4" noValidate>
+    <form action={formAction} className="auth-form space-y-5" noValidate>
       <input type="hidden" name="redirectTo" value={redirectTo} />
 
       {linkFailed && !state.error && !state.message ? (
@@ -49,6 +49,7 @@ export function LoginForm() {
         autoComplete="email"
         placeholder="you@example.com"
         required
+        className="h-12 rounded-none border-x-0 border-t-0 bg-transparent px-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
         error={state.fieldErrors?.email}
       />
 
@@ -58,6 +59,7 @@ export function LoginForm() {
         type="password"
         autoComplete="current-password"
         required
+        className="h-12 rounded-none border-x-0 border-t-0 bg-transparent px-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
         error={state.fieldErrors?.password}
       />
 
@@ -72,7 +74,7 @@ export function LoginForm() {
         </Link>
       </p>
 
-      <SubmitButton className="w-full" pendingLabel="Signing in…">
+      <SubmitButton className="h-12 w-full rounded-none text-sm uppercase tracking-[0.18em]" pendingLabel="Signing in…">
         Sign in
       </SubmitButton>
 

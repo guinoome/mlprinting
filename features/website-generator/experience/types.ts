@@ -61,6 +61,24 @@ export type InteractionId =
 export type PerformanceClass = "light" | "standard" | "cinematic";
 export type MotionLevel = "M0" | "M2" | "M3" | "M4";
 
+export interface MediaFocalPoint {
+  /** Horizontal subject position, expressed as a percentage of the source. */
+  x: number;
+  /** Vertical subject position, expressed as a percentage of the source. */
+  y: number;
+}
+
+/**
+ * The important subject in wide campaign art moves as the viewport narrows.
+ * Keeping this in typed experience data avoids burying one-off crop guesses in
+ * CSS and gives every future template an explicit phone/tablet contract.
+ */
+export interface ResponsiveMediaFocalPoint {
+  desktop: MediaFocalPoint;
+  tablet: MediaFocalPoint;
+  mobile: MediaFocalPoint;
+}
+
 /**
  * Presentation-only configuration. Event content never enters this object.
  * A template can select one of these values without gaining arbitrary CSS or
@@ -77,6 +95,7 @@ export interface ExperienceConfig {
   motionProfile: MotionProfileId;
   interactions: InteractionId[];
   mediaProfile: "portrait" | "gallery" | "cinematic";
+  heroFocalPoint: ResponsiveMediaFocalPoint;
   performanceClass: PerformanceClass;
   motionLevel: Exclude<MotionLevel, "M0">;
   printCompatible: boolean;
