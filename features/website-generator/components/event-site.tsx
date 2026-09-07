@@ -525,6 +525,7 @@ export function EventSite({
           coverImageUrl={model.coverImageUrl}
           heroVideoUrl={model.heroVideoUrl}
           galleryUrls={model.galleryUrls}
+          focalPoint={experience.config.heroFocalPoint}
           fallbackBackground={heroFallback}
         />
 

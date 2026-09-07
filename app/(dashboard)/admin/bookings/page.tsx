@@ -87,6 +87,9 @@ export default async function AdminBookingsPage({
                       providerReference={
                         order.payment?.providerReference ?? null
                       }
+                      pendingProof={
+                        order.paymentProofs.find((proof) => proof.status === "PENDING") ?? null
+                      }
                     />
                   </td>
                   <td className="py-2">

@@ -68,10 +68,10 @@ export function ExperienceProofShowcase() {
         </div>
         <div className="self-end border-l border-black/20 pl-6">
           <p className="text-black/62 max-w-md text-sm leading-7">
-            We release only experiences with a distinct opening, visual
-            language, and guest journey. Four are live now, with more
-            thoughtfully crafted experiences joining the collection through
-            curated releases.
+            We are releasing only experiences that have their own opening,
+            visual language and guest journey. Four are live now; the remaining
+            Final 50 portfolio is added in deliberate releases rather than as
+            unfinished variations.
           </p>
         </div>
       </header>

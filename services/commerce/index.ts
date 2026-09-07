@@ -29,3 +29,12 @@ export type {
   PublicationDecision,
   VerifiedPaymentEvent,
 } from "./types";
+export {
+  PAYMENT_PROOF_ACCEPT,
+  getPaymentProofForViewer,
+  paymentProofKind,
+  paymentProofPath,
+  reviewPaymentProof,
+  submitPaymentProof,
+} from "./payment-proofs";
+export type { PaymentProofStatusValue } from "./payment-proofs";

@@ -4,6 +4,7 @@ import { useFormState } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { initialSettlementState, recordSettlementAction } from "../actions";
+import { PaymentProofReview } from "./payment-proof-review";
 
 export function SettlementControls({
   orderId,
@@ -11,12 +12,14 @@ export function SettlementControls({
   onlineAvailable,
   provider,
   providerReference,
+  pendingProof,
 }: {
   orderId: string;
   status: string | null;
   onlineAvailable: boolean;
   provider: string | null;
   providerReference: string | null;
+  pendingProof: { id: string; originalFilename: string; createdAt: Date } | null;
 }) {
   const [state, action] = useFormState(
     recordSettlementAction,
@@ -28,6 +31,9 @@ export function SettlementControls({
         {status === "CAPTURED" ? "Paid" : "Waived"}
       </span>
     );
+  }
+  if (pendingProof) {
+    return <PaymentProofReview proof={pendingProof} />;
   }
   if (provider === "paymongo" && providerReference) {
     return (

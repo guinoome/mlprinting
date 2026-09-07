@@ -37,6 +37,18 @@ const CUSTOMER_ORDER_INCLUDE = {
     select: { id: true, title: true, slug: true, isPublished: true },
   },
   payment: true,
+  paymentProofs: {
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      status: true,
+      originalFilename: true,
+      customerNote: true,
+      reviewNote: true,
+      createdAt: true,
+      reviewedAt: true,
+    },
+  },
   items: {
     orderBy: { createdAt: "asc" },
     include: {

@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ReviewControls } from "@/features/orders/components/review-controls";
 import { Button } from "@/components/ui/button";
 import { startPayMongoCheckoutAction } from "@/features/payments/checkout-action";
+import { PaymentProofUpload } from "@/features/payments/components/payment-proof-upload";
 import { isPayMongoConfigured } from "@/lib/env";
 import {
   ORDER_STATUS_LABELS,
@@ -35,6 +36,11 @@ export default async function OrderDetailPage({
     isPayMongoConfigured() &&
     order.payment?.provider === "paymongo" &&
     order.payment.status === "PENDING";
+  const paymentSettled =
+    order.payment?.status === "CAPTURED" || order.payment?.status === "WAIVED";
+  const pendingProof = order.paymentProofs.find(
+    (proof) => proof.status === "PENDING",
+  );
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-6">
@@ -94,6 +100,27 @@ export default async function OrderDetailPage({
               does not receive your wallet credentials.
             </p>
           </form>
+        ) : null}
+        {order.paymentProofs.length > 0 ? (
+          <div className="mt-5 space-y-2 border-t pt-4">
+            <h3 className="text-sm font-medium">Payment receipts</h3>
+            <ul className="space-y-2 text-sm">
+              {order.paymentProofs.map((proof) => (
+                <li key={proof.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/30 px-3 py-2">
+                  <Link href={`/api/payments/proofs/${proof.id}`} target="_blank" className="max-w-[70%] truncate underline">
+                    {proof.originalFilename}
+                  </Link>
+                  <span className={proof.status === "APPROVED" ? "text-green-700" : proof.status === "REJECTED" ? "text-destructive" : "text-amber-700"}>
+                    {proof.status === "APPROVED" ? "Verified" : proof.status === "REJECTED" ? "Needs attention" : "Under review"}
+                  </span>
+                  {proof.reviewNote ? <p className="w-full text-xs text-muted-foreground">{proof.reviewNote}</p> : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {!paymentSettled && !pendingProof ? (
+          <PaymentProofUpload orderId={order.id} />
         ) : null}
       </section>
 

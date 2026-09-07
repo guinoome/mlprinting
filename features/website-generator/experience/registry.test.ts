@@ -13,6 +13,12 @@ describe("experience resolver", () => {
       expect(config.interactions).toContain("rsvp");
       expect(config.interactions).toContain("qr");
       expect(config.signature.length).toBeGreaterThan(24);
+      for (const point of Object.values(config.heroFocalPoint)) {
+        expect(point.x).toBeGreaterThanOrEqual(0);
+        expect(point.x).toBeLessThanOrEqual(100);
+        expect(point.y).toBeGreaterThanOrEqual(0);
+        expect(point.y).toBeLessThanOrEqual(100);
+      }
     }
   });
 
@@ -81,6 +87,11 @@ describe("experience resolver", () => {
       "venues",
       "program",
     ]);
+    expect(capiz.config.heroFocalPoint.mobile.x).toBeGreaterThan(
+      capiz.config.heroFocalPoint.desktop.x,
+    );
+    expect(neon.config.heroFocalPoint.mobile.x).toBeGreaterThanOrEqual(80);
+    expect(fiesta.config.heroFocalPoint.mobile.x).toBeGreaterThanOrEqual(80);
   });
 
   it("derives a near-static accessible mode without hiding content", () => {

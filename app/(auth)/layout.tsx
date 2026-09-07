@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { branding, routes } from "@/lib/config";
 import { getUser } from "@/lib/auth/session";
@@ -6,9 +7,9 @@ import { getUser } from "@/lib/auth/session";
 /**
  * Authentication layout — Ph1.md §2.
  *
- * Deliberately chrome-free: no nav, no sidebar. The only jobs on this screen
- * are to sign in or to leave, and every other control is a distraction from a
- * form the user wants to be done with.
+ * Chrome-free, but no longer anonymous. The image rail shows the quality of
+ * the product before a customer entrusts the platform with an account. On a
+ * phone it becomes a compact header so the form remains the first task.
  */
 /** Dynamic: the redirect below depends on the session, so it cannot be baked. */
 export const dynamic = "force-dynamic";
@@ -23,23 +24,35 @@ export default async function AuthLayout({
   if (user) redirect(routes.dashboard.root);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="p-6">
-        <Link
-          href={routes.home}
-          className="text-sm font-semibold tracking-tight transition-opacity hover:opacity-70"
-        >
-          {branding.shortName}
+    <div className="auth-stage">
+      <aside className="auth-story" aria-label="ML Printing invitation preview">
+        <Image
+          src="/experiences/capiz-window-hero.png"
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 767px) 100vw, 44vw"
+          className="auth-story-image"
+        />
+        <div className="auth-story-scrim" />
+        <Link href={routes.home} className="auth-brand">
+          <span>{branding.shortName}</span>
+          <small>Digital invitations by ML Printing</small>
         </Link>
-      </header>
+        <div className="auth-story-copy">
+          <p>Made for the moments people keep.</p>
+          <span>
+            Design, approve, share, and print from one invitation story.
+          </span>
+        </div>
+      </aside>
 
-      <main className="flex flex-1 items-center justify-center px-6 pb-16">
-        <div className="w-full max-w-sm">{children}</div>
+      <main className="auth-main">
+        <div className="auth-card">{children}</div>
+        <footer className="auth-footer">
+          {branding.company} — {branding.location}
+        </footer>
       </main>
-
-      <footer className="p-6 text-center text-xs text-muted-foreground">
-        {branding.company} — {branding.location}
-      </footer>
     </div>
   );
 }
