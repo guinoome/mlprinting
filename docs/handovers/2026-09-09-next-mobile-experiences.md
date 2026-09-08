@@ -57,14 +57,14 @@ Implemented in the working tree:
 - Opened Ivory Lace keeps the bride visible; opened Blush Botanical uses an unblurred 4:5 photo band with both subjects visible; opened Midnight Gold retains the couple and full invitation card. No runtime errors were observed.
 - The ignored source-checkout `.env.local` was created only to enable `NEXT_PUBLIC_FEATURE_INTERACTIVE_EXPERIENCES=true` for local visual QA. It contains no credential and is not staged or tracked.
 
-## Exact Git state at handover
+## Exact Git state after implementation commit
 
 - Branch: `codex/next-mobile-experiences`
-- Base/HEAD before the pending commit: `e419d291acb35ae7ed28c5b5eae497b0a8b9c55f`
-- The implementation and this handover are unstaged. Do not reset or clean them.
+- Implementation commit: `b3e74a0` (`feat: launch three mobile invitation experiences`), based on production main `e419d291acb35ae7ed28c5b5eae497b0a8b9c55f`.
+- The intended implementation is committed. Do not reset or clean it.
 - `.codex-remote-attachments/` remains untracked reference material and must not be staged.
 - New intended binary assets are the three invitation heroes plus the memorial and children portal art under `public/experiences/`.
-- Single next action: review the complete diff, stage only the intended implementation/handover/assets, commit, push `codex/next-mobile-experiences`, open a PR, verify the Vercel preview, then merge and verify production.
+- Single next action: push `codex/next-mobile-experiences`, open a PR, verify the Vercel preview, then merge and verify production.
 
 ## Validation gate
 
