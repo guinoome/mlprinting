@@ -472,7 +472,14 @@ function PhotoBandHero({
   galleryUrls,
   fallbackBackground,
 }: HeroProps) {
-  const photo = framedPhoto(galleryUrls);
+  const galleryPhoto = framedPhoto(galleryUrls);
+  // Release art is already a text-free photographic composition, not the old
+  // typeset card this fallback was designed to obscure. Keep legacy covers
+  // blurred, but let approved experience art remain legible until the customer
+  // supplies a gallery portrait of their own.
+  const photo =
+    galleryPhoto ??
+    (coverImageUrl?.startsWith("/experiences/") ? coverImageUrl : null);
 
   return (
     <header className="inv-hero-ground inv-hero--band">

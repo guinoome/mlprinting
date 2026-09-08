@@ -39,6 +39,18 @@ const ENTRY_COPY: Partial<
     kicker: "A life remembered",
     action: "View the tribute",
   },
+  "atelier-ivory": {
+    kicker: "A couture ceremony, written in light",
+    action: "Lift the veil",
+  },
+  "botanical-romance": {
+    kicker: "Where our forever takes root",
+    action: "Enter the garden",
+  },
+  "midnight-metallic": {
+    kicker: "Black tie. Candlelight. Our next chapter.",
+    action: "Part the night",
+  },
 };
 
 function drawShape(

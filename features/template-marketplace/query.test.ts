@@ -59,6 +59,9 @@ describe("buildWhere — publication", () => {
           "neon-eighteen",
           "fiesta-banderitas",
           "product-launch",
+          "ivory-lace",
+          "blush-botanical",
+          "midnight-gold",
         ],
       },
     });

@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.experience-finder-rail {
+  scrollbar-width: none;
+}
+
+.experience-finder-rail::-webkit-scrollbar {
+  display: none;
+}
+
 /*
  * Design tokens.
  * Neutral placeholder palette. Swap for ML Printing brand palette when provided.
@@ -465,6 +473,7 @@
   font-family: var(--inv-heading);
   line-height: 0.86;
   text-transform: uppercase;
+  z-index: 2;
 }
 .inv-entry-brand span {
   font-size: 27px;
@@ -541,7 +550,10 @@
   text-transform: uppercase;
 }
 .inv-entry--capiz-luminous {
-  background-image: url("/experiences/capiz-window-hero.png");
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/capiz-window-hero.png")
+  );
   background-position: center;
 }
 .inv-entry--capiz-luminous .inv-entry-action {
@@ -553,7 +565,10 @@
   font-style: italic;
 }
 .inv-entry--neon-nightlife {
-  background-image: url("/experiences/neon-eighteen-hero.png");
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/neon-eighteen-hero.png")
+  );
   background-position: center;
 }
 .inv-entry--neon-nightlife .inv-entry-brand {
@@ -577,7 +592,10 @@
   box-shadow: 0 0 34px rgba(255, 35, 157, 0.36);
 }
 .inv-entry--festival-pulse {
-  background-image: url("/experiences/fiesta-banderitas-catalogue.png");
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/fiesta-banderitas-catalogue.png")
+  );
   background-position: 50% 44%;
 }
 .inv-entry--festival-pulse .inv-entry-shade {
@@ -606,7 +624,10 @@
   box-shadow: 8px 8px 0 rgba(16, 91, 118, 0.82);
 }
 .inv-entry--digital-light {
-  background-image: url("/experiences/product-launch-catalogue.png");
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/product-launch-catalogue.png")
+  );
   background-position: center;
 }
 .inv-entry--digital-light .inv-entry-shade {
@@ -643,6 +664,148 @@
   );
 }
 
+/* Ivory Lace lifts a translucent couture veil rather than opening an envelope. */
+.inv-entry--atelier-ivory {
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/ivory-lace-hero.png")
+  );
+  background-position: 56% 48%;
+}
+.inv-entry--atelier-ivory::before {
+  content: "";
+  position: absolute;
+  inset: -12% 36% -12% -18%;
+  z-index: 1;
+  background:
+    repeating-radial-gradient(
+      ellipse at 82% 46%,
+      rgba(255, 249, 235, 0.28) 0 2px,
+      transparent 3px 18px
+    ),
+    linear-gradient(112deg, rgba(255, 250, 238, 0.34), transparent 68%);
+  border-right: 1px solid rgba(255, 247, 225, 0.52);
+  transform: skewX(-7deg);
+  transition: transform 760ms cubic-bezier(0.65, 0, 0.35, 1), opacity 560ms;
+}
+.inv-entry--atelier-ivory.is-opening::before {
+  opacity: 0;
+  transform: translateX(-115%) skewX(-7deg);
+}
+.inv-entry--atelier-ivory .inv-entry-shade {
+  background:
+    linear-gradient(90deg, rgba(24, 17, 11, 0.82), rgba(24, 17, 11, 0.18) 64%),
+    linear-gradient(0deg, rgba(20, 14, 10, 0.72), transparent 52%);
+}
+.inv-entry--atelier-ivory .inv-entry-kicker,
+.inv-entry--atelier-ivory .inv-entry-brand {
+  color: #f3d6a4;
+}
+.inv-entry--atelier-ivory .inv-entry-title {
+  font-style: italic;
+  font-weight: 400;
+}
+.inv-entry--atelier-ivory .inv-entry-action {
+  border-color: #ead2aa;
+  background: rgba(119, 82, 42, 0.62);
+}
+
+/* Blush Botanical blooms outward: the living garden itself is the threshold. */
+.inv-entry--botanical-romance {
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/blush-botanical-hero.png")
+  );
+  background-position: 54% 42%;
+}
+.inv-entry--botanical-romance::before {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 9% 18%, rgba(214, 147, 157, 0.42), transparent 18%),
+    radial-gradient(ellipse at 92% 78%, rgba(246, 211, 211, 0.34), transparent 20%);
+  transform: scale(0.9) rotate(-3deg);
+  transition: transform 800ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 650ms;
+}
+.inv-entry--botanical-romance.is-opening::before {
+  opacity: 0;
+  transform: scale(1.16) rotate(4deg);
+}
+.inv-entry--botanical-romance .inv-entry-shade {
+  background:
+    linear-gradient(90deg, rgba(16, 26, 18, 0.82), rgba(16, 26, 18, 0.14) 68%),
+    linear-gradient(0deg, rgba(11, 20, 13, 0.8), transparent 56%);
+}
+.inv-entry--botanical-romance .inv-entry-kicker,
+.inv-entry--botanical-romance .inv-entry-brand {
+  color: #f4c3c7;
+}
+.inv-entry--botanical-romance .inv-entry-action {
+  border-color: #f2ccd0;
+  background: rgba(116, 61, 70, 0.68);
+}
+
+/* Midnight Gold parts two architectural panels before revealing the event. */
+.inv-entry--midnight-metallic {
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/midnight-gold-hero.png")
+  );
+  background-position: 74% 42%;
+}
+.inv-entry--midnight-metallic::before,
+.inv-entry--midnight-metallic::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  z-index: 1;
+  width: 39%;
+  background:
+    linear-gradient(90deg, rgba(198, 155, 74, 0.09), transparent 16% 84%, rgba(198, 155, 74, 0.1)),
+    rgba(7, 10, 18, 0.88);
+  transition: transform 780ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+.inv-entry--midnight-metallic::before {
+  left: 0;
+  border-right: 1px solid rgba(198, 155, 74, 0.42);
+  clip-path: polygon(0 0, 100% 0, 94% 100%, 0 100%);
+}
+.inv-entry--midnight-metallic::after {
+  right: 0;
+  border-left: 1px solid rgba(198, 155, 74, 0.42);
+  clip-path: polygon(6% 0, 100% 0, 100% 100%, 0 100%);
+}
+.inv-entry--midnight-metallic.is-opening::before {
+  transform: translateX(-104%);
+}
+.inv-entry--midnight-metallic.is-opening::after {
+  transform: translateX(104%);
+}
+.inv-entry--midnight-metallic .inv-entry-copy,
+.inv-entry--midnight-metallic .inv-entry-brand,
+.inv-entry--midnight-metallic .inv-entry-access {
+  z-index: 2;
+}
+.inv-entry--midnight-metallic .inv-entry-shade {
+  background:
+    linear-gradient(90deg, rgba(3, 5, 10, 0.9), rgba(3, 5, 10, 0.16) 66%),
+    linear-gradient(0deg, rgba(3, 5, 10, 0.84), transparent 54%);
+}
+.inv-entry--midnight-metallic .inv-entry-kicker,
+.inv-entry--midnight-metallic .inv-entry-brand {
+  color: #d9b96f;
+}
+.inv-entry--midnight-metallic .inv-entry-title {
+  letter-spacing: -0.035em;
+}
+.inv-entry--midnight-metallic .inv-entry-action {
+  border-color: #d8b665;
+  background: rgba(8, 11, 20, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(216, 182, 101, 0.12);
+}
+
 @media (max-width: 700px) {
   .inv-entry {
     padding-bottom: 104px;
@@ -656,6 +819,19 @@
   }
   .inv-entry--digital-light {
     background-position: 64% center;
+  }
+  .inv-entry--atelier-ivory {
+    background-position: 51% 48%;
+  }
+  .inv-entry--botanical-romance {
+    background-position: 50% 42%;
+  }
+  .inv-entry--midnight-metallic {
+    background-position: 74% 46%;
+  }
+  .inv-entry--midnight-metallic::before,
+  .inv-entry--midnight-metallic::after {
+    width: 34%;
   }
   .inv-entry-shade {
     background: linear-gradient(
@@ -2276,6 +2452,153 @@ video.inv-hero-photo {
   box-shadow: 0 0 34px rgba(83, 148, 255, 0.08);
 }
 
+/* Ivory Lace — editorial negative space and fine couture rules. */
+.inv-reveal-root[data-visual-theme="atelier-ivory"] {
+  --inv-line: rgba(154, 111, 50, 0.28);
+  --inv-surface: rgba(255, 253, 247, 0.5);
+  --inv-paper: #fffaf0;
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-hero {
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(96px, 12vh, 148px) clamp(28px, 7vw, 112px)
+    clamp(74px, 10vh, 112px);
+  text-align: left;
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-hero-inner {
+  width: min(560px, 42vw);
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-hero-rule {
+  margin-left: 0;
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-hero-daterow {
+  justify-content: flex-start;
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-hero-scrim {
+  background: linear-gradient(
+    90deg,
+    rgba(25, 17, 10, 0.88),
+    rgba(25, 17, 10, 0.42) 44%,
+    transparent 76%
+  );
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-names {
+  font-style: italic;
+  font-weight: 400;
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-experience-body {
+  background:
+    repeating-linear-gradient(
+      112deg,
+      rgba(154, 111, 50, 0.035) 0 1px,
+      transparent 1px 26px
+    ),
+    #f4efe5 !important;
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-motion-stage {
+  padding: clamp(30px, 5vw, 50px) clamp(20px, 4vw, 46px);
+  border-left: 1px solid rgba(154, 111, 50, 0.34);
+}
+.inv-reveal-root[data-visual-theme="atelier-ivory"]
+  .inv-motion-stage:nth-child(even) {
+  margin-left: clamp(0px, 5vw, 70px);
+}
+
+/* Blush Botanical — a flowing garden chapter, not a stack of paper cards. */
+.inv-reveal-root[data-visual-theme="botanical-romance"] {
+  --inv-line: rgba(111, 82, 89, 0.22);
+  --inv-surface: rgba(255, 255, 255, 0.44);
+  --inv-paper: #fbf4ef;
+}
+.inv-reveal-root[data-visual-theme="botanical-romance"] .inv-hero--band {
+  padding-bottom: clamp(54px, 8vh, 88px);
+}
+.inv-reveal-root[data-visual-theme="botanical-romance"] .inv-band-photo {
+  aspect-ratio: 2 / 1;
+  border-bottom-left-radius: 46% 14%;
+}
+.inv-reveal-root[data-visual-theme="botanical-romance"] .inv-band-photo img {
+  object-position: 50% 37%;
+}
+.inv-reveal-root[data-visual-theme="botanical-romance"] .inv-experience-body {
+  background:
+    radial-gradient(circle at 96% 12%, rgba(155, 95, 104, 0.12), transparent 24%),
+    radial-gradient(circle at 4% 52%, rgba(67, 92, 69, 0.1), transparent 23%),
+    #f3e9e4 !important;
+}
+.inv-reveal-root[data-visual-theme="botanical-romance"] .inv-motion-stage {
+  position: relative;
+  padding: clamp(34px, 6vw, 58px) clamp(22px, 5vw, 50px);
+  border: 0;
+  border-radius: 56px 8px 56px 8px;
+  background: rgba(255, 250, 246, 0.48);
+}
+.inv-reveal-root[data-visual-theme="botanical-romance"]
+  .inv-motion-stage:nth-child(even) {
+  border-radius: 8px 56px 8px 56px;
+  background: rgba(224, 209, 205, 0.42);
+}
+.inv-reveal-root[data-visual-theme="botanical-romance"] .inv-count-u {
+  border: 0;
+  border-bottom: 1px solid rgba(155, 95, 104, 0.36);
+  border-radius: 0;
+  background: transparent;
+}
+
+/* Midnight Gold — disciplined black-tie planes and metallic programme rules. */
+.inv-reveal-root[data-visual-theme="midnight-metallic"] {
+  color-scheme: dark;
+  --inv-line: rgba(198, 155, 74, 0.34);
+  --inv-surface: rgba(198, 155, 74, 0.055);
+  --inv-paper: rgba(6, 9, 17, 0.88);
+}
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-hero--card {
+  justify-content: flex-end;
+  padding: clamp(88px, 11vh, 124px) clamp(24px, 6vw, 80px)
+    clamp(54px, 8vh, 84px);
+}
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-hero-scrim {
+  background: linear-gradient(
+    0deg,
+    rgba(3, 5, 11, 0.94),
+    rgba(3, 5, 11, 0.16) 62%,
+    transparent 86%
+  );
+}
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-card-plane {
+  margin-right: auto;
+  border-color: rgba(214, 179, 103, 0.52);
+  background: rgba(4, 7, 14, 0.78);
+  color: #fbf3df;
+  box-shadow: 0 28px 76px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(16px);
+}
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-mono--ink,
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-hero-rule--ink {
+  color: #d7b467;
+  border-color: rgba(215, 180, 103, 0.52);
+  background: #d7b467;
+}
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-experience-body {
+  background:
+    linear-gradient(90deg, rgba(198, 155, 74, 0.055) 1px, transparent 1px),
+    linear-gradient(135deg, #050812, #0c1220 64%, #05070d) !important;
+  background-size: 96px 100%, auto !important;
+}
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-motion-stage {
+  padding: clamp(30px, 5vw, 52px) clamp(22px, 4vw, 46px);
+  border-top: 1px solid rgba(198, 155, 74, 0.34);
+  border-bottom: 1px solid rgba(198, 155, 74, 0.08);
+  background: linear-gradient(90deg, rgba(198, 155, 74, 0.07), transparent 72%);
+}
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-count-u,
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-venue,
+.inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-rsvp {
+  border-radius: 0;
+  border-color: rgba(198, 155, 74, 0.38);
+  background: rgba(4, 7, 14, 0.52);
+}
+
 @media (max-width: 700px) {
   .inv-reveal-root:is(
       [data-visual-theme="capiz-luminous"],
@@ -2316,6 +2639,44 @@ video.inv-hero-photo {
       --inv-hero-focus-mobile,
       var(--inv-hero-focus-tablet, 50% 50%)
     );
+  }
+  .inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-hero {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 116px 25px 76px;
+  }
+  .inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-hero-inner {
+    width: 100%;
+  }
+  .inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-hero-scrim {
+    background: linear-gradient(
+      0deg,
+      rgba(22, 15, 9, 0.95),
+      rgba(22, 15, 9, 0.42) 54%,
+      transparent 82%
+    );
+  }
+  .inv-reveal-root[data-visual-theme="atelier-ivory"]
+    .inv-motion-stage:nth-child(even) {
+    margin-left: 0;
+  }
+  .inv-reveal-root[data-visual-theme="botanical-romance"] .inv-band-photo {
+    aspect-ratio: 4 / 5;
+    max-height: 62svh;
+  }
+  .inv-reveal-root[data-visual-theme="botanical-romance"] .inv-motion-stage {
+    border-radius: 34px 6px 34px 6px;
+  }
+  .inv-reveal-root[data-visual-theme="botanical-romance"]
+    .inv-motion-stage:nth-child(even) {
+    border-radius: 6px 34px 6px 34px;
+  }
+  .inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-hero--card {
+    padding: 92px 22px 56px;
+  }
+  .inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-card-plane {
+    width: 100%;
+    padding: 30px 20px;
   }
 }
 
@@ -2388,13 +2749,19 @@ video.inv-hero-photo {
    old procedural envelope surface. */
 .inv-reveal-root[data-visual-theme="capiz-luminous"]
   .inv-entry--capiz-luminous {
-  background-image: url("/experiences/capiz-window-hero.png");
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/capiz-window-hero.png")
+  );
   background-position: center;
   background-size: cover;
 }
 .inv-reveal-root[data-visual-theme="neon-nightlife"]
   .inv-entry--neon-nightlife {
-  background-image: url("/experiences/neon-eighteen-hero.png");
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/neon-eighteen-hero.png")
+  );
   background-position: center;
   background-size: cover;
 }

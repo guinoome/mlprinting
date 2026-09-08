@@ -4,6 +4,8 @@ export interface LaunchArtwork {
   /** Wide, text-free composition used behind live invitation copy. */
   heroSrc: string;
   alt: string;
+  /** Public catalogue promise; production DB copy can remain print-focused. */
+  catalogueDescription?: string;
 }
 
 /**
@@ -33,6 +35,27 @@ export const LAUNCH_ARTWORK = {
     catalogueSrc: "/experiences/product-launch-catalogue.png",
     heroSrc: "/experiences/product-launch-catalogue.png",
     alt: "Pearlescent product reveal on an indigo keynote stage",
+  },
+  "ivory-lace": {
+    catalogueSrc: "/experiences/ivory-lace-hero.png",
+    heroSrc: "/experiences/ivory-lace-hero.png",
+    alt: "Filipina bride in a lace gown framed by warm botanical shadows",
+    catalogueDescription:
+      "A couture lace threshold opens into a quiet editorial ceremony.",
+  },
+  "blush-botanical": {
+    catalogueSrc: "/experiences/blush-botanical-hero.png",
+    heroSrc: "/experiences/blush-botanical-hero.png",
+    alt: "Filipino wedding couple walking through a flowering garden arch",
+    catalogueDescription:
+      "A living garden reveal leads guests through a romantic floral story.",
+  },
+  "midnight-gold": {
+    catalogueSrc: "/experiences/midnight-gold-hero.png",
+    heroSrc: "/experiences/midnight-gold-hero.png",
+    alt: "Black-tie wedding couple beneath architectural bands of gold light",
+    catalogueDescription:
+      "Midnight panels part into a candlelit black-tie programme.",
   },
 } as const satisfies Record<string, LaunchArtwork>;
 

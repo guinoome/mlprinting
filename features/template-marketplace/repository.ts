@@ -92,7 +92,13 @@ const EMPTY_PAGE: CatalogPage = {
   totalPages: 1,
 };
 
-function withLaunchArtwork<T extends { slug: string; coverImageUrl: string }>(
+function withLaunchArtwork<
+  T extends {
+    slug: string;
+    coverImageUrl: string;
+    shortDescription?: string;
+  },
+>(
   template: T,
   surface: "catalogue" | "hero" = "catalogue",
 ): T {
@@ -102,6 +108,9 @@ function withLaunchArtwork<T extends { slug: string; coverImageUrl: string }>(
     ...template,
     coverImageUrl:
       surface === "catalogue" ? artwork.catalogueSrc : artwork.heroSrc,
+    ...(artwork.catalogueDescription
+      ? { shortDescription: artwork.catalogueDescription }
+      : {}),
   };
 }
 

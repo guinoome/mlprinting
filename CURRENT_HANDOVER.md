@@ -1,5 +1,5 @@
 # Current ML-DEP handover
 
-Resume from [`docs/handovers/2026-09-02-mobile-payments-handover.md`](docs/handovers/2026-09-02-mobile-payments-handover.md).
+Resume from [`docs/handovers/2026-09-09-next-mobile-experiences.md`](docs/handovers/2026-09-09-next-mobile-experiences.md).
 
-That document records the exact branch and dirty-state split, completed mobile work, browser evidence, the remaining responsive defect, the Phase 8 payment gap, validation commands, and deployment sequence. Read it before editing or staging anything.
+The four flagship experiences and private receipt-verification release are already live. Do not rebuild them. Ivory Lace, Blush Botanical, Midnight Gold, and the seven-portal mobile `Find your experience` interface are implemented and fully validated on `codex/next-mobile-experiences`; the next action is the scoped commit, PR, Vercel preview, merge, and production verification recorded in the linked handover.

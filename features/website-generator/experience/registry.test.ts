@@ -49,6 +49,9 @@ describe("experience resolver", () => {
       "fiesta-banderitas",
       "product-launch",
       "in-loving-memory",
+      "ivory-lace",
+      "blush-botanical",
+      "midnight-gold",
     ]);
     // The two image-led launch experiences deliberately share full-bleed media
     // while their opening language, theme and choreography differ. Memorial

@@ -52,6 +52,42 @@ const LAUNCH = [
       "A liquid-light threshold opens into the proposition, countdown, keynote programme, venue and registration—built like a product reveal, not a memo.",
     meta: ["MP-11 product reveal", "M4 motion", "Screen-first"],
   },
+  {
+    slug: "ivory-lace",
+    number: "05",
+    name: "Ivory Lace",
+    type: "Signature · Couture wedding",
+    image: "/experiences/ivory-lace-hero.png",
+    alt: "Filipina bride in a lace gown framed by warm botanical shadows",
+    opening: "Lift the veil",
+    story:
+      "A translucent lace threshold lifts into an editorial ceremony, with measured pacing from vows to candlelit dinner and RSVP.",
+    meta: ["MP-01 editorial", "M3 motion", "Couture print companion"],
+  },
+  {
+    slug: "blush-botanical",
+    number: "06",
+    name: "Blush Botanical",
+    type: "Signature · Garden wedding",
+    image: "/experiences/blush-botanical-hero.png",
+    alt: "Filipino wedding couple walking through a flowering garden arch",
+    opening: "Enter the garden",
+    story:
+      "The garden blooms open before portraits, place, programme and vows flow through organic chapters shaped for the phone.",
+    meta: ["MP-06 botanical", "M3 motion", "Portrait-led"],
+  },
+  {
+    slug: "midnight-gold",
+    number: "07",
+    name: "Midnight Gold",
+    type: "Signature · Black-tie wedding",
+    image: "/experiences/midnight-gold-hero.png",
+    alt: "Black-tie wedding couple beneath architectural bands of gold light",
+    opening: "Part the night",
+    story:
+      "Architectural midnight panels part into a candlelit black-tie programme, venue and RSVP drawn in disciplined gold rules.",
+    meta: ["MP-02 luxe reveal", "M3 motion", "Foil-ready"],
+  },
 ] as const;
 
 export function ExperienceProofShowcase() {
@@ -68,10 +104,10 @@ export function ExperienceProofShowcase() {
         </div>
         <div className="self-end border-l border-black/20 pl-6">
           <p className="text-black/62 max-w-md text-sm leading-7">
-            We are releasing only experiences that have their own opening,
-            visual language and guest journey. Four are live now; the remaining
-            Final 50 portfolio is added in deliberate releases rather than as
-            unfinished variations.
+            Every released experience earns its own opening, visual language,
+            and guest journey. Seven are live now, with more joining the
+            collection in deliberate releases as they pass interaction and
+            visual QA.
           </p>
         </div>
       </header>

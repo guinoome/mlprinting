@@ -26,7 +26,7 @@ export function MessengerButton() {
       rel="noreferrer noopener"
       // Chat with us, not the brand name: the label says what pressing it does.
       aria-label="Chat with ML Printing on Messenger"
-      className="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full border border-border bg-background/95 px-4 py-3 text-sm font-medium shadow-lg backdrop-blur transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring md:bottom-6 md:right-6"
+      className="fixed bottom-6 right-6 z-40 hidden items-center gap-2 rounded-full border border-border bg-background/95 px-4 py-3 text-sm font-medium shadow-lg backdrop-blur transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex"
     >
       {/* Messenger's mark, inline. A remote image would be one more request and
           one more host to trust for a decorative glyph. */}

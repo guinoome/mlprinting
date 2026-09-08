@@ -23,6 +23,21 @@ describe("launch artwork", () => {
       "/experiences/product-launch-catalogue.png",
       "/experiences/product-launch-catalogue.png",
     ],
+    [
+      "ivory-lace",
+      "/experiences/ivory-lace-hero.png",
+      "/experiences/ivory-lace-hero.png",
+    ],
+    [
+      "blush-botanical",
+      "/experiences/blush-botanical-hero.png",
+      "/experiences/blush-botanical-hero.png",
+    ],
+    [
+      "midnight-gold",
+      "/experiences/midnight-gold-hero.png",
+      "/experiences/midnight-gold-hero.png",
+    ],
   ])(
     "separates %s catalogue and interactive artwork",
     (slug, catalogueSrc, heroSrc) => {
@@ -34,6 +49,6 @@ describe("launch artwork", () => {
   );
 
   it("does not replace unfinished catalogue artwork", () => {
-    expect(launchArtworkForSlug("ivory-lace")).toBeNull();
+    expect(launchArtworkForSlug("coastal-linen")).toBeNull();
   });
 });
