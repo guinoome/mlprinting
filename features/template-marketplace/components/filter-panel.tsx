@@ -52,10 +52,10 @@ function FilterLink({
       scroll={false}
       aria-pressed={active}
       className={cn(
-        "border-black/8 flex min-h-11 items-center gap-2 border-b px-2 text-sm transition-colors",
+        "flex min-h-11 items-center gap-2 border-b border-black/[0.08] px-2 text-sm transition-colors",
         active
           ? "bg-[#181714] font-medium text-white"
-          : "text-black/55 hover:bg-black/5 hover:text-black",
+          : "text-black/[0.55] hover:bg-black/5 hover:text-black",
       )}
     >
       <span

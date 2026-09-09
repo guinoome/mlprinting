@@ -81,7 +81,7 @@ export default async function TemplatesPage({
 
       <div className="flex gap-10 pb-14">
         {/* Sidebar filters on desktop. The same panel goes in the drawer below. */}
-        <aside className="hidden w-56 shrink-0 border-t border-black/15 pt-6 lg:block">
+        <aside className="hidden w-56 shrink-0 border-t border-black/[0.15] pt-6 lg:block">
           <div className="sticky top-24">{filters}</div>
         </aside>
 
@@ -155,7 +155,7 @@ function CatalogHero({
 }) {
   const noneActive = activeCategories.length === 0;
   return (
-    <section className="mb-10 border-b border-black/15 pb-10 pt-3 md:pb-14 md:pt-8">
+    <section className="mb-10 border-b border-black/[0.15] pb-10 pt-3 md:pb-14 md:pt-8">
       <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#8b6735]">
         {branding.company} — {branding.location}
       </p>
@@ -182,7 +182,7 @@ function CatalogHero({
                 "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-xs font-medium transition-colors",
                 noneActive
                   ? "border-[#181714] bg-[#181714] text-white"
-                  : "border-black/15 text-black/55 hover:border-black/45 hover:text-black",
+                  : "border-black/[0.15] text-black/[0.55] hover:border-black/[0.45] hover:text-black",
               )}
             >
               All
@@ -198,7 +198,7 @@ function CatalogHero({
                     "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-xs font-medium transition-colors",
                     active
                       ? "border-[#181714] bg-[#181714] text-white"
-                      : "border-black/15 text-black/55 hover:border-black/45 hover:text-black",
+                      : "border-black/[0.15] text-black/[0.55] hover:border-black/[0.45] hover:text-black",
                   )}
                 >
                   {category.name}

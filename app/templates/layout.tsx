@@ -29,7 +29,7 @@ export default function MarketplaceLayout({
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-8">
         {children}
       </main>
-      <footer className="text-white/48 border-t border-white/10 bg-[#0b0d12] px-4 py-8 text-center text-xs md:px-8">
+      <footer className="border-t border-white/10 bg-[#0b0d12] px-4 py-8 text-center text-xs text-white/[0.48] md:px-8">
         <span className="text-[#dfbd7e]">{branding.company}</span> —{" "}
         {branding.location} ·{" "}
         <Link href={routes.home} className="transition-colors hover:text-white">

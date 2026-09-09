@@ -56,7 +56,7 @@ export function MobileFilters({
       </SheetTrigger>
 
       <SheetContent side="left" className="w-80 bg-[#f5f0e7] text-[#181714]">
-        <SheetTitle className="border-b border-black/15 px-6 py-5 font-serif text-2xl">
+        <SheetTitle className="border-b border-black/[0.15] px-6 py-5 font-serif text-2xl">
           Find your experience
         </SheetTitle>
         <div className="flex-1 overflow-y-auto p-3">{children}</div>

@@ -45,6 +45,16 @@ The old shared dark-blue marketplace surfaces were overhauled to match the image
 - A 390×844 full-page visual capture of the homepage was inspected. The hierarchy, subjects, invitation cards, feature sections, FAQ, closing image CTA, and footer remain readable without horizontal clipping.
 - Local `/templates` database rendering cannot be visually validated in the disposable QA copy because it intentionally has no Supabase/database credentials. Production preview is therefore the authoritative catalogue and template-detail visual gate.
 
+## First production release and visual follow-up
+
+- PR #10 passed `Lint, typecheck, test, build`, received a successful Vercel preview deployment, and was squash-merged as `a8bf686fb5b5da576eddda45a125c511ebb80765`.
+- The matching production deployment succeeded at `https://mlprinting-3ir1yu8j9-guinoomes-projects.vercel.app` and the public domain served the new marketplace.
+- Production visual review covered `/templates` at 390×844 and 1440×900 plus `/templates/blush-botanical` at 390×844. Catalogue artwork, phone filters, two-column mobile cards, desktop portal grid, interactive template artwork, conversion actions, and content hierarchy rendered correctly without page overflow.
+- Production then passed the same eight 320×844 and 390×844 Playwright interaction tests.
+- Visual inspection caught a low-level contrast defect that the structural tests could not detect: Tailwind did not emit several non-standard numeric opacity utilities, so supporting/footer text inherited a darker colour than designed.
+- The follow-up replaces those utilities with explicit arbitrary opacity values such as `text-white/[0.48]` and `bg-black/[0.42]`. Computed-style verification now returns `rgba(255, 255, 255, 0.48)` for the marketplace footer and `rgba(255, 255, 255, 0.58)` for the feature-supporting copy.
+- After the follow-up, TypeScript, ESLint, diff hygiene, all 783 Vitest tests, the production build, and all eight local mobile Playwright tests passed again.
+
 ## Exact working-tree boundaries
 
 - Intended source changes are limited to the shared homepage, header, marketplace catalogue, template-detail presentation, responsive theme CSS, Playwright configuration, and the new mobile E2E test.
@@ -62,7 +72,7 @@ The old shared dark-blue marketplace surfaces were overhauled to match the image
 6. Require the repository check to pass, merge, poll the Vercel deployment by merge SHA, and verify `https://mlprinting.vercel.app`.
 7. Update this handover with the PR, merge SHA, deployment URL, production evidence, and one next action.
 
-**Single next action:** review and commit the already validated marketplace overhaul without staging `.codex-remote-attachments/`.
+**Single next action:** commit only the explicit-opacity follow-up, push it through a new PR, and repeat the merge-SHA production verification.
 
 ## Continuity rule
 
