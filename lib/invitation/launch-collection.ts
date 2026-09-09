@@ -8,4 +8,7 @@ export const LAUNCH_COLLECTION_SLUGS = [
   "neon-eighteen",
   "fiesta-banderitas",
   "product-launch",
+  "ivory-lace",
+  "blush-botanical",
+  "midnight-gold",
 ] as const;

@@ -74,6 +74,39 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     sampleCover:
       "/api/placeholder/desktop/in-loving-memory?label=Rosario%20Santos&caption=In%20Loving%20Memory",
   },
+  {
+    slug: "ivory-lace",
+    name: "Ivory Lace",
+    occasion: "Couture wedding",
+    eventKind: "wedding",
+    tier: "SIGNATURE",
+    motionLevel: "M3",
+    motionProfile: "MP-01",
+    promise: "A lace-shadow threshold opens into a restrained editorial ceremony.",
+    sampleCover: "/experiences/ivory-lace-hero.png",
+  },
+  {
+    slug: "blush-botanical",
+    name: "Blush Botanical",
+    occasion: "Garden wedding",
+    eventKind: "wedding",
+    tier: "SIGNATURE",
+    motionLevel: "M3",
+    motionProfile: "MP-06",
+    promise: "Pressed botanicals unfurl into a warm garden guest journey.",
+    sampleCover: "/experiences/blush-botanical-hero.png",
+  },
+  {
+    slug: "midnight-gold",
+    name: "Midnight Gold",
+    occasion: "Black-tie wedding",
+    eventKind: "wedding",
+    tier: "SIGNATURE",
+    motionLevel: "M3",
+    motionProfile: "MP-02",
+    promise: "Midnight panels part to reveal a candlelit evening programme.",
+    sampleCover: "/experiences/midnight-gold-hero.png",
+  },
 ] as const;
 
 export function proofExperienceForSlug(

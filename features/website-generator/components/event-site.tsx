@@ -122,7 +122,14 @@ function initials(source: string[]): string {
   return letters.join("");
 }
 
-function invVars(style: PreviewStyle): React.CSSProperties {
+type InvitationVars = React.CSSProperties & {
+  "--inv-entry-image"?: string;
+};
+
+function invVars(
+  style: PreviewStyle,
+  entryImageUrl?: string | null,
+): InvitationVars {
   return {
     "--inv-heading": style.headingFont,
     "--inv-bg": style.background,
@@ -144,7 +151,10 @@ function invVars(style: PreviewStyle): React.CSSProperties {
     "--inv-paper": mix(style.background, "#ffffff", 0.55),
     "--inv-line": rgba(style.accent, 0.28),
     "--inv-surface": rgba(style.foreground, 0.045),
-  } as React.CSSProperties;
+    ...(entryImageUrl
+      ? { "--inv-entry-image": `url(${JSON.stringify(entryImageUrl)})` }
+      : {}),
+  } as InvitationVars;
 }
 
 /** Festive confetti colours drawn from the theme, with gold and white for sparkle. */
@@ -496,7 +506,7 @@ export function EventSite({
       motionProfile={experience.config.motionProfile}
       motionLevel={experience.motionLevel}
       visualThemeId={experience.config.visualThemeId}
-      style={invVars(style)}
+      style={invVars(style, model.coverImageUrl)}
     >
       <div
         className="inv-experience-body pb-4"

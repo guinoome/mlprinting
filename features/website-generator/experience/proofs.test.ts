@@ -15,7 +15,7 @@ describe("proof experience index", () => {
   });
 
   it("does not pretend an arbitrary template is one of the proofs", () => {
-    expect(proofExperienceForSlug("ivory-lace")).toBeNull();
+    expect(proofExperienceForSlug("coastal-linen")).toBeNull();
     expect(proofExperienceForSlug(undefined)).toBeNull();
   });
 });

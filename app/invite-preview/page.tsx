@@ -288,6 +288,96 @@ const KINDS: Record<EventKind, KindSpec> = {
  * false preview, so release proofs may replace the sample story as one unit.
  */
 const PROOF_SPECS: Partial<Record<string, KindSpec>> = {
+  "ivory-lace": {
+    title: "Elena & Mateo",
+    subtitle: "a ceremony in ivory",
+    hosts: ["Elena Villanueva", "Mateo Reyes"],
+    welcome:
+      "In the quiet between lace and light, we found the beginning of our forever.",
+    invitation:
+      "Together with our families, we invite you to witness our vows and share an evening shaped with care.",
+    venues: [
+      {
+        label: "Ceremony",
+        name: "Archdiocesan Shrine of Our Lady of Guadalupe",
+        address: "Guadalupe, Cebu City",
+        time: "3:00 PM",
+      },
+      {
+        label: "Dinner",
+        name: "The Glass House at IPI Center",
+        address: "Kasambagan, Cebu City",
+        time: "6:00 PM",
+      },
+    ],
+    program: [
+      { time: "2:30 PM", title: "Guest arrival" },
+      { time: "3:00 PM", title: "Wedding ceremony" },
+      { time: "5:30 PM", title: "Portrait hour" },
+      { time: "6:30 PM", title: "Candlelit dinner" },
+    ],
+    dressCode: "Formal · ivory, stone, or champagne accents",
+    closing: "With love, Elena & Mateo.",
+    bg: "#f4efe5",
+    fg: "#171714",
+    accent: "#9a6f32",
+  },
+  "blush-botanical": {
+    title: "Sofia & Miguel",
+    subtitle: "our love is in bloom",
+    hosts: ["Sofia Flores", "Miguel Santos"],
+    welcome:
+      "A little rain, a garden in bloom, and every person who helped our love grow.",
+    invitation:
+      "Walk into the garden with us for an afternoon of vows, supper, and dancing under the trees.",
+    venues: [
+      {
+        label: "Garden ceremony",
+        name: "Circa 1900",
+        address: "Lahug, Cebu City",
+        time: "4:00 PM",
+      },
+    ],
+    program: [
+      { time: "3:30 PM", title: "Garden opens" },
+      { time: "4:00 PM", title: "Vows beneath the bougainvillea" },
+      { time: "5:00 PM", title: "Golden-hour portraits" },
+      { time: "6:00 PM", title: "Supper and dancing" },
+    ],
+    dressCode: "Garden formal · blush, sage, or warm neutrals",
+    closing: "Come grow this memory with us.",
+    bg: "#f3e9e4",
+    fg: "#29362d",
+    accent: "#9b5f68",
+  },
+  "midnight-gold": {
+    title: "Bianca & Rafael",
+    subtitle: "an evening written in gold",
+    hosts: ["Bianca Navarro", "Rafael Tan"],
+    welcome:
+      "When the city turns to midnight, our brightest chapter begins.",
+    invitation:
+      "Join us for black-tie vows, candlelight, and a celebration that carries into the night.",
+    venues: [
+      {
+        label: "Ceremony and reception",
+        name: "NUSTAR Grand Ballroom",
+        address: "South Road Properties, Cebu City",
+        time: "5:30 PM",
+      },
+    ],
+    program: [
+      { time: "5:00 PM", title: "Champagne arrival" },
+      { time: "5:30 PM", title: "Ceremony" },
+      { time: "7:00 PM", title: "Black-tie dinner" },
+      { time: "9:00 PM", title: "First dance after dark" },
+    ],
+    dressCode: "Black tie · midnight, black, or metallic accents",
+    closing: "Meet us where the light turns gold.",
+    bg: "#090d18",
+    fg: "#fbf3df",
+    accent: "#c69b4a",
+  },
   "product-launch": {
     title: "Lumen One",
     subtitle: "the next form arrives",

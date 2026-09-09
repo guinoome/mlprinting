@@ -16,6 +16,7 @@ import { FeatureHighlights } from "@/features/marketing/components/feature-highl
 import { TemplateShowcase } from "@/features/marketing/components/template-showcase";
 import { FaqSection } from "@/features/marketing/components/faq-section";
 import { ExperienceProofShowcase } from "@/features/marketing/components/experience-proof-showcase";
+import { ExperienceFinder } from "@/features/marketing/components/experience-finder";
 
 /**
  * Landing page.
@@ -79,6 +80,8 @@ export default async function Home() {
 
       <main className="flex-1">
         <LandingHero />
+
+        <ExperienceFinder />
 
         <ExperienceProofShowcase />
 

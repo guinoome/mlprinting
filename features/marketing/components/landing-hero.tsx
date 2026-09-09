@@ -113,10 +113,10 @@ export function LandingHero() {
               ))}
             </div>
             <Link
-              href={routes.acquisitionTemplates("home-hero")}
+              href="#find-your-experience"
               className="mt-5 inline-flex text-[10px] uppercase tracking-[0.22em] text-white/65 underline decoration-white/30 underline-offset-4 hover:text-white"
             >
-              Browse the full catalogue
+              Find your experience
             </Link>
           </div>
         </div>
