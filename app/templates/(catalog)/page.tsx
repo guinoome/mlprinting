@@ -74,12 +74,15 @@ export default async function TemplatesPage({
 
   return (
     <>
-      <CatalogHero categories={categories} activeCategories={criteria.category} />
+      <CatalogHero
+        categories={categories}
+        activeCategories={criteria.category}
+      />
 
-      <div className="flex gap-8">
+      <div className="flex gap-10 pb-14">
         {/* Sidebar filters on desktop. The same panel goes in the drawer below. */}
-        <aside className="hidden w-56 shrink-0 lg:block">
-          <div className="sticky top-20">{filters}</div>
+        <aside className="hidden w-56 shrink-0 border-t border-black/15 pt-6 lg:block">
+          <div className="sticky top-24">{filters}</div>
         </aside>
 
         <div className="min-w-0 flex-1">
@@ -89,7 +92,7 @@ export default async function TemplatesPage({
             </Suspense>
 
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm text-muted-foreground" aria-live="polite">
+              <p className="text-sm text-black/50" aria-live="polite">
                 {totalCount === 0
                   ? "No templates"
                   : `${totalCount} template${totalCount === 1 ? "" : "s"}`}
@@ -113,7 +116,7 @@ export default async function TemplatesPage({
                of 375px is still large enough to judge a design by, and twice as
                many designs pass under the thumb per scroll — which is the point
                of browsing by picture. */
-            <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 xl:grid-cols-4">
               {templates.map((template, index) => (
                 <TemplateCard
                   key={template.id}
@@ -152,19 +155,19 @@ function CatalogHero({
 }) {
   const noneActive = activeCategories.length === 0;
   return (
-    <section className="mb-10 border-b border-border pb-8">
-      <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-muted-foreground">
+    <section className="mb-10 border-b border-black/15 pb-10 pt-3 md:pb-14 md:pt-8">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#8b6735]">
         {branding.company} — {branding.location}
       </p>
 
-      <h1 className="mt-4 max-w-2xl text-balance font-serif text-4xl leading-[1.1] tracking-tight md:text-5xl">
-        Experiences worth entering.
+      <h1 className="mt-5 max-w-4xl text-balance font-serif text-5xl leading-[0.94] tracking-[-0.04em] sm:text-6xl md:text-7xl">
+        Find the world that feels like your day.
       </h1>
 
-      <p className="mt-4 max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground md:text-base">
-        The public collection contains only launch-ready experiences with their
-        own opening scene, guest journey and RSVP. New designs are added as they
-        pass interaction and visual QA—not as unfinished variations.
+      <p className="mt-6 max-w-2xl text-pretty text-sm leading-7 text-black/60 md:text-base">
+        Browse launch-ready invitations with their own opening scene, visual
+        language, guest journey and RSVP. Every image below opens into a real
+        experience—not a static card mockup.
       </p>
 
       {/* One scrolling line on a phone, wrapped rows once there is room.
@@ -176,10 +179,10 @@ function CatalogHero({
             <Link
               href={routes.templates}
               className={cn(
-                "inline-block shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+                "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-xs font-medium transition-colors",
                 noneActive
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                  ? "border-[#181714] bg-[#181714] text-white"
+                  : "border-black/15 text-black/55 hover:border-black/45 hover:text-black",
               )}
             >
               All
@@ -192,10 +195,10 @@ function CatalogHero({
                 <Link
                   href={`${routes.templates}?category=${category.slug}`}
                   className={cn(
-                    "inline-block shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+                    "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-xs font-medium transition-colors",
                     active
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                      ? "border-[#181714] bg-[#181714] text-white"
+                      : "border-black/15 text-black/55 hover:border-black/45 hover:text-black",
                   )}
                 >
                   {category.name}

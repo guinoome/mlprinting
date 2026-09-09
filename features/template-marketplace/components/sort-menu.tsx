@@ -29,7 +29,11 @@ export function SortMenu({ criteria }: { criteria: Criteria }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+          className="min-h-11 rounded-none border-black/20 bg-transparent text-[#181714] hover:bg-black/5"
+        >
           <ArrowUpDown aria-hidden="true" />
           <span className="hidden sm:inline">{SORT_LABELS[criteria.sort]}</span>
           <span className="sm:hidden">Sort</span>

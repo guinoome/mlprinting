@@ -686,7 +686,9 @@
     linear-gradient(112deg, rgba(255, 250, 238, 0.34), transparent 68%);
   border-right: 1px solid rgba(255, 247, 225, 0.52);
   transform: skewX(-7deg);
-  transition: transform 760ms cubic-bezier(0.65, 0, 0.35, 1), opacity 560ms;
+  transition:
+    transform 760ms cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 560ms;
 }
 .inv-entry--atelier-ivory.is-opening::before {
   opacity: 0;
@@ -724,10 +726,20 @@
   inset: -18%;
   z-index: 1;
   background:
-    radial-gradient(ellipse at 9% 18%, rgba(214, 147, 157, 0.42), transparent 18%),
-    radial-gradient(ellipse at 92% 78%, rgba(246, 211, 211, 0.34), transparent 20%);
+    radial-gradient(
+      ellipse at 9% 18%,
+      rgba(214, 147, 157, 0.42),
+      transparent 18%
+    ),
+    radial-gradient(
+      ellipse at 92% 78%,
+      rgba(246, 211, 211, 0.34),
+      transparent 20%
+    );
   transform: scale(0.9) rotate(-3deg);
-  transition: transform 800ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 650ms;
+  transition:
+    transform 800ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 650ms;
 }
 .inv-entry--botanical-romance.is-opening::before {
   opacity: 0;
@@ -763,7 +775,12 @@
   z-index: 1;
   width: 39%;
   background:
-    linear-gradient(90deg, rgba(198, 155, 74, 0.09), transparent 16% 84%, rgba(198, 155, 74, 0.1)),
+    linear-gradient(
+      90deg,
+      rgba(198, 155, 74, 0.09),
+      transparent 16% 84%,
+      rgba(198, 155, 74, 0.1)
+    ),
     rgba(7, 10, 18, 0.88);
   transition: transform 780ms cubic-bezier(0.76, 0, 0.24, 1);
 }
@@ -2522,7 +2539,11 @@ video.inv-hero-photo {
 }
 .inv-reveal-root[data-visual-theme="botanical-romance"] .inv-experience-body {
   background:
-    radial-gradient(circle at 96% 12%, rgba(155, 95, 104, 0.12), transparent 24%),
+    radial-gradient(
+      circle at 96% 12%,
+      rgba(155, 95, 104, 0.12),
+      transparent 24%
+    ),
     radial-gradient(circle at 4% 52%, rgba(67, 92, 69, 0.1), transparent 23%),
     #f3e9e4 !important;
 }
@@ -2583,7 +2604,9 @@ video.inv-hero-photo {
   background:
     linear-gradient(90deg, rgba(198, 155, 74, 0.055) 1px, transparent 1px),
     linear-gradient(135deg, #050812, #0c1220 64%, #05070d) !important;
-  background-size: 96px 100%, auto !important;
+  background-size:
+    96px 100%,
+    auto !important;
 }
 .inv-reveal-root[data-visual-theme="midnight-metallic"] .inv-motion-stage {
   padding: clamp(30px, 5vw, 52px) clamp(22px, 4vw, 46px);
@@ -2599,7 +2622,53 @@ video.inv-hero-photo {
   background: rgba(4, 7, 14, 0.52);
 }
 
+/* The shared luxury motion profile declares a later background shorthand for
+   legacy overlays. These experience-specific declarations intentionally win
+   that cascade so each full-screen threshold is an opaque image layer. Without
+   this, the invitation hero beneath can show through and duplicate its copy. */
+.inv-reveal-root[data-visual-theme="atelier-ivory"] .inv-entry--atelier-ivory {
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/ivory-lace-hero.png")
+  );
+  background-position: 56% 48%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.inv-reveal-root[data-visual-theme="botanical-romance"]
+  .inv-entry--botanical-romance {
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/blush-botanical-hero.png")
+  );
+  background-position: 54% 42%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.inv-reveal-root[data-visual-theme="midnight-metallic"]
+  .inv-entry--midnight-metallic {
+  background-image: var(
+    --inv-entry-image,
+    url("/experiences/midnight-gold-hero.png")
+  );
+  background-position: 74% 42%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 @media (max-width: 700px) {
+  .inv-reveal-root[data-visual-theme="atelier-ivory"]
+    .inv-entry--atelier-ivory {
+    background-position: 51% 48%;
+  }
+  .inv-reveal-root[data-visual-theme="botanical-romance"]
+    .inv-entry--botanical-romance {
+    background-position: 50% 42%;
+  }
+  .inv-reveal-root[data-visual-theme="midnight-metallic"]
+    .inv-entry--midnight-metallic {
+    background-position: 74% 46%;
+  }
   .inv-reveal-root:is(
       [data-visual-theme="capiz-luminous"],
       [data-visual-theme="neon-nightlife"],

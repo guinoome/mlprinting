@@ -3,6 +3,7 @@
 import { useFormState, useFormStatus } from "react-dom";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useTemplate, type UseTemplateState } from "../actions";
 
 const initialState: UseTemplateState = {};
@@ -42,17 +43,19 @@ export function UseTemplateButton({
   slug,
   size,
   className,
+  buttonClassName,
 }: {
   slug: string;
   size?: ButtonProps["size"];
   className?: string;
+  buttonClassName?: string;
 }) {
   const [state, formAction] = useFormState(useTemplate, initialState);
 
   return (
     <form action={formAction} className={className}>
       <input type="hidden" name="slug" value={slug} />
-      <Submit size={size} className="w-full">
+      <Submit size={size} className={cn("w-full", buttonClassName)}>
         Use this template
       </Submit>
 

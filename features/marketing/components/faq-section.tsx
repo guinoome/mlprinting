@@ -9,23 +9,32 @@ import { FAQS } from "../content";
  */
 export function FaqSection() {
   return (
-    <section className="border-b border-border">
-      <div className="mx-auto max-w-3xl px-4 py-16 md:px-8 md:py-20">
-        <h2 className="text-balance font-serif text-3xl leading-tight tracking-tight">
-          Questions people ask.
-        </h2>
+    <section className="border-black/12 border-t bg-[#f5f0e7] text-[#181714]">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:px-8 md:py-28 lg:grid-cols-[.7fr_1fr]">
+        <header>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#8b6735]">
+            Before you choose
+          </p>
+          <h2 className="mt-4 max-w-lg text-balance font-serif text-5xl leading-[0.96] tracking-[-0.04em] md:text-6xl">
+            The practical details, beautifully simple.
+          </h2>
+          <p className="text-black/58 mt-5 max-w-sm text-sm leading-7">
+            Guests open a link. You keep the replies. The printed suite can
+            carry the same visual story.
+          </p>
+        </header>
 
-        <div className="mt-8 divide-y divide-border border-y border-border">
+        <div className="divide-y divide-black/15 border-y border-black/15">
           {FAQS.map((faq) => (
-            <details key={faq.question} className="group py-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+            <details key={faq.question} className="group py-6">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-serif text-xl [&::-webkit-details-marker]:hidden">
                 {faq.question}
                 <Plus
-                  className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-45"
+                  className="size-5 shrink-0 text-[#8b6735] transition-transform duration-200 group-open:rotate-45"
                   aria-hidden="true"
                 />
               </summary>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              <p className="text-black/58 mt-4 max-w-2xl pr-10 text-sm leading-7">
                 {faq.answer}
               </p>
             </details>
