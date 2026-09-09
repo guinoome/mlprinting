@@ -14,38 +14,53 @@ export async function SiteHeader() {
   const user = await getUser();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 md:px-8">
+    <header className="supports-[backdrop-filter]:bg-[#0b0d12]/86 sticky top-0 z-40 border-b border-white/10 bg-[#0b0d12]/95 text-white backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-7 px-4 md:px-8">
         <Link
           href={routes.home}
-          className="shrink-0 whitespace-nowrap text-sm font-semibold tracking-tight transition-opacity hover:opacity-70"
+          className="grid shrink-0 whitespace-nowrap font-serif leading-none text-[#dfbd7e] transition-opacity hover:opacity-75"
+          aria-label={`${branding.company} home`}
         >
-          {branding.shortName}
+          <span className="text-xl tracking-[0.12em]">ML</span>
+          <span className="mt-1 font-sans text-[7px] font-semibold uppercase tracking-[0.34em] text-white/55">
+            Printing
+          </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 text-sm sm:flex">
+        <nav className="hidden items-center gap-6 text-[10px] font-semibold uppercase tracking-[0.2em] sm:flex">
           {features.templateMarketplace ? (
             <Link
               href={routes.templates}
-              className="rounded-md px-3 py-2 font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-white/58 transition-colors hover:text-[#dfbd7e]"
             >
-              Templates
+              Invitations
             </Link>
           ) : null}
+          <Link
+            href={`${routes.home}#find-your-experience`}
+            className="text-white/58 transition-colors hover:text-[#dfbd7e]"
+          >
+            Experiences
+          </Link>
         </nav>
 
         <div className="ml-auto hidden items-center gap-2 sm:flex">
           {user ? (
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="rounded-none px-5">
               <Link href={routes.dashboard.root}>Dashboard</Link>
             </Button>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="hover:bg-white/8 text-white/70 hover:text-white"
+              >
                 <Link href={routes.login}>Sign in</Link>
               </Button>
               {features.registration ? (
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="rounded-none px-5">
                   <Link href={routes.register}>Get started</Link>
                 </Button>
               ) : null}
@@ -59,33 +74,39 @@ export async function SiteHeader() {
             client-side menu state. */}
         <div className="ml-auto flex items-center gap-2 sm:hidden">
           {user ? (
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="rounded-none px-4">
               <Link href={routes.dashboard.root}>Dashboard</Link>
             </Button>
           ) : features.registration ? (
-            <Button asChild size="sm" className="px-3">
+            <Button asChild size="sm" className="rounded-none px-4">
               <Link href={routes.register}>Get started</Link>
             </Button>
           ) : null}
 
           <details className="group relative">
-            <summary className="flex size-11 cursor-pointer list-none items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+            <summary className="border-white/18 hover:bg-white/8 flex size-11 cursor-pointer list-none items-center justify-center border bg-transparent text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white [&::-webkit-details-marker]:hidden">
               <Menu className="size-5" aria-hidden="true" />
               <span className="sr-only">Open site menu</span>
             </summary>
-            <nav className="absolute right-0 top-12 z-50 grid min-w-44 gap-1 rounded-lg border border-border bg-background p-2 text-sm shadow-xl">
+            <nav className="absolute right-0 top-12 z-50 grid min-w-48 gap-1 border border-white/15 bg-[#0b0d12] p-2 text-sm shadow-2xl">
               {features.templateMarketplace ? (
                 <Link
                   href={routes.templates}
-                  className="flex min-h-11 items-center rounded-md px-3 font-medium hover:bg-muted"
+                  className="hover:bg-white/8 flex min-h-11 items-center px-3 font-medium text-white/75 hover:text-white"
                 >
                   Templates
                 </Link>
               ) : null}
+              <Link
+                href={`${routes.home}#find-your-experience`}
+                className="hover:bg-white/8 flex min-h-11 items-center px-3 font-medium text-white/75 hover:text-white"
+              >
+                Experiences
+              </Link>
               {user ? null : (
                 <Link
                   href={routes.login}
-                  className="flex min-h-11 items-center rounded-md px-3 font-medium hover:bg-muted"
+                  className="hover:bg-white/8 flex min-h-11 items-center px-3 font-medium text-white/75 hover:text-white"
                 >
                   Sign in
                 </Link>

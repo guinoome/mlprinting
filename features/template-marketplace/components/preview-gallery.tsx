@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { Monitor, Smartphone, Printer } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, PlayCircle, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -26,86 +27,113 @@ export interface Shot {
   alt: string;
 }
 
-const TABS: { kind: Surface; label: string; icon: typeof Monitor }[] = [
-  { kind: "DESKTOP", label: "Desktop", icon: Monitor },
-  { kind: "MOBILE", label: "Mobile", icon: Smartphone },
-  { kind: "PRINT", label: "Print", icon: Printer },
-];
+type GallerySurface = "EXPERIENCE" | "PRINT";
 
-/** Frame aspect per surface, so a phone screenshot is not stretched to a laptop shape. */
-const FRAME = {
-  DESKTOP: "aspect-[16/10]",
-  MOBILE: "aspect-[9/16] max-w-[280px] mx-auto",
-  PRINT: "aspect-[3/4] max-w-[420px] mx-auto",
-} as const;
-
-export function PreviewGallery({ shots }: { shots: Shot[] }) {
-  // Only offer a tab that has something behind it — a template may be
-  // print-only or website-only (Ph2.md §7).
-  const available = TABS.filter((tab) =>
-    shots.some((s) => s.kind === tab.kind),
-  );
-  const [active, setActive] = React.useState<Surface>(
-    available[0]?.kind ?? "DESKTOP",
-  );
-
-  const visible = shots.filter((s) => s.kind === active);
-
-  if (available.length === 0) {
-    return (
-      <div className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-        No previews available for this template.
-      </div>
-    );
-  }
+export function PreviewGallery({
+  shots,
+  heroImageUrl,
+  templateName,
+  livePreviewHref,
+}: {
+  shots: Shot[];
+  heroImageUrl: string;
+  templateName: string;
+  livePreviewHref: string;
+}) {
+  const printShot = shots.find((shot) => shot.kind === "PRINT");
+  const [active, setActive] = React.useState<GallerySurface>("EXPERIENCE");
+  const showingPrint = active === "PRINT" && printShot;
 
   return (
     <div className="space-y-4">
-      <div role="tablist" aria-label="Preview surface" className="flex gap-1">
-        {available.map(({ kind, label, icon: Icon }) => (
+      <div
+        role="tablist"
+        aria-label="Preview surface"
+        className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <button
+          role="tab"
+          type="button"
+          aria-selected={active === "EXPERIENCE"}
+          aria-controls="preview-EXPERIENCE"
+          onClick={() => setActive("EXPERIENCE")}
+          className={cn(
+            "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9a6e32]",
+            active === "EXPERIENCE"
+              ? "border-[#181714] bg-[#181714] text-white"
+              : "border-black/20 text-black/55 hover:border-black/50 hover:text-black",
+          )}
+        >
+          <PlayCircle className="size-4" aria-hidden="true" />
+          Interactive
+        </button>
+
+        {printShot ? (
           <button
-            key={kind}
             role="tab"
             type="button"
-            aria-selected={active === kind}
-            aria-controls={`preview-${kind}`}
-            onClick={() => setActive(kind)}
+            aria-selected={active === "PRINT"}
+            aria-controls="preview-PRINT"
+            onClick={() => setActive("PRINT")}
             className={cn(
-              "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              active === kind
-                ? "bg-muted text-foreground"
-                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+              "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9a6e32]",
+              active === "PRINT"
+                ? "border-[#181714] bg-[#181714] text-white"
+                : "border-black/20 text-black/55 hover:border-black/50 hover:text-black",
             )}
           >
-            <Icon className="size-4" aria-hidden="true" />
-            {label}
+            <Printer className="size-4" aria-hidden="true" />
+            Print companion
           </button>
-        ))}
+        ) : null}
       </div>
 
       <div
         role="tabpanel"
         id={`preview-${active}`}
-        className="space-y-4 rounded-lg border border-border bg-muted/40 p-4 sm:p-6"
+        className="relative mx-auto aspect-[9/16] max-h-[76svh] min-h-[32rem] w-full max-w-[32rem] overflow-hidden rounded-t-[12rem] bg-[#12120f] shadow-[0_34px_80px_rgba(28,20,9,0.24)]"
       >
-        {visible.map((shot) => (
-          <div
-            key={shot.id}
-            className={cn(
-              "relative overflow-hidden rounded-md border border-border bg-background",
-              FRAME[shot.kind],
-            )}
-          >
-            <Image
-              src={shot.url}
-              alt={shot.alt}
-              fill
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              className="object-contain"
+        <Image
+          src={showingPrint ? printShot.url : heroImageUrl}
+          alt={
+            showingPrint
+              ? printShot.alt
+              : `${templateName} interactive invitation artwork`
+          }
+          fill
+          priority
+          sizes="(min-width: 1024px) 42vw, 100vw"
+          className={showingPrint ? "object-contain" : "object-cover"}
+        />
+
+        {!showingPrint ? (
+          <>
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/15"
+              aria-hidden="true"
             />
-          </div>
-        ))}
+            <div className="absolute inset-x-0 top-0 flex items-center justify-between p-6 text-[9px] font-semibold uppercase tracking-[0.24em] text-white/75">
+              <span>Phone first</span>
+              <span>Desktop ready</span>
+            </div>
+            <Link
+              href={livePreviewHref}
+              target="_blank"
+              rel="noreferrer"
+              className="bg-black/42 absolute inset-x-5 bottom-5 flex min-h-12 items-center justify-between border border-white/60 px-5 text-xs font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              Open the invitation
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </Link>
+          </>
+        ) : null}
       </div>
+
+      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-black/45">
+        {showingPrint
+          ? "Designed to continue into print"
+          : "Tap to enter the real guest journey"}
+      </p>
     </div>
   );
 }

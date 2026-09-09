@@ -21,21 +21,25 @@ export function TemplateShowcase({
   if (templates.length === 0) return null;
 
   return (
-    <section className="border-b border-border">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+    <section className="bg-[#f5f0e7] text-[#181714]">
+      <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-balance font-serif text-3xl leading-tight tracking-tight">
-              Designs for every occasion.
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#8b6735]">
+              The invitation atelier
+            </p>
+            <h2 className="mt-4 max-w-3xl text-balance font-serif text-5xl leading-[0.96] tracking-[-0.04em] md:text-6xl">
+              Choose a world, not a card.
             </h2>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-              Tap any design to see the invitation it becomes, running for real.
+            <p className="mt-5 max-w-xl text-sm leading-7 text-black/60">
+              Each released design has its own entrance, rhythm and guest
+              journey. Open one and experience it running for real.
             </p>
           </div>
 
           <Link
             href={routes.templates}
-            className="inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
+            className="inline-flex min-h-11 items-center gap-2 border-b border-black/30 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors hover:border-black"
           >
             See all templates
             <ArrowRight className="size-4" aria-hidden="true" />
@@ -48,7 +52,7 @@ export function TemplateShowcase({
               <li key={category.slug} className="shrink-0">
                 <Link
                   href={`${routes.templates}?category=${category.slug}`}
-                  className="inline-block whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                  className="text-black/58 inline-flex min-h-11 items-center whitespace-nowrap rounded-full border border-black/15 px-4 text-xs font-medium transition-colors hover:border-black/50 hover:text-black"
                 >
                   {category.name}
                 </Link>

@@ -66,7 +66,7 @@ export function SearchInput({ initialQuery }: { initialQuery?: string }) {
       className="relative"
     >
       <Search
-        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-black/40"
         aria-hidden="true"
       />
       <Input
@@ -76,14 +76,14 @@ export function SearchInput({ initialQuery }: { initialQuery?: string }) {
         onChange={(event) => setValue(event.target.value)}
         placeholder="Search templates…"
         aria-label="Search templates"
-        className="pl-9 pr-9"
+        className="placeholder:text-black/38 min-h-12 rounded-none border-black/20 bg-white/35 pl-11 pr-10 text-[#181714] focus-visible:ring-[#9a6e32]"
       />
       {value ? (
         <button
           type="button"
           onClick={() => setValue("")}
           aria-label="Clear search"
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-black/45 transition-colors hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9a6e32]"
         >
           <X className="size-4" />
         </button>

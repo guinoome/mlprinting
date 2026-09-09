@@ -126,7 +126,7 @@ export function ExperienceFinder() {
     <section
       id="find-your-experience"
       aria-labelledby="experience-finder-title"
-      className="overflow-hidden bg-[#f5f0e7] text-[#181714]"
+      className="scroll-mt-16 overflow-hidden bg-[#f5f0e7] text-[#181714] md:scroll-mt-20"
     >
       <div className="mx-auto max-w-7xl px-5 pb-6 pt-16 md:px-8 md:pb-10 md:pt-24">
         <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">

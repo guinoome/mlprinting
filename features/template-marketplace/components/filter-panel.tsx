@@ -52,20 +52,20 @@ function FilterLink({
       scroll={false}
       aria-pressed={active}
       className={cn(
-        "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+        "border-black/8 flex min-h-11 items-center gap-2 border-b px-2 text-sm transition-colors",
         active
-          ? "bg-muted font-medium text-foreground"
-          : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+          ? "bg-[#181714] font-medium text-white"
+          : "text-black/55 hover:bg-black/5 hover:text-black",
       )}
     >
       <span
         className={cn(
-          "flex size-4 shrink-0 items-center justify-center rounded border",
-          active ? "border-foreground bg-foreground" : "border-border",
+          "flex size-4 shrink-0 items-center justify-center border",
+          active ? "border-white bg-white" : "border-black/20",
         )}
         aria-hidden="true"
       >
-        {active ? <Check className="size-3 text-background" /> : null}
+        {active ? <Check className="size-3 text-[#181714]" /> : null}
       </span>
       <span className="truncate">{children}</span>
     </Link>
@@ -80,11 +80,11 @@ function FilterGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1.5">
-      <h3 className="px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+    <div className="space-y-2">
+      <h3 className="px-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8b6735]">
         {label}
       </h3>
-      <div className="space-y-0.5">{children}</div>
+      <div>{children}</div>
     </div>
   );
 }
@@ -106,14 +106,14 @@ export function FilterPanel({
   const activeCount = activeFilterCount(criteria);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7 text-[#181714]">
       <div className="flex items-center justify-between px-2">
-        <h2 className="text-sm font-semibold">Filters</h2>
+        <h2 className="font-serif text-2xl">Refine the collection</h2>
         {activeCount > 0 ? (
           <Link
             href={href(clearFilters(criteria))}
             scroll={false}
-            className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="text-xs font-medium text-black/50 underline-offset-4 hover:text-black hover:underline"
           >
             Clear all
           </Link>
