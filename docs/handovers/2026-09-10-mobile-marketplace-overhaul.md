@@ -54,6 +54,11 @@ The old shared dark-blue marketplace surfaces were overhauled to match the image
 - Visual inspection caught a low-level contrast defect that the structural tests could not detect: Tailwind did not emit several non-standard numeric opacity utilities, so supporting/footer text inherited a darker colour than designed.
 - The follow-up replaces those utilities with explicit arbitrary opacity values such as `text-white/[0.48]` and `bg-black/[0.42]`. Computed-style verification now returns `rgba(255, 255, 255, 0.48)` for the marketplace footer and `rgba(255, 255, 255, 0.58)` for the feature-supporting copy.
 - After the follow-up, TypeScript, ESLint, diff hygiene, all 783 Vitest tests, the production build, and all eight local mobile Playwright tests passed again.
+- PR #11 was closed without merge because its branch retained PR #10's pre-squash history and GitHub correctly reported a dirty merge. The identical correction was cherry-picked onto current main as clean PR #12.
+- PR #12 passed `Lint, typecheck, test, build` and Vercel preview, then squash-merged as `fdcbc95955f91598cb55e665f431c5d7bf7cb783`.
+- The exact production deployment succeeded at `https://mlprinting-2n9lt99nj-guinoomes-projects.vercel.app`; the public domain `https://mlprinting.vercel.app` serves it.
+- Final public-domain verification at 390 px reports no horizontal document overflow, marketplace footer colour `rgba(255, 255, 255, 0.48)`, and feature-supporting copy `rgba(255, 255, 255, 0.58)`.
+- The public production site passed all eight 320×844 and 390×844 Playwright interaction tests after the contrast deployment.
 
 ## Exact working-tree boundaries
 
@@ -72,7 +77,7 @@ The old shared dark-blue marketplace surfaces were overhauled to match the image
 6. Require the repository check to pass, merge, poll the Vercel deployment by merge SHA, and verify `https://mlprinting.vercel.app`.
 7. Update this handover with the PR, merge SHA, deployment URL, production evidence, and one next action.
 
-**Single next action:** commit only the explicit-opacity follow-up, push it through a new PR, and repeat the merge-SHA production verification.
+**Single next action:** resume PayMongo activation only after the account owner signs in and the server-side secret key plus signed webhook secret can be configured securely; then run GCash, Maya, and QRPh test transactions before enabling automatic payment validation.
 
 ## Continuity rule
 
