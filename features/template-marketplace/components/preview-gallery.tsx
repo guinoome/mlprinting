@@ -61,7 +61,7 @@ export function PreviewGallery({
             "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9a6e32]",
             active === "EXPERIENCE"
               ? "border-[#181714] bg-[#181714] text-white"
-              : "border-black/20 text-black/55 hover:border-black/50 hover:text-black",
+              : "border-black/20 text-black/[0.55] hover:border-black/50 hover:text-black",
           )}
         >
           <PlayCircle className="size-4" aria-hidden="true" />
@@ -79,7 +79,7 @@ export function PreviewGallery({
               "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9a6e32]",
               active === "PRINT"
                 ? "border-[#181714] bg-[#181714] text-white"
-                : "border-black/20 text-black/55 hover:border-black/50 hover:text-black",
+                : "border-black/20 text-black/[0.55] hover:border-black/50 hover:text-black",
             )}
           >
             <Printer className="size-4" aria-hidden="true" />
@@ -120,7 +120,7 @@ export function PreviewGallery({
               href={livePreviewHref}
               target="_blank"
               rel="noreferrer"
-              className="bg-black/42 absolute inset-x-5 bottom-5 flex min-h-12 items-center justify-between border border-white/60 px-5 text-xs font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="absolute inset-x-5 bottom-5 flex min-h-12 items-center justify-between border border-white/60 bg-black/[0.42] px-5 text-xs font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               Open the invitation
               <ArrowUpRight className="size-4" aria-hidden="true" />
@@ -129,7 +129,7 @@ export function PreviewGallery({
         ) : null}
       </div>
 
-      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-black/45">
+      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-black/[0.45]">
         {showingPrint
           ? "Designed to continue into print"
           : "Tap to enter the real guest journey"}

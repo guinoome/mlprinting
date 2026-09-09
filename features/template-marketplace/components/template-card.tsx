@@ -101,7 +101,7 @@ export function TemplateCard({
           )}
         >
           {template.tier === "PREMIUM" ? (
-            <span className="bg-[#f5f0e7]/92 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#181714] backdrop-blur">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#f5f0e7]/[0.92] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#181714] backdrop-blur">
               <Sparkles className="size-3" aria-hidden="true" />
               Premium
             </span>
@@ -120,7 +120,7 @@ export function TemplateCard({
           href={routes.templateLivePreview(template.slug)}
           target="_blank"
           rel="noreferrer"
-          className="absolute inset-x-2 bottom-2 z-20 inline-flex min-h-11 items-center justify-center gap-1.5 bg-black/65 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white opacity-100 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white md:opacity-0 md:focus:opacity-100 md:group-hover:opacity-100"
+          className="absolute inset-x-2 bottom-2 z-20 inline-flex min-h-11 items-center justify-center gap-1.5 bg-black/[0.65] px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white opacity-100 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white md:opacity-0 md:focus:opacity-100 md:group-hover:opacity-100"
         >
           <PlayCircle className="size-3.5" aria-hidden="true" />
           See it live
@@ -152,7 +152,7 @@ export function TemplateCard({
         <p className="truncate text-[9px] font-semibold uppercase tracking-[0.2em] text-[#8b6735]">
           {template.category.name}
         </p>
-        <p className="line-clamp-2 text-xs leading-5 text-black/55">
+        <p className="line-clamp-2 text-xs leading-5 text-black/[0.55]">
           {template.shortDescription}
         </p>
       </div>

@@ -14,7 +14,7 @@ export async function SiteHeader() {
   const user = await getUser();
 
   return (
-    <header className="supports-[backdrop-filter]:bg-[#0b0d12]/86 sticky top-0 z-40 border-b border-white/10 bg-[#0b0d12]/95 text-white backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0b0d12]/95 text-white backdrop-blur supports-[backdrop-filter]:bg-[#0b0d12]/[0.86]">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-7 px-4 md:px-8">
         <Link
           href={routes.home}
@@ -22,7 +22,7 @@ export async function SiteHeader() {
           aria-label={`${branding.company} home`}
         >
           <span className="text-xl tracking-[0.12em]">ML</span>
-          <span className="mt-1 font-sans text-[7px] font-semibold uppercase tracking-[0.34em] text-white/55">
+          <span className="mt-1 font-sans text-[7px] font-semibold uppercase tracking-[0.34em] text-white/[0.55]">
             Printing
           </span>
         </Link>
@@ -31,14 +31,14 @@ export async function SiteHeader() {
           {features.templateMarketplace ? (
             <Link
               href={routes.templates}
-              className="text-white/58 transition-colors hover:text-[#dfbd7e]"
+              className="text-white/[0.58] transition-colors hover:text-[#dfbd7e]"
             >
               Invitations
             </Link>
           ) : null}
           <Link
             href={`${routes.home}#find-your-experience`}
-            className="text-white/58 transition-colors hover:text-[#dfbd7e]"
+            className="text-white/[0.58] transition-colors hover:text-[#dfbd7e]"
           >
             Experiences
           </Link>
@@ -55,7 +55,7 @@ export async function SiteHeader() {
                 asChild
                 variant="ghost"
                 size="sm"
-                className="hover:bg-white/8 text-white/70 hover:text-white"
+                className="text-white/70 hover:bg-white/[0.08] hover:text-white"
               >
                 <Link href={routes.login}>Sign in</Link>
               </Button>
@@ -84,29 +84,29 @@ export async function SiteHeader() {
           ) : null}
 
           <details className="group relative">
-            <summary className="border-white/18 hover:bg-white/8 flex size-11 cursor-pointer list-none items-center justify-center border bg-transparent text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white [&::-webkit-details-marker]:hidden">
+            <summary className="flex size-11 cursor-pointer list-none items-center justify-center border border-white/[0.18] bg-transparent text-white transition-colors hover:bg-white/[0.08] focus:outline-none focus-visible:ring-2 focus-visible:ring-white [&::-webkit-details-marker]:hidden">
               <Menu className="size-5" aria-hidden="true" />
               <span className="sr-only">Open site menu</span>
             </summary>
-            <nav className="absolute right-0 top-12 z-50 grid min-w-48 gap-1 border border-white/15 bg-[#0b0d12] p-2 text-sm shadow-2xl">
+            <nav className="absolute right-0 top-12 z-50 grid min-w-48 gap-1 border border-white/[0.15] bg-[#0b0d12] p-2 text-sm shadow-2xl">
               {features.templateMarketplace ? (
                 <Link
                   href={routes.templates}
-                  className="hover:bg-white/8 flex min-h-11 items-center px-3 font-medium text-white/75 hover:text-white"
+                  className="flex min-h-11 items-center px-3 font-medium text-white/75 hover:bg-white/[0.08] hover:text-white"
                 >
                   Templates
                 </Link>
               ) : null}
               <Link
                 href={`${routes.home}#find-your-experience`}
-                className="hover:bg-white/8 flex min-h-11 items-center px-3 font-medium text-white/75 hover:text-white"
+                className="flex min-h-11 items-center px-3 font-medium text-white/75 hover:bg-white/[0.08] hover:text-white"
               >
                 Experiences
               </Link>
               {user ? null : (
                 <Link
                   href={routes.login}
-                  className="hover:bg-white/8 flex min-h-11 items-center px-3 font-medium text-white/75 hover:text-white"
+                  className="flex min-h-11 items-center px-3 font-medium text-white/75 hover:bg-white/[0.08] hover:text-white"
                 >
                   Sign in
                 </Link>

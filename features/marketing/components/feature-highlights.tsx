@@ -22,19 +22,19 @@ export function FeatureHighlights() {
               Beauty that keeps working.
             </h2>
           </div>
-          <p className="text-white/58 max-w-md border-l border-white/15 pl-6 text-sm leading-7">
+          <p className="max-w-md border-l border-white/[0.15] pl-6 text-sm leading-7 text-white/[0.58]">
             One guest journey carries the story, practical details, replies and
             matching print—without asking anyone to install an app.
           </p>
         </header>
 
-        <ul className="mt-14 grid border-t border-white/15 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-14 grid border-t border-white/[0.15] sm:grid-cols-2 lg:grid-cols-4">
           {HIGHLIGHTS.map((highlight, index) => {
             const Icon = ICONS[highlight.icon];
             return (
               <li
                 key={highlight.title}
-                className="border-b border-white/15 py-8 sm:px-6 lg:border-r lg:px-7 lg:last:border-r-0 sm:[&:nth-child(odd)]:border-r"
+                className="border-b border-white/[0.15] py-8 sm:px-6 lg:border-r lg:px-7 lg:last:border-r-0 sm:[&:nth-child(odd)]:border-r"
               >
                 <div className="flex items-center justify-between text-[#dfbd7e]">
                   <span className="font-serif text-3xl">0{index + 1}</span>
@@ -43,7 +43,7 @@ export function FeatureHighlights() {
                 <h3 className="mt-10 font-serif text-2xl leading-tight">
                   {highlight.title}
                 </h3>
-                <p className="text-white/58 mt-4 text-sm leading-7">
+                <p className="mt-4 text-sm leading-7 text-white/[0.58]">
                   {highlight.body}
                 </p>
               </li>
