@@ -112,7 +112,7 @@ export default async function Home() {
               <h2 className="mt-5 text-balance font-serif text-5xl leading-[0.94] tracking-[-0.04em] sm:text-6xl md:text-7xl">
                 Find the world that feels like your day.
               </h2>
-              <p className="text-white/68 mt-6 max-w-lg text-pretty text-sm leading-7 md:text-base">
+              <p className="mt-6 max-w-lg text-pretty text-sm leading-7 text-white/[0.68] md:text-base">
                 Browse by feeling, open the real guest experience, then make it
                 yours with photos, programme, venue and RSVP. No account needed
                 to explore.
@@ -139,14 +139,16 @@ export default async function Home() {
               <p className="font-serif text-xl tracking-[0.08em] text-[#dfbd7e]">
                 {branding.company}
               </p>
-              <p className="mt-2 text-xs text-white/45">{branding.location}</p>
+              <p className="mt-2 text-xs text-white/[0.45]">
+                {branding.location}
+              </p>
               {/* Messenger before email: it is how an enquiry actually arrives. */}
               <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
                 <a
                   href={social.messenger}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
+                  className="text-white/[0.55] underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
                 >
                   Message us
                 </a>
@@ -154,7 +156,7 @@ export default async function Home() {
                   href={social.facebook}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
+                  className="text-white/[0.55] underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
                 >
                   Facebook
                 </a>
@@ -185,7 +187,7 @@ export default async function Home() {
             </nav>
           </div>
 
-          <p className="text-white/38 mt-10 border-t border-white/10 pt-6 text-xs">
+          <p className="mt-10 border-t border-white/10 pt-6 text-xs text-white/[0.38]">
             © {new Date().getFullYear()} {branding.company}. {branding.tagline}
           </p>
         </div>

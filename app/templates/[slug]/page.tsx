@@ -65,8 +65,8 @@ function MetaRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-black/12 flex items-baseline justify-between gap-4 border-b py-3 last:border-0">
-      <dt className="text-black/52 flex shrink-0 items-center gap-2 text-sm">
+    <div className="flex items-baseline justify-between gap-4 border-b border-black/[0.12] py-3 last:border-0">
+      <dt className="flex shrink-0 items-center gap-2 text-sm text-black/[0.52]">
         <Icon className="size-3.5" aria-hidden="true" />
         {label}
       </dt>
@@ -86,7 +86,7 @@ function Compatibility({
     <span
       className={cn(
         "inline-flex items-center gap-1.5 text-sm",
-        supported ? "text-[#181714]" : "text-black/45",
+        supported ? "text-[#181714]" : "text-black/[0.45]",
       )}
     >
       {supported ? (
@@ -146,7 +146,7 @@ export default async function TemplatePreviewPage({
         <h1 className="mt-3 max-w-4xl text-balance font-serif text-5xl leading-[0.92] tracking-[-0.045em] sm:text-6xl md:text-7xl">
           {template.name}
         </h1>
-        <p className="text-black/62 mt-5 max-w-2xl text-pretty text-base leading-7 md:text-lg">
+        <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-black/[0.62] md:text-lg">
           {template.shortDescription}
         </p>
       </header>
@@ -181,7 +181,7 @@ export default async function TemplatePreviewPage({
         />
 
         <aside className="space-y-8 lg:sticky lg:top-24">
-          <section className="border-y border-black/15 py-6">
+          <section className="border-y border-black/[0.15] py-6">
             <div className="flex flex-wrap items-center gap-2">
               {template.tier === "PREMIUM" ? (
                 <span className="rounded-full bg-[#181714] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
@@ -228,7 +228,7 @@ export default async function TemplatePreviewPage({
                 href={routes.templateLivePreview(template.slug)}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 flex min-h-12 w-full items-center justify-between border border-black/20 px-5 text-sm font-semibold transition-colors hover:border-black hover:bg-white/45"
+                className="mt-3 flex min-h-12 w-full items-center justify-between border border-black/20 px-5 text-sm font-semibold transition-colors hover:border-black hover:bg-white/[0.45]"
               >
                 <PlayCircle className="size-4" aria-hidden="true" />
                 See the live guest journey
@@ -237,7 +237,7 @@ export default async function TemplatePreviewPage({
             ) : null}
 
             {/* Ph2.md §7 — Print / Website Compatibility. */}
-            <div className="border-black/12 mt-5 flex flex-col gap-2 border-t pt-5">
+            <div className="mt-5 flex flex-col gap-2 border-t border-black/[0.12] pt-5">
               <Compatibility
                 supported={template.websiteCompatible}
                 label="Event website"
@@ -284,13 +284,13 @@ export default async function TemplatePreviewPage({
           </section>
 
           {template.features.length > 0 ? (
-            <section className="border-t border-black/15 pt-6">
+            <section className="border-t border-black/[0.15] pt-6">
               <h2 className="mb-3 text-sm font-semibold">Guest journey</h2>
               <ul className="flex flex-wrap gap-1.5">
                 {template.features.map((feature) => (
                   <li
                     key={feature}
-                    className="text-black/58 rounded-full border border-black/15 bg-white/35 px-3 py-1.5 text-xs"
+                    className="rounded-full border border-black/[0.15] bg-white/[0.35] px-3 py-1.5 text-xs text-black/[0.58]"
                   >
                     {facetLabel(feature)}
                   </li>
@@ -312,7 +312,7 @@ export default async function TemplatePreviewPage({
             </h2>
           </div>
           <div>
-            <p className="text-white/68 max-w-2xl text-base leading-8">
+            <p className="max-w-2xl text-base leading-8 text-white/[0.68]">
               {template.description}
             </p>
 
@@ -330,7 +330,7 @@ export default async function TemplatePreviewPage({
             ) : null}
 
             {collections.length > 0 ? (
-              <p className="mt-6 text-xs text-white/45">
+              <p className="mt-6 text-xs text-white/[0.45]">
                 Part of the {collections.map((c) => c.name).join(", ")}{" "}
                 collection
                 {collections.length > 1 ? "s" : ""}.

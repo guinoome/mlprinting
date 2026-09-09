@@ -52,7 +52,7 @@ export function TemplateShowcase({
               <li key={category.slug} className="shrink-0">
                 <Link
                   href={`${routes.templates}?category=${category.slug}`}
-                  className="text-black/58 inline-flex min-h-11 items-center whitespace-nowrap rounded-full border border-black/15 px-4 text-xs font-medium transition-colors hover:border-black/50 hover:text-black"
+                  className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full border border-black/[0.15] px-4 text-xs font-medium text-black/[0.58] transition-colors hover:border-black/50 hover:text-black"
                 >
                   {category.name}
                 </Link>
