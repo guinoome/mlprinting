@@ -58,9 +58,10 @@ const EXPERIENCE_PORTALS: readonly ExperiencePortal[] = [
   {
     number: "05",
     label: "Children",
-    note: "In the studio",
-    image: "/experiences/children-storybook-portal.png",
-    imageAlt: "Whimsical storybook celebration artwork for children",
+    note: "Enter the dreamscape",
+    image: "/experiences/starlight-pony-dreamscape-catalogue.webp",
+    imageAlt: "A luminous starlight pony dreamscape for a children's birthday",
+    href: routes.templateLivePreview("starlight-pony-dreamscape"),
     position: "center",
     desktopHeight: "md:h-[27rem] lg:h-[35rem]",
   },

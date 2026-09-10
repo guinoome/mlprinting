@@ -32,6 +32,8 @@
   preview, public rendering, and PDF view-model conversion.
 - Added a dedicated mobile-first Starlight opening and live hero using only the
   invitation's approved cover portrait.
+- Promoted the Children portal and launch showcase to the live Starlight
+  experience so it is discoverable from the home-page client journey.
 - Added invitation-scoped photo suggestion logic and a replaceable
   personalization provider contract.
 - Reused the live countdown, gallery, map, music, RSVP, order, publication, and

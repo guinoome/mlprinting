@@ -7,6 +7,10 @@ isolated demo. It reuses the existing template marketplace, builder, private
 media library, preview/public renderer, countdown, gallery, map, music, RSVP,
 print, order, and publication systems.
 
+The home-page Children portal and launch proof both route directly into the
+live Starlight sample, making the experience discoverable before sign-in as
+well as through the template marketplace.
+
 The launch vertical slice deliberately separates three concerns:
 
 1. `public/experiences/starlight-pony-dreamscape-hero.webp` is a reusable,
