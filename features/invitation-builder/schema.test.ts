@@ -119,6 +119,25 @@ describe("eventStepSchema — Ph3 §2", () => {
       eventStepSchema.parse({ eventTitle: "   " }).eventTitle,
     ).toBeUndefined();
   });
+
+  it("accepts a structured birthday name and age", () => {
+    const result = eventStepSchema.parse({
+      eventType: "birthday",
+      celebrantName: "  Mary Dale  ",
+      celebrantAge: "3",
+    });
+    expect(result.celebrantName).toBe("Mary Dale");
+    expect(result.celebrantAge).toBe(3);
+  });
+
+  it("rejects an impossible or fractional birthday age", () => {
+    expect(eventStepSchema.safeParse({ celebrantAge: "0" }).success).toBe(
+      false,
+    );
+    expect(eventStepSchema.safeParse({ celebrantAge: "3.5" }).success).toBe(
+      false,
+    );
+  });
 });
 
 describe("hostSchema — Ph3 §3", () => {

@@ -49,6 +49,8 @@ interface KindSpec {
   rsvpLine?: string | null;
   closing?: string;
   dressCode?: string | null;
+  celebrantName?: string;
+  celebrantAge?: number;
 }
 
 const KINDS: Record<EventKind, KindSpec> = {
@@ -288,6 +290,35 @@ const KINDS: Record<EventKind, KindSpec> = {
  * false preview, so release proofs may replace the sample story as one unit.
  */
 const PROOF_SPECS: Partial<Record<string, KindSpec>> = {
+  "starlight-pony-dreamscape": {
+    title: "Mary Dale's Magical Day",
+    celebrantName: "Mary Dale",
+    celebrantAge: 3,
+    subtitle: "a starlight pony dreamscape",
+    hosts: ["Mary Dale"],
+    welcome:
+      "Join us for a magical day filled with love, laughter, and little big dreams.",
+    invitation:
+      "Family, friends, and little dreamers are welcome in our enchanted garden.",
+    venues: [
+      {
+        label: "Birthday celebration",
+        name: "The Enchanted Garden",
+        address: "Sunshine Events Place, Quezon City",
+        time: "2:00 PM",
+      },
+    ],
+    program: [
+      { time: "2:00 PM", title: "The gates open" },
+      { time: "3:00 PM", title: "Pony wishes and cake" },
+      { time: "4:00 PM", title: "Stories beneath the stars" },
+    ],
+    dressCode: "Pastels, sparkles, and comfortable shoes",
+    closing: "Small girl · big magic · brighter tomorrows.",
+    bg: "#090d35",
+    fg: "#fff8ff",
+    accent: "#ff8fdf",
+  },
   "ivory-lace": {
     title: "Elena & Mateo",
     subtitle: "a ceremony in ivory",
@@ -354,8 +385,7 @@ const PROOF_SPECS: Partial<Record<string, KindSpec>> = {
     title: "Bianca & Rafael",
     subtitle: "an evening written in gold",
     hosts: ["Bianca Navarro", "Rafael Tan"],
-    welcome:
-      "When the city turns to midnight, our brightest chapter begins.",
+    welcome: "When the city turns to midnight, our brightest chapter begins.",
     invitation:
       "Join us for black-tie vows, candlelight, and a celebration that carries into the night.",
     venues: [
@@ -420,6 +450,8 @@ function sampleModel(
   return {
     title: k.title,
     subtitle: k.subtitle,
+    celebrantName: k.celebrantName ?? null,
+    celebrantAge: k.celebrantAge ?? null,
     dateLine: dates.dateLine,
     timeLine: "3:00 PM",
     hosts: k.hosts.map((name, i) => ({
@@ -545,7 +577,10 @@ export default async function InvitePreviewPage({
     // database outage cannot load catalogue rows. Their slug is an exact,
     // platform-owned contract rather than a best-effort visual hint.
     kind = proof.eventKind;
-    cover = proof.sampleCover;
+    // The Starlight proof must not pretend its decorative world is a customer
+    // portrait. Real invitations receive only their own approved COVER asset.
+    cover =
+      proof.slug === "starlight-pony-dreamscape" ? null : proof.sampleCover;
   }
 
   if (slug && isDatabaseConfigured()) {

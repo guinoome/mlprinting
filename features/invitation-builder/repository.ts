@@ -45,6 +45,7 @@ const FULL_INCLUDE = {
           originalFilename: true,
           version: true,
           width: true,
+          height: true,
         },
       },
     },

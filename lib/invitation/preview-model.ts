@@ -127,6 +127,8 @@ export function deriveEventKind(
 export interface PreviewInput {
   eventTitle: string | null;
   subtitle: string | null;
+  celebrantName?: string | null;
+  celebrantAge?: number | null;
   /** Template category slug, when the invitation was built from one — tunes the public site. */
   templateCategory?: string | null;
   eventDate: Date | null;
@@ -206,6 +208,9 @@ export interface PreviewStyle {
 export interface PreviewModel {
   title: string;
   subtitle: string | null;
+  /** Structured birthday identity; presentation remains the renderer's job. */
+  celebrantName: string | null;
+  celebrantAge: number | null;
   /** Preformatted for display. The model formats; the renderer never parses a date. */
   dateLine: string | null;
   timeLine: string | null;
@@ -334,6 +339,8 @@ export function toPreviewModel(input: PreviewInput): PreviewModel {
     // first step, before anything is typed, and a blank page teaches nothing.
     title: input.eventTitle?.trim() || "Your event title",
     subtitle: input.subtitle,
+    celebrantName: input.celebrantName?.trim() || null,
+    celebrantAge: input.celebrantAge ?? null,
     dateLine,
     timeLine,
 

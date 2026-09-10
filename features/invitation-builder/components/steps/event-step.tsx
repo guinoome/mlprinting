@@ -21,6 +21,8 @@ export interface EventStepValues {
   eventType: string;
   eventTitle: string;
   subtitle: string;
+  celebrantName: string;
+  celebrantAge: string;
   eventDate: string;
   eventTime: string;
   timeZone: string;
@@ -124,6 +126,33 @@ export function EventStep({
             hint="The heading on the invitation."
           />
         </div>
+
+        {values.eventType === "birthday" ? (
+          <>
+            <FormField
+              label="Celebrant name"
+              name="celebrantName"
+              value={values.celebrantName}
+              onChange={(event) => set("celebrantName", event.target.value)}
+              placeholder="Mary Dale"
+              error={fieldErrors.celebrantName}
+              hint="Shown in birthday designs without changing the photo."
+            />
+            <FormField
+              label="Age"
+              name="celebrantAge"
+              type="number"
+              min="1"
+              max="120"
+              inputMode="numeric"
+              value={values.celebrantAge}
+              onChange={(event) => set("celebrantAge", event.target.value)}
+              placeholder="3"
+              error={fieldErrors.celebrantAge}
+              hint="Whole numbers from 1 to 120."
+            />
+          </>
+        ) : null}
 
         <div className="sm:col-span-2">
           <FormField

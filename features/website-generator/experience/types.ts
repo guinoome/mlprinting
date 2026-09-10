@@ -44,7 +44,8 @@ export type VisualThemeId =
   | "romantic-seal"
   | "guided-story"
   | "capiz-luminous"
-  | "memorial-quiet";
+  | "memorial-quiet"
+  | "starlight-dreamscape";
 
 export type InteractionId =
   | "opening-reveal"

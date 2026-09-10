@@ -82,7 +82,8 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     tier: "SIGNATURE",
     motionLevel: "M3",
     motionProfile: "MP-01",
-    promise: "A lace-shadow threshold opens into a restrained editorial ceremony.",
+    promise:
+      "A lace-shadow threshold opens into a restrained editorial ceremony.",
     sampleCover: "/experiences/ivory-lace-hero.png",
   },
   {
@@ -106,6 +107,18 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionProfile: "MP-02",
     promise: "Midnight panels part to reveal a candlelit evening programme.",
     sampleCover: "/experiences/midnight-gold-hero.png",
+  },
+  {
+    slug: "starlight-pony-dreamscape",
+    name: "Starlight Pony Dreamscape",
+    occasion: "Children's birthday",
+    eventKind: "birthday",
+    tier: "IMMERSIVE",
+    motionLevel: "M3",
+    motionProfile: "MP-storybook",
+    promise:
+      "A chosen celebrant portrait becomes the heart of a luminous pony dreamscape.",
+    sampleCover: "/experiences/starlight-pony-dreamscape-catalogue.webp",
   },
 ] as const;
 

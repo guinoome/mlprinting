@@ -101,6 +101,8 @@ export default async function PublicEventPage({
   const input: PreviewInput = {
     eventTitle: invitation.eventTitle,
     subtitle: invitation.subtitle,
+    celebrantName: invitation.celebrantName,
+    celebrantAge: invitation.celebrantAge,
     templateCategory: invitation.template?.category?.slug ?? null,
     eventDate: invitation.eventDate,
     eventTime: invitation.eventTime,

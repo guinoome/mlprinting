@@ -88,6 +88,18 @@ const LAUNCH = [
       "Architectural midnight panels part into a candlelit black-tie programme, venue and RSVP drawn in disciplined gold rules.",
     meta: ["MP-02 luxe reveal", "M3 motion", "Foil-ready"],
   },
+  {
+    slug: "starlight-pony-dreamscape",
+    number: "08",
+    name: "Starlight Pony Dreamscape",
+    type: "Immersive · Children's birthday",
+    image: "/experiences/starlight-pony-dreamscape-catalogue.webp",
+    alt: "Moonlit castle, flowers, clouds and a gentle unicorn in a starlight dreamscape",
+    opening: "Begin the magic",
+    story:
+      "A customer-approved celebrant portrait becomes the heart of a moonlit birthday journey with live age, countdown, gallery, venue and RSVP.",
+    meta: ["MP-storybook", "M3 motion", "Identity-safe portrait"],
+  },
 ] as const;
 
 export function ExperienceProofShowcase() {
@@ -105,7 +117,7 @@ export function ExperienceProofShowcase() {
         <div className="self-end border-l border-black/20 pl-6">
           <p className="text-black/62 max-w-md text-sm leading-7">
             Every released experience earns its own opening, visual language,
-            and guest journey. Seven are live now, with more joining the
+            and guest journey. Eight are live now, with more joining the
             collection in deliberate releases as they pass interaction and
             visual QA.
           </p>
@@ -177,8 +189,8 @@ export function ExperienceProofShowcase() {
               In the studio
             </p>
             <p className="mt-4 max-w-3xl font-serif text-3xl leading-tight md:text-5xl">
-              Editorial, memory-film, children, cultural ceremony and new
-              digital-light families are already moving through the studio.
+              Editorial, memory-film, cultural ceremony and new digital-light
+              families are already moving through the studio.
             </p>
           </div>
           <Link

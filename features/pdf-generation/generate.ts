@@ -92,6 +92,8 @@ export async function generatePrintFile(
   const model = toPreviewModel({
     eventTitle: invitation.eventTitle,
     subtitle: invitation.subtitle,
+    celebrantName: invitation.celebrantName,
+    celebrantAge: invitation.celebrantAge,
     eventDate: invitation.eventDate,
     eventTime: invitation.eventTime,
     timeZone: invitation.timeZone,

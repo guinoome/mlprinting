@@ -52,6 +52,7 @@ describe("experience resolver", () => {
       "ivory-lace",
       "blush-botanical",
       "midnight-gold",
+      "starlight-pony-dreamscape",
     ]);
     // The two image-led launch experiences deliberately share full-bleed media
     // while their opening language, theme and choreography differ. Memorial
@@ -95,6 +96,14 @@ describe("experience resolver", () => {
     );
     expect(neon.config.heroFocalPoint.mobile.x).toBeGreaterThanOrEqual(80);
     expect(fiesta.config.heroFocalPoint.mobile.x).toBeGreaterThanOrEqual(80);
+    const starlight = resolveExperience("birthday", {
+      enabled: true,
+      slug: "starlight-pony-dreamscape",
+    });
+    expect(starlight.config.visualThemeId).toBe("starlight-dreamscape");
+    expect(starlight.config.interactions).toEqual(
+      expect.arrayContaining(["countdown", "gallery", "map", "music", "rsvp"]),
+    );
   });
 
   it("derives a near-static accessible mode without hiding content", () => {

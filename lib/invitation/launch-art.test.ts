@@ -38,6 +38,11 @@ describe("launch artwork", () => {
       "/experiences/midnight-gold-hero.png",
       "/experiences/midnight-gold-hero.png",
     ],
+    [
+      "starlight-pony-dreamscape",
+      "/experiences/starlight-pony-dreamscape-catalogue.webp",
+      "/experiences/starlight-pony-dreamscape-hero.webp",
+    ],
   ])(
     "separates %s catalogue and interactive artwork",
     (slug, catalogueSrc, heroSrc) => {

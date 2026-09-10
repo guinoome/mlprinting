@@ -57,6 +57,13 @@ export const LAUNCH_ARTWORK = {
     catalogueDescription:
       "Midnight panels part into a candlelit black-tie programme.",
   },
+  "starlight-pony-dreamscape": {
+    catalogueSrc: "/experiences/starlight-pony-dreamscape-catalogue.webp",
+    heroSrc: "/experiences/starlight-pony-dreamscape-hero.webp",
+    alt: "A moonlit pony dreamscape with a glowing castle, clouds, and stars",
+    catalogueDescription:
+      "A child-safe birthday world built around the celebrant photo you approve.",
+  },
 } as const satisfies Record<string, LaunchArtwork>;
 
 export type LaunchArtworkSlug = keyof typeof LAUNCH_ARTWORK;

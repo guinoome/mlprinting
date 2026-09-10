@@ -9,6 +9,8 @@ export interface MediaAssetSummary {
   altText: string | null;
   originalFilename: string;
   tags: string[];
+  width?: number | null;
+  height?: number | null;
   remaster?: { id: string; previewUrl: string };
 }
 
