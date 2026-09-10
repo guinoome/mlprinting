@@ -36,6 +36,7 @@ const ACTION_BY_SLUG: Record<string, CatalogueAction> = {
   "cake-smash": "ENHANCE",
   "golden-sixty": "ENHANCE",
   "seventh-heaven": "ENHANCE",
+  "starlight-pony-dreamscape": "KEEP",
   "neon-eighteen": "KEEP",
   "eighteen-roses": "KEEP",
   "cotillion-waltz": "KEEP",

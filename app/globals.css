@@ -1526,6 +1526,424 @@ video.inv-hero-photo {
   }
 }
 
+/* --------------------------------------------------------------------------
+   Starlight Pony Dreamscape
+
+   The generated world is decorative and child-free. A customer's approved
+   COVER asset is composited as a separate, soft-edged portrait so identity is
+   never borrowed from campaign art and changing copy never touches the photo.
+   -------------------------------------------------------------------------- */
+.inv-reveal-root[data-visual-theme="starlight-dreamscape"]
+  .inv-experience-body {
+  background:
+    radial-gradient(
+      circle at 18% 10%,
+      rgba(255, 170, 236, 0.14),
+      transparent 24rem
+    ),
+    linear-gradient(180deg, #090d35 0%, #111853 48%, #080b28 100%) !important;
+}
+
+.inv-reveal-root[data-visual-theme="starlight-dreamscape"]
+  .inv-entry--starlight-dreamscape {
+  background-image:
+    linear-gradient(180deg, rgba(5, 8, 35, 0.08), rgba(5, 7, 30, 0.5)),
+    url("/experiences/starlight-pony-dreamscape-hero.webp");
+  background-position: 56% center;
+  background-size: cover;
+}
+
+.starlight-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: max(760px, 100svh);
+  overflow: hidden;
+  place-items: center;
+  padding: clamp(2.5rem, 6vw, 5rem) max(1.25rem, env(safe-area-inset-right))
+    max(5.5rem, calc(4.5rem + env(safe-area-inset-bottom)))
+    max(1.25rem, env(safe-area-inset-left));
+  color: #fff9ff;
+  text-align: center;
+  background: #0a1040;
+}
+
+.starlight-sky {
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(4, 7, 33, 0.08) 0%,
+      rgba(8, 7, 38, 0.14) 46%,
+      rgba(4, 5, 24, 0.78) 100%
+    ),
+    url("/experiences/starlight-pony-dreamscape-hero.webp");
+  background-position: center center;
+  background-size: cover;
+  transform: scale(1.015);
+  animation: starlight-cloud-drift 22s ease-in-out infinite alternate;
+}
+
+.starlight-hero::before,
+.starlight-hero::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.starlight-hero::before {
+  inset: 0;
+  opacity: 0.7;
+  background-image:
+    radial-gradient(circle at 15% 18%, #fff8d9 0 1px, transparent 2px),
+    radial-gradient(circle at 38% 12%, #ffc9ee 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 67% 25%, #fff8d9 0 1px, transparent 2px),
+    radial-gradient(circle at 83% 14%, #cbd6ff 0 1.5px, transparent 2.5px);
+  background-size:
+    83px 79px,
+    127px 119px,
+    151px 137px,
+    107px 103px;
+  animation: starlight-twinkle 4.2s ease-in-out infinite alternate;
+}
+
+.starlight-hero::after {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 48%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(5, 6, 27, 0.5) 70%,
+    rgba(5, 6, 27, 0.92)
+  );
+}
+
+.starlight-copy {
+  z-index: 2;
+  width: min(100%, 42rem);
+  margin-top: min(18svh, 9rem);
+  text-shadow: 0 2px 18px rgba(5, 4, 35, 0.92);
+}
+
+.starlight-kicker {
+  margin: 0 0 0.65rem;
+  font:
+    700 clamp(0.68rem, 1.8vw, 0.92rem) / 1.2 Inter,
+    "Segoe UI",
+    sans-serif;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+}
+
+.starlight-name {
+  max-width: 100%;
+  margin: 0 auto;
+  color: #ffd5f4;
+  font:
+    700 clamp(3.25rem, 10vw, 7.4rem) / 0.86 "Segoe Script",
+    "Brush Script MT",
+    cursive;
+  letter-spacing: -0.065em;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  text-shadow:
+    0 3px 0 #8a438e,
+    0 0 22px rgba(255, 177, 236, 0.7),
+    0 5px 28px rgba(8, 5, 43, 0.95);
+}
+
+.starlight-name--medium {
+  font-size: clamp(2.8rem, 8.3vw, 6.2rem);
+}
+
+.starlight-name--long {
+  font-size: clamp(2.2rem, 6.7vw, 4.8rem);
+  line-height: 0.98;
+}
+
+.starlight-age {
+  margin: 0.25rem 0 0;
+  color: #ffe2a1;
+  font:
+    700 clamp(1.8rem, 6vw, 4.2rem) / 1 "Segoe Script",
+    "Brush Script MT",
+    cursive;
+}
+
+.starlight-age strong {
+  display: inline-block;
+  font-size: 1.7em;
+  text-shadow: 0 0 18px rgba(255, 205, 104, 0.78);
+  transform: translateY(0.08em);
+}
+
+.starlight-subtitle {
+  margin: 0.8rem 0 0;
+  color: #fff1ff;
+  font:
+    italic clamp(1.12rem, 3vw, 1.65rem) / 1.25 Georgia,
+    serif;
+}
+
+.starlight-welcome {
+  width: min(100%, 34rem);
+  margin: 0.85rem auto 1.15rem;
+  font-size: clamp(0.88rem, 2vw, 1.05rem);
+  line-height: 1.55;
+}
+
+.starlight-rsvp {
+  display: inline-flex;
+  min-height: 3.4rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 1px solid rgba(255, 239, 255, 0.85);
+  border-radius: 999px;
+  padding: 0.85rem 1.9rem;
+  color: #fff;
+  background: linear-gradient(135deg, #ff82d8, #b764e8);
+  box-shadow:
+    0 0 0 5px rgba(255, 193, 244, 0.12),
+    0 10px 30px rgba(42, 13, 91, 0.48);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.starlight-rsvp:hover,
+.starlight-rsvp:focus-visible {
+  box-shadow:
+    0 0 0 6px rgba(255, 210, 247, 0.22),
+    0 12px 34px rgba(42, 13, 91, 0.58);
+  transform: translateY(-2px);
+}
+
+.starlight-facts {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 38rem);
+  margin: 1rem auto 0;
+  color: rgba(255, 249, 255, 0.9);
+  font-size: clamp(0.72rem, 1.7vw, 0.88rem);
+  line-height: 1.4;
+}
+
+.starlight-portrait {
+  position: absolute;
+  z-index: 1;
+  top: clamp(8rem, 16svh, 11rem);
+  left: max(2rem, calc(50% - 26rem));
+  width: clamp(12rem, 25vw, 21rem);
+  aspect-ratio: 0.78;
+  overflow: hidden;
+  border: 1px solid rgba(255, 226, 253, 0.54);
+  border-radius: 48% 48% 45% 45% / 42% 42% 54% 54%;
+  box-shadow: 0 0 35px rgba(255, 168, 235, 0.44);
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 72% at 50% 42%,
+    #000 58%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 72% at 50% 42%,
+    #000 58%,
+    transparent 100%
+  );
+}
+
+.starlight-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 28%;
+}
+
+.starlight-portrait-placeholder {
+  position: absolute;
+  z-index: 1;
+  top: clamp(8rem, 16svh, 11rem);
+  left: max(2rem, calc(50% - 24rem));
+  display: grid;
+  width: clamp(10rem, 22vw, 17rem);
+  aspect-ratio: 0.82;
+  place-content: center;
+  gap: 0.6rem;
+  border: 1px dashed rgba(255, 240, 255, 0.55);
+  border-radius: 50%;
+  padding: 1rem;
+  color: rgba(255, 248, 255, 0.88);
+  background: rgba(55, 36, 117, 0.22);
+  text-align: center;
+  backdrop-filter: blur(3px);
+}
+
+.starlight-portrait-placeholder span {
+  color: #ffe4a9;
+  font-size: 2rem;
+}
+
+.starlight-portrait-placeholder small {
+  font:
+    700 0.68rem/1.4 Inter,
+    "Segoe UI",
+    sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.starlight-scroll {
+  position: absolute;
+  z-index: 3;
+  right: 1rem;
+  bottom: max(1.15rem, env(safe-area-inset-bottom));
+  left: 1rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+  color: rgba(255, 250, 255, 0.82);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.starlight-scroll span {
+  font-size: 1.2rem;
+  animation: starlight-scroll-pulse 1.7s ease-in-out infinite;
+}
+
+@keyframes starlight-cloud-drift {
+  from {
+    transform: scale(1.015) translate3d(-0.35%, 0, 0);
+  }
+  to {
+    transform: scale(1.035) translate3d(0.35%, -0.25%, 0);
+  }
+}
+
+@keyframes starlight-twinkle {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+
+@keyframes starlight-scroll-pulse {
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+@media (max-width: 700px) {
+  .starlight-hero {
+    min-height: max(760px, 100svh);
+    padding-inline: clamp(1rem, 5vw, 1.45rem);
+  }
+
+  .starlight-sky {
+    background-position: 56% center;
+  }
+
+  .starlight-copy {
+    align-self: end;
+    margin: 18rem 0 3.25rem;
+  }
+
+  .starlight-portrait,
+  .starlight-portrait-placeholder {
+    top: 8.2rem;
+    left: 50%;
+    width: min(44vw, 10.5rem);
+    transform: translateX(-50%);
+  }
+
+  .starlight-kicker {
+    margin-bottom: 0.45rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+  }
+
+  .starlight-name {
+    font-size: clamp(2.85rem, 14vw, 4.2rem);
+  }
+
+  .starlight-name--medium {
+    font-size: clamp(2.45rem, 12vw, 3.65rem);
+  }
+
+  .starlight-name--long {
+    font-size: clamp(1.95rem, 9.8vw, 3rem);
+  }
+
+  .starlight-age {
+    font-size: clamp(1.35rem, 6vw, 1.75rem);
+  }
+
+  .starlight-subtitle {
+    margin-top: 0.35rem;
+    font-size: 1rem;
+  }
+
+  .starlight-welcome {
+    display: -webkit-box;
+    max-width: 20rem;
+    overflow: hidden;
+    margin-block: 0.55rem 0.85rem;
+    font-size: 0.78rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .starlight-rsvp {
+    min-height: 3rem;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.82rem;
+  }
+
+  .starlight-facts {
+    margin-top: 0.8rem;
+    font-size: 0.65rem;
+  }
+
+  .starlight-scroll {
+    bottom: max(4.4rem, calc(3.9rem + env(safe-area-inset-bottom)));
+  }
+}
+
+@media (max-width: 370px) {
+  .starlight-copy {
+    margin-top: 17rem;
+  }
+  .starlight-name {
+    font-size: 2.75rem;
+  }
+  .starlight-name--medium {
+    font-size: 2.3rem;
+  }
+  .starlight-name--long {
+    font-size: 1.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .starlight-sky,
+  .starlight-hero::before,
+  .starlight-scroll span {
+    animation: none;
+  }
+}
+
 /* --- Engagement layer: confetti, typewriter, actions, interactive RSVP --- */
 .inv-confetti {
   position: fixed;

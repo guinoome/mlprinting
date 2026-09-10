@@ -44,6 +44,8 @@ function emptyModel(over: Partial<PreviewModel> = {}): PreviewModel {
     eventKind: "general",
     hidden: new Set(),
     ...over,
+    celebrantName: over.celebrantName ?? null,
+    celebrantAge: over.celebrantAge ?? null,
   };
 }
 
@@ -98,7 +100,11 @@ describe("visibleSections", () => {
     // labelled, blank block on the page.
     for (const kind of KINDS) {
       expect(
-        visibleSections(emptyModel({ eventKind: kind }), layoutFor(kind), ALL_OFF),
+        visibleSections(
+          emptyModel({ eventKind: kind }),
+          layoutFor(kind),
+          ALL_OFF,
+        ),
         `${kind} shows an empty section`,
       ).toEqual(["rsvp"]);
     }
@@ -172,9 +178,10 @@ describe("visibleSections", () => {
         );
         const projected = legacy.filter((id) => order.includes(id));
         if (kind !== "wedding") {
-          expect(order, `${kind} still renders in the old sequence`).not.toEqual(
-            projected,
-          );
+          expect(
+            order,
+            `${kind} still renders in the old sequence`,
+          ).not.toEqual(projected);
         }
       }
     });
@@ -205,10 +212,14 @@ describe("visibleSections", () => {
 
   it("omits the QR code entirely when the invitation has no image for it", () => {
     for (const kind of KINDS) {
-      const order = visibleSections(fullModel({ eventKind: kind }), layoutFor(kind), {
-        hasCountdown: true,
-        hasQr: false,
-      });
+      const order = visibleSections(
+        fullModel({ eventKind: kind }),
+        layoutFor(kind),
+        {
+          hasCountdown: true,
+          hasQr: false,
+        },
+      );
       expect(order, `${kind} renders a QR footer with no QR`).not.toContain(
         "qr" as SectionId,
       );
@@ -244,9 +255,10 @@ describe("visibleSections", () => {
             layout,
             ALL_ON,
           );
-          expect(shown, `${kind} never shows ${section} to begin with`).toContain(
-            section,
-          );
+          expect(
+            shown,
+            `${kind} never shows ${section} to begin with`,
+          ).toContain(section);
 
           const hiddenOrder = visibleSections(
             fullModel({ eventKind: kind, hidden: new Set([section]) }),
@@ -285,7 +297,12 @@ describe("visibleSections", () => {
       ["welcome", { welcomeMessage: "Welcome" }],
       ["invitation", { invitationMessage: "Please join us" }],
       ["hosts", { hosts: [{ id: "h1", name: "Maria", biography: null }] }],
-      ["program", { program: [{ id: "p", time: null, title: "Mass", description: null }] }],
+      [
+        "program",
+        {
+          program: [{ id: "p", time: null, title: "Mass", description: null }],
+        },
+      ],
       ["gallery", { galleryUrls: ["/a.jpg"] }],
       ["dress-code", { dressCode: "Formal" }],
       ["gifts", { giftsPreference: "No gifts" }],
@@ -298,9 +315,9 @@ describe("visibleSections", () => {
         expect(visibleSections(emptyModel(), layout, ALL_OFF)).not.toContain(
           section,
         );
-        expect(
-          visibleSections(emptyModel(filled), layout, ALL_OFF),
-        ).toContain(section);
+        expect(visibleSections(emptyModel(filled), layout, ALL_OFF)).toContain(
+          section,
+        );
       });
     }
 
@@ -322,9 +339,13 @@ describe("visibleSections", () => {
       );
       const allowed = new Set(sectionOrder(layout));
       for (const id of order) {
-        expect(allowed.has(id), `${kind} rendered an unlisted ${id}`).toBe(true);
+        expect(allowed.has(id), `${kind} rendered an unlisted ${id}`).toBe(
+          true,
+        );
       }
-      expect(new Set(order).size, `${kind} repeats a section`).toBe(order.length);
+      expect(new Set(order).size, `${kind} repeats a section`).toBe(
+        order.length,
+      );
     }
   });
 });

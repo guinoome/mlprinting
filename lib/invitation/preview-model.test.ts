@@ -85,6 +85,20 @@ describe("formatTime", () => {
 });
 
 describe("toPreviewModel — content", () => {
+  it("keeps birthday identity structured and independent from artwork", () => {
+    const model = toPreviewModel(
+      input({
+        eventTitle: "Mary Dale's Magical Day",
+        celebrantName: "Mary Dale",
+        celebrantAge: 3,
+        mediaUrls: { COVER: ["/project-only/mary.webp"] },
+      }),
+    );
+    expect(model.celebrantName).toBe("Mary Dale");
+    expect(model.celebrantAge).toBe(3);
+    expect(model.coverImageUrl).toBe("/project-only/mary.webp");
+  });
+
   it("carries the title through", () => {
     expect(toPreviewModel(input()).title).toBe("Maria & Jose");
   });

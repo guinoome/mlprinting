@@ -593,6 +593,11 @@ model Invitation {
   eventType    String?
   eventTitle   String?
   subtitle     String?
+  /// Optional birthday identity fields. Kept separate from eventTitle so a
+  /// celebrant's name or age can change without rewriting presentation copy or
+  /// regenerating personalized artwork.
+  celebrantName String?
+  celebrantAge  Int?
   /// The event's calendar date, as an instant. Rendered through timeZone.
   eventDate    DateTime?
   /// Local start time as "HH:mm". Deliberately a string, not a DateTime:

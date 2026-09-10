@@ -95,6 +95,20 @@ export const eventStepSchema = z
     eventType: optionalText(60, "Event type"),
     eventTitle: optionalText(120, "Event title"),
     subtitle: optionalText(160, "Subtitle"),
+    celebrantName: optionalText(120, "Celebrant name"),
+    celebrantAge: z
+      .string()
+      .trim()
+      .optional()
+      .transform((value) => (value ? Number(value) : undefined))
+      .refine(
+        (value) => value === undefined || Number.isInteger(value),
+        "Age must be a whole number.",
+      )
+      .refine(
+        (value) => value === undefined || (value >= 1 && value <= 120),
+        "Age must be between 1 and 120.",
+      ),
     eventDate: dateSchema,
     eventTime: timeSchema,
     timeZone: timeZoneSchema,

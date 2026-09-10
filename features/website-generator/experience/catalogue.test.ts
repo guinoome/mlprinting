@@ -6,10 +6,10 @@ import {
   catalogueMetadataFor,
 } from "./catalogue";
 describe("design evolution catalogue", () => {
-  it("defines the complete published 50-design matrix", () => {
-    expect(DESIGN_EVOLUTION_MATRIX).toHaveLength(50);
+  it("defines the complete published design matrix", () => {
+    expect(DESIGN_EVOLUTION_MATRIX).toHaveLength(51);
     expect(new Set(DESIGN_EVOLUTION_MATRIX.map((row) => row.slug)).size).toBe(
-      50,
+      51,
     );
   });
   it("keeps actions exhaustive as templates change", () => {

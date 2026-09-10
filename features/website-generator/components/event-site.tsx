@@ -19,6 +19,7 @@ import { resolveExperience } from "../experience/registry";
 import { features } from "@/lib/config";
 import { MotionStage } from "./motion-stage";
 import { styleForExperience } from "../experience/themes";
+import { StarlightDreamscapeHero } from "./starlight-dreamscape-hero";
 
 /** The hero's opening line, tuned to the celebration. */
 const EYEBROW: Record<EventKind, string> = {
@@ -456,32 +457,34 @@ export function EventSite({
     ),
 
     rsvp: (
-      <MotionStage name="rsvp" label="RSVP">
-        <div className="inv-rsvp">
-          {model.rsvpLine ? (
-            <p
-              className="mb-3"
-              style={{
-                fontFamily: style.headingFont,
-                fontStyle: "italic",
-                opacity: 0.85,
-              }}
-            >
-              {model.rsvpLine}
-            </p>
-          ) : null}
-          <RsvpForm
-            invitationId={invitationId}
-            accentColor={style.accent}
-            tone={layout.celebratory ? "celebratory" : "quiet"}
-          />
-          {memoryHref ? (
-            <a href={memoryHref} className="inv-maplink mt-4 inline-block">
-              Share Your Memories
-            </a>
-          ) : null}
-        </div>
-      </MotionStage>
+      <div id="rsvp">
+        <MotionStage name="rsvp" label="RSVP">
+          <div className="inv-rsvp">
+            {model.rsvpLine ? (
+              <p
+                className="mb-3"
+                style={{
+                  fontFamily: style.headingFont,
+                  fontStyle: "italic",
+                  opacity: 0.85,
+                }}
+              >
+                {model.rsvpLine}
+              </p>
+            ) : null}
+            <RsvpForm
+              invitationId={invitationId}
+              accentColor={style.accent}
+              tone={layout.celebratory ? "celebratory" : "quiet"}
+            />
+            {memoryHref ? (
+              <a href={memoryHref} className="inv-maplink mt-4 inline-block">
+                Share Your Memories
+              </a>
+            ) : null}
+          </div>
+        </MotionStage>
+      </div>
     ),
 
     closing: (
@@ -519,27 +522,31 @@ export function EventSite({
         {/* The occasion's own hero. `layout.hero` is finally read rather than
             merely declared — see hero.tsx for what each of the seven does and
             why the tone split matters more than the arrangement. */}
-        <Hero
-          presentation={layout.hero}
-          photoShape={layout.photoShape}
-          ornament={layout.ornament}
-          celebratory={layout.celebratory}
-          eyebrow={eyebrow}
-          title={model.title}
-          subtitle={model.subtitle}
-          dateLine={dateHero}
-          date={countdownTarget}
-          timeLine={model.timeLine}
-          dateStyle={layout.dateStyle}
-          monogram={monogram}
-          coverImageUrl={model.coverImageUrl}
-          heroVideoUrl={model.heroVideoUrl}
-          galleryUrls={model.galleryUrls}
-          focalPoint={experience.config.heroFocalPoint}
-          fallbackBackground={heroFallback}
-        />
+        {experienceSlug === "starlight-pony-dreamscape" ? (
+          <StarlightDreamscapeHero model={model} />
+        ) : (
+          <Hero
+            presentation={layout.hero}
+            photoShape={layout.photoShape}
+            ornament={layout.ornament}
+            celebratory={layout.celebratory}
+            eyebrow={eyebrow}
+            title={model.title}
+            subtitle={model.subtitle}
+            dateLine={dateHero}
+            date={countdownTarget}
+            timeLine={model.timeLine}
+            dateStyle={layout.dateStyle}
+            monogram={monogram}
+            coverImageUrl={model.coverImageUrl}
+            heroVideoUrl={model.heroVideoUrl}
+            galleryUrls={model.galleryUrls}
+            focalPoint={experience.config.heroFocalPoint}
+            fallbackBackground={heroFallback}
+          />
+        )}
 
-        <main className="inv-main">
+        <main id="invitation-story" className="inv-main">
           {order.map((id) => (
             <React.Fragment key={id}>{nodes[id]}</React.Fragment>
           ))}

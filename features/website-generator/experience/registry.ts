@@ -53,6 +53,7 @@ const PROOF_HERO_FOCAL_POINTS = {
     tablet: { x: 72, y: 42 },
     mobile: { x: 78, y: 46 },
   },
+  "starlight-pony-dreamscape": CENTERED_HERO_FOCAL_POINT,
   "in-loving-memory": CENTERED_HERO_FOCAL_POINT,
 } satisfies Record<string, ResponsiveMediaFocalPoint>;
 
@@ -300,6 +301,26 @@ const PROOF_LAYOUTS: Record<string, InvitationLayout> = {
     motion: "sweep",
     celebratory: true,
   },
+  "starlight-pony-dreamscape": {
+    id: "starlight-pony-dreamscape-story",
+    hero: "full-bleed",
+    sections: [
+      "welcome",
+      "countdown",
+      "actions",
+      "gallery",
+      "invitation",
+      "venues",
+      "program",
+      "dress-code",
+      "gifts",
+    ],
+    ornament: "confetti",
+    photoShape: "blob",
+    dateStyle: "row",
+    motion: "rise",
+    celebratory: true,
+  },
 };
 
 const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
@@ -446,6 +467,23 @@ const PROOF_EXPERIENCES: Record<string, ExperienceConfig> = {
     printCompatible: true,
     signature:
       "Midnight panels part into a candlelit programme with disciplined metallic rhythm.",
+  },
+  "starlight-pony-dreamscape": {
+    id: "starlight-pony-dreamscape-v1",
+    version: 1,
+    slug: "starlight-pony-dreamscape",
+    eventKind: "birthday",
+    layoutId: PROOF_LAYOUTS["starlight-pony-dreamscape"].id,
+    visualThemeId: "starlight-dreamscape",
+    motionProfile: "storybook",
+    interactions: [...STANDARD_INTERACTIONS],
+    mediaProfile: "portrait",
+    heroFocalPoint: PROOF_HERO_FOCAL_POINTS["starlight-pony-dreamscape"],
+    performanceClass: "standard",
+    motionLevel: "M3",
+    printCompatible: true,
+    signature:
+      "A real celebrant portrait enters a luminous pony dreamscape while the invitation stays live, editable, and unmistakably theirs.",
   },
 };
 

@@ -19,6 +19,7 @@ import { UploadDropzone } from "@/components/media/upload-dropzone";
 import type { MediaAssetSummary } from "@/components/media/asset-card";
 import { notify } from "@/lib/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { rankPersonalizationCandidates } from "@/services/personalization/gallery-analysis";
 
 /**
  * Media — Ph3.md §7. Now browses the full Media Library (search included)
@@ -73,10 +74,12 @@ const SLOTS: {
 
 export function MediaStep({
   invitationId,
+  templateSlug,
   assets: initialAssets,
   initialAssignments,
 }: {
   invitationId: string;
+  templateSlug: string | null;
   assets: MediaAssetSummary[];
   initialAssignments: Assignment[];
 }) {
@@ -179,6 +182,14 @@ export function MediaStep({
     .filter((a) => a.slot === activeSlot)
     .map((a) => a.assetId);
 
+  const personalizationCandidate = React.useMemo(() => {
+    if (templateSlug !== "starlight-pony-dreamscape") return null;
+    const assignedIds = new Set(assignments.map((item) => item.assetId));
+    return rankPersonalizationCandidates(initialAssets, assignedIds)[0] ?? null;
+  }, [assignments, initialAssets, templateSlug]);
+
+  const selectedCover = assignments.find((item) => item.slot === "COVER");
+
   return (
     <>
       <div className="mb-4 flex justify-end">
@@ -186,6 +197,58 @@ export function MediaStep({
       </div>
 
       <div className="space-y-6">
+        {templateSlug === "starlight-pony-dreamscape" ? (
+          <Card className="border-fuchsia-300/40 bg-indigo-950/20">
+            <CardHeader>
+              <CardTitle className="text-base">
+                Choose the celebrant photo
+              </CardTitle>
+              <CardDescription>
+                Starlight uses one photo you approve for this invitation. It
+                never borrows a child from another project, and the original
+                upload is preserved.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {selectedCover ? (
+                <p className="text-sm font-medium">
+                  Approved cover:{" "}
+                  {initialAssets.find(
+                    (asset) => asset.id === selectedCover.assetId,
+                  )?.originalFilename ?? "Selected photo"}
+                </p>
+              ) : personalizationCandidate ? (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-background/80 p-3">
+                  <div>
+                    <p className="text-sm font-medium">
+                      Suggested:{" "}
+                      {personalizationCandidate.asset.originalFilename}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {personalizationCandidate.reasons.join(" · ")}. Please
+                      confirm; this suggestion does not identify the child.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggle(personalizationCandidate.asset.id, "COVER")
+                    }
+                    className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
+                  >
+                    Use this photo
+                  </button>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Upload a portrait, then assign it below. Only photos assigned
+                  to this invitation are considered.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ) : null}
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Upload a photo</CardTitle>

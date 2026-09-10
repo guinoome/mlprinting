@@ -173,6 +173,8 @@ export default async function BuilderStepPage({
               eventType: draft!.eventType ?? "",
               eventTitle: draft!.eventTitle ?? "",
               subtitle: draft!.subtitle ?? "",
+              celebrantName: draft!.celebrantName ?? "",
+              celebrantAge: draft!.celebrantAge?.toString() ?? "",
               eventDate: toDateInput(draft!.eventDate),
               eventTime: draft!.eventTime ?? "",
               timeZone: draft!.timeZone,
@@ -254,12 +256,15 @@ export default async function BuilderStepPage({
         return (
           <MediaStep
             invitationId={draft!.id}
+            templateSlug={draft!.template?.slug ?? null}
             assets={assets.map((asset) => ({
               id: asset.id,
               thumbnailUrl: thumbnailUrl(asset),
               altText: asset.altText,
               originalFilename: asset.originalFilename,
               tags: asset.tags,
+              width: asset.width,
+              height: asset.height,
               remaster: remasters.has(asset.id)
                 ? {
                     id: remasters.get(asset.id)!.id,
@@ -325,6 +330,8 @@ export default async function BuilderStepPage({
         const model = toPreviewModel({
           eventTitle: draft!.eventTitle,
           subtitle: draft!.subtitle,
+          celebrantName: draft!.celebrantName,
+          celebrantAge: draft!.celebrantAge,
           eventDate: draft!.eventDate,
           eventTime: draft!.eventTime,
           timeZone: draft!.timeZone,
