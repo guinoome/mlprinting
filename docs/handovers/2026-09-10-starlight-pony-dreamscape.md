@@ -1,6 +1,7 @@
 # ML-DEP Starlight Pony Dreamscape handover
 
-**Recorded:** 2026-09-10, Asia/Taipei
+**Recorded:** 2026-09-10; production verification completed 2026-09-11,
+Asia/Taipei
 
 **Authoritative Git repository:** `C:\Users\FraNc!s\Documents\ML Projects\ML Digital Event Platform (ML-DEP)`
 
@@ -10,7 +11,16 @@
 
 **Base:** `fdcbc95955f91598cb55e665f431c5d7bf7cb783` (`origin/main` when work began)
 
+**Feature HEAD:** `17275e6955d5ffa56560e0c19845da2d4e9b021f`
+
+**Pull request:** `https://github.com/guinoome/mlprinting/pull/13`
+
+**Merged to main:** `72c49854266922ba3e753f1c8f80a0fcaf827d1b`
+
 **Production:** `https://mlprinting.vercel.app`
+
+**Production deployment:**
+`https://mlprinting-iejgdjpk8-guinoomes-projects.vercel.app`
 
 ## Completed before this milestone — do not rework
 
@@ -50,9 +60,20 @@
 - Database migration: all 18 migrations applied successfully to a fresh local
   PGlite/PostgreSQL instance, including the Starlight migration.
 - Production build: passed; 32 static pages generated.
-- Browser console: no warnings or errors on the Starlight live sample.
-- Browser mobile QA: 360×800, 390×844, and 430×932; document scroll width
-  equalled client width and all hero content remained visible.
+- Production database migration: applied successfully in the Supabase SQL
+  editor as one transaction. Independent post-checks confirmed the
+  `celebrantName` column, age constraint, Prisma migration ledger entry, and
+  Starlight template row. Migration checksum:
+  `f1e0eef7e38e27410667522c7beb882202b2db773a7cbbc082af10fb0513f96d`.
+- Vercel production deployment: Ready for main merge `72c4985`; both the home
+  page Children entry and direct Starlight invitation are served by
+  `mlprinting.vercel.app`.
+- Production browser console: no warnings or errors on the Starlight live
+  sample.
+- Production mobile QA: 360×800, 375×812, 390×844, 393×852, 412×915, and
+  430×932. Every width reported no horizontal overflow; the opening and live
+  hero matched the viewport height, and the celebrant name, age, RSVP action,
+  venue, and scroll prompt remained visible at 390×844.
 - Native reference QA: 941×1672; hero height matched the viewport and document
   width did not overflow.
 
@@ -65,13 +86,15 @@ cross-project identity QA remain blocked until those inputs exist.
 
 ## Release state
 
-Implementation and local validation are complete. Before calling production
-complete, record the final commit, PR, merge SHA, database migration outcome,
-Vercel deployment URL, and production phone-width evidence here.
+Starlight Pony Dreamscape is merged, migrated, deployed, discoverable from the
+home page, and verified on the production domain. Do not rebuild or redeploy
+this milestone on resume.
 
-**Single next action:** review the final diff, commit and push this branch, then
-open its Vercel preview at 390 px before applying the additive production
-migration and merging.
+**Single next action:** when consented customer child photos and an approved
+identity-preserving provider are available, implement and validate the
+provider-backed child-and-pony composite behind the existing personalization
+contract. Until then, retain the approved-project-photo layer and do not infer
+identity from template references.
 
 ## Continuity rule
 
