@@ -1,19 +1,15 @@
 # Current ML-DEP handover
 
-Resume from [`docs/handovers/2026-09-11-starlight-personalized-reveal.md`](docs/handovers/2026-09-11-starlight-personalized-reveal.md).
+Resume from [`docs/handovers/2026-09-12-starlight-template-dna.md`](docs/handovers/2026-09-12-starlight-template-dna.md).
 
-Production main contains the seven earlier invitation experiences, Starlight
-Pony Dreamscape, the mobile marketplace overhaul, its contrast correction, and
-private manual receipt verification. Do not rebuild or redeploy those
-milestones.
+Production `main` includes Starlight Pony Dreamscape's two-state Mia sample,
+Birthday discovery, production database cover migration, and template-owned
+builder experience. Do not rebuild or redeploy these milestones.
 
-The new Starlight two-state reveal is validated locally on branch
-`codex/starlight-personalized-reveal`: illustrated entrance, realistic fictional
-sample after opening, live `Mia`/age/countdown/RSVP, Birthday discovery portal,
-and a dedicated `Choose a world, not a card` feature. Validated feature commit
-`f8e72a520fb5e02f11bd01efc63d99f589122569` is pushed on
-`codex/starlight-personalized-reveal`; a release PR is not yet created or
-merged, the additive migration is not applied in Supabase, and production is
-not yet verified. Continue from that release gate; do not redo its
-implementation or local phone QA. Automatic PayMongo GCash, Maya, and QRPh
-remain credential-gated.
+Release commit `c11546317301d87c336aeb334c2b49d29aa97e03` is on
+`origin/main` and Vercel reported a successful deployment. The live Starlight
+flow passed Playwright at 360, 375, 390, 393, 412, and 430 CSS pixels. The next
+highest-value action is an authenticated phone review of one real Starlight
+draft using its customer-approved cover image. Identity-preserving generated
+composites and automatic PayMongo methods remain provider/credential-gated;
+do not claim either is active.
