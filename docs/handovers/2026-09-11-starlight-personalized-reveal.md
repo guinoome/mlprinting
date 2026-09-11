@@ -8,6 +8,8 @@
 
 **Base / production main at start:** `bf4e14f03d63b4e1b74c27e08f6ad53a0f14dee5`
 
+**Validated feature commit:** `f8e72a520fb5e02f11bd01efc63d99f589122569`
+
 **Production:** `https://mlprinting.vercel.app`
 
 ## Completed locally
@@ -60,16 +62,18 @@
 
 ## Release state
 
-The implementation is validated locally but is not yet committed, pushed,
-merged, migrated in Supabase, or verified on production. Do not repeat the
-completed implementation or local QA.
+The implementation is validated, committed, and pushed on
+`codex/starlight-personalized-reveal`. A release PR has not yet been created or
+merged; the additive migration has not been applied to Supabase and the change
+has not been verified on production. Do not repeat the completed implementation
+or local QA.
 
 ## Exact next action
 
-Run formatting and the focused post-copy checks, inspect the final diff, commit
-the intended files, push the branch, create the release PR, require its check
-and preview deployment to pass, merge it, apply the additive production
-migration, and repeat the phone-width interaction check on the public domain.
+Create the release PR from `codex/starlight-personalized-reveal` to `main`,
+require its checks and preview deployment to pass, merge it, apply the additive
+production migration, and repeat the phone-width interaction check on the
+public domain.
 
 ## Continuity rule
 
