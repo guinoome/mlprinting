@@ -51,6 +51,10 @@ const ENTRY_COPY: Partial<
     kicker: "Black tie. Candlelight. Our next chapter.",
     action: "Part the night",
   },
+  "starlight-dreamscape": {
+    kicker: "You're invited to a little big adventure",
+    action: "Begin the magic",
+  },
 };
 
 function drawShape(
@@ -169,6 +173,7 @@ export function InvitationShell({
   motionProfile,
   motionLevel = "M0",
   visualThemeId = "inherit",
+  celebrantAge,
   children,
 }: {
   monogram: string;
@@ -191,6 +196,8 @@ export function InvitationShell({
   motionProfile?: MotionProfileId;
   motionLevel?: MotionLevel;
   visualThemeId?: VisualThemeId;
+  /** Optional live age line used by child-focused opening experiences. */
+  celebrantAge?: number | null;
   children: React.ReactNode;
 }) {
   const [opened, setOpened] = React.useState(false);
@@ -320,6 +327,11 @@ export function InvitationShell({
           <div className="inv-entry-copy">
             <p className="inv-entry-kicker">{entryCopy.kicker}</p>
             <p className="inv-entry-title">{coupleLine}</p>
+            {visualThemeId === "starlight-dreamscape" && celebrantAge ? (
+              <p className="inv-entry-age">
+                Turns <strong>{celebrantAge}</strong>
+              </p>
+            ) : null}
             <button
               type="button"
               onClick={open}

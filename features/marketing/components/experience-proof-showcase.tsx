@@ -93,8 +93,8 @@ const LAUNCH = [
     number: "08",
     name: "Starlight Pony Dreamscape",
     type: "Immersive · Children's birthday",
-    image: "/experiences/starlight-pony-dreamscape-catalogue.webp",
-    alt: "Moonlit castle, flowers, clouds and a gentle unicorn in a starlight dreamscape",
+    image: "/experiences/starlight-pony-dreamscape-entry.webp",
+    alt: "An illustrated toddler hugging a gentle unicorn beneath a moonlit castle",
     opening: "Begin the magic",
     story:
       "A customer-approved celebrant portrait becomes the heart of a moonlit birthday journey with live age, countdown, gallery, venue and RSVP.",

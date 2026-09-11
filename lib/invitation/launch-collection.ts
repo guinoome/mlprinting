@@ -11,4 +11,5 @@ export const LAUNCH_COLLECTION_SLUGS = [
   "ivory-lace",
   "blush-botanical",
   "midnight-gold",
+  "starlight-pony-dreamscape",
 ] as const;

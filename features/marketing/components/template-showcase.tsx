@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { routes } from "@/lib/config";
 import { TemplateCard } from "@/features/template-marketplace/components/template-card";
 import type { TemplateCard as TemplateCardData } from "@/features/template-marketplace/repository";
@@ -19,6 +20,13 @@ export function TemplateShowcase({
   categories: { slug: string; name: string }[];
 }) {
   if (templates.length === 0) return null;
+
+  const starlight = templates.find(
+    (template) => template.slug === "starlight-pony-dreamscape",
+  );
+  const otherTemplates = templates.filter(
+    (template) => template.slug !== "starlight-pony-dreamscape",
+  );
 
   return (
     <section className="bg-[#f5f0e7] text-[#181714]">
@@ -61,16 +69,95 @@ export function TemplateShowcase({
           </ul>
         ) : null}
 
-        <div className="mt-10 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-          {templates.map((template) => (
-            <TemplateCard
-              key={template.id}
-              template={template}
-              favorited={false}
-              showFavorite={false}
-            />
-          ))}
-        </div>
+        {starlight ? (
+          <article className="mt-10 grid overflow-hidden bg-[#080d2f] text-white shadow-[0_28px_80px_rgba(32,21,67,.18)] lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,.72fr)]">
+            <div className="relative min-h-[34rem] overflow-hidden sm:min-h-[42rem] lg:min-h-[46rem]">
+              <Image
+                src={starlight.coverImageUrl}
+                alt="An illustrated toddler embracing a gentle unicorn in a moonlit birthday dreamscape"
+                fill
+                sizes="(min-width: 1024px) 58vw, 100vw"
+                className="object-cover object-center transition duration-1000 hover:scale-[1.02] motion-reduce:transition-none"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080d2f]/85 via-transparent to-[#080d2f]/10" />
+              <p className="absolute left-6 top-6 text-[9px] font-semibold uppercase tracking-[0.28em] text-[#ffe29a] sm:left-8 sm:top-8">
+                Birthday world · 01
+              </p>
+              <p className="absolute inset-x-6 bottom-7 max-w-xl font-serif text-3xl leading-tight text-white sm:inset-x-8 sm:bottom-9 sm:text-4xl">
+                First, an illustrated dream. Then, Mia steps into the magic.
+              </p>
+            </div>
+
+            <div className="relative flex flex-col justify-between overflow-hidden p-7 sm:p-10 lg:p-12">
+              <span
+                aria-hidden="true"
+                className="absolute -right-20 -top-20 size-64 rounded-full border border-[#f8c9ff]/20 shadow-[0_0_90px_rgba(224,139,255,.18)]"
+              />
+              <div className="relative">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#ffe29a]">
+                  Premium interactive birthday
+                </p>
+                <h3 className="mt-5 text-balance font-serif text-5xl leading-[0.92] tracking-[-0.04em] sm:text-6xl">
+                  Starlight Pony Dreamscape
+                </h3>
+                <p className="mt-6 max-w-md text-sm leading-7 text-white/[0.68]">
+                  A live name and age float over a moonlit storybook entrance.
+                  Tap “Begin the Magic” and the invitation reveals a realistic
+                  celebrant portrait, countdown, venue, and RSVP—all shaped for
+                  the phone.
+                </p>
+
+                <div className="mt-9 border-y border-white/15 py-7">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#f7c7ff]">
+                    Live sample
+                  </p>
+                  <p className="mt-3 font-serif text-4xl leading-none text-[#ffd8ff]">
+                    Mia <span className="text-[#ffe29a]">turns 3</span>
+                  </p>
+                  <p className="mt-3 text-xs leading-6 text-white/55">
+                    Change the name, age, date, portrait, message, and place.
+                    The world stays beautifully consistent.
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative mt-10 grid gap-3">
+                <Link
+                  href={routes.templateLivePreview(starlight.slug)}
+                  className="inline-flex min-h-12 items-center justify-between bg-[#f5d5ff] px-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#13102c] transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  Begin the magic
+                  <ArrowUpRight className="size-5" aria-hidden="true" />
+                </Link>
+                <Link
+                  href={routes.template(starlight.slug)}
+                  className="inline-flex min-h-12 items-center justify-between border border-white/30 px-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white transition-colors hover:border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  Make this world yours
+                  <ArrowRight className="size-5" aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
+          </article>
+        ) : null}
+
+        {otherTemplates.length > 0 ? (
+          <>
+            <p className="mt-14 border-t border-black/15 pt-5 text-[9px] font-semibold uppercase tracking-[0.24em] text-black/50">
+              More worlds to enter
+            </p>
+            <div className="mt-7 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+              {otherTemplates.map((template) => (
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  favorited={false}
+                  showFavorite={false}
+                />
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
     </section>
   );

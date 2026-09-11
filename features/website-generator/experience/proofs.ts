@@ -10,6 +10,7 @@ export interface ProofExperienceSummary {
   motionProfile: string;
   promise: string;
   sampleCover: string;
+  samplePortrait?: string;
 }
 
 /**
@@ -118,7 +119,9 @@ export const PROOF_EXPERIENCES: readonly ProofExperienceSummary[] = [
     motionProfile: "MP-storybook",
     promise:
       "A chosen celebrant portrait becomes the heart of a luminous pony dreamscape.",
-    sampleCover: "/experiences/starlight-pony-dreamscape-catalogue.webp",
+    sampleCover: "/experiences/starlight-pony-dreamscape-entry.webp",
+    samplePortrait:
+      "/experiences/starlight-pony-dreamscape-sample-toddler.webp",
   },
 ] as const;
 

@@ -40,7 +40,7 @@ describe("launch artwork", () => {
     ],
     [
       "starlight-pony-dreamscape",
-      "/experiences/starlight-pony-dreamscape-catalogue.webp",
+      "/experiences/starlight-pony-dreamscape-entry.webp",
       "/experiences/starlight-pony-dreamscape-hero.webp",
     ],
   ])(

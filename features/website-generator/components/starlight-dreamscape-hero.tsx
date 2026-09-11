@@ -1,4 +1,5 @@
 import type { PreviewModel } from "@/lib/invitation/preview-model";
+import { Countdown } from "./countdown";
 
 function nameSizeClass(name: string): string {
   if (name.length > 24) return "starlight-name--long";
@@ -6,13 +7,37 @@ function nameSizeClass(name: string): string {
   return "";
 }
 
-export function StarlightDreamscapeHero({ model }: { model: PreviewModel }) {
+export function StarlightDreamscapeHero({
+  model,
+  countdownTarget,
+}: {
+  model: PreviewModel;
+  countdownTarget: Date | null;
+}) {
   const name = model.celebrantName ?? model.hosts[0]?.name ?? model.title;
   const venue = model.venues[0];
 
   return (
     <section className="starlight-hero" aria-labelledby="starlight-title">
       <div className="starlight-sky" aria-hidden="true" />
+      <div className="starlight-heading">
+        <p className="starlight-kicker">You&apos;re invited to</p>
+        <h1
+          id="starlight-title"
+          className={`starlight-name ${nameSizeClass(name)}`}
+        >
+          {name}
+        </h1>
+        {model.celebrantAge ? (
+          <p className="starlight-age">
+            Turns <strong>{model.celebrantAge}</strong>
+          </p>
+        ) : null}
+        <p className="starlight-subtitle">
+          {model.subtitle ?? "A starlight pony dreamscape"}
+        </p>
+      </div>
+
       {model.coverImageUrl ? (
         <div
           className="starlight-portrait"
@@ -31,24 +56,15 @@ export function StarlightDreamscapeHero({ model }: { model: PreviewModel }) {
         </div>
       )}
 
-      <div className="starlight-copy">
-        <p className="starlight-kicker">You&apos;re invited to</p>
-        <h1
-          id="starlight-title"
-          className={`starlight-name ${nameSizeClass(name)}`}
-        >
-          {name}
-        </h1>
-        {model.celebrantAge ? (
-          <p className="starlight-age">
-            Turns <strong>{model.celebrantAge}</strong>
-          </p>
-        ) : null}
-        <p className="starlight-subtitle">
-          {model.subtitle ?? "A starlight pony dreamscape"}
-        </p>
+      <div className="starlight-details">
         {model.welcomeMessage ? (
           <p className="starlight-welcome">{model.welcomeMessage}</p>
+        ) : null}
+        {countdownTarget ? (
+          <div className="starlight-countdown">
+            <p>The magic begins in</p>
+            <Countdown targetDate={countdownTarget} />
+          </div>
         ) : null}
         <a className="starlight-rsvp" href="#rsvp">
           <span aria-hidden="true">♥</span> RSVP now{" "}

@@ -102,15 +102,18 @@ async function main() {
       isFeatured: template.isFeatured,
       publishedAt,
       useCount: template.useCount,
-      coverImageUrl: placeholderUrl(
-        "cover",
-        template.slug,
-        template.name,
-        categoryName,
-        // The composition, so two templates in one category read as two designs
-        // rather than the same cover with different words on it.
-        template.style,
-      ),
+      coverImageUrl:
+        template.slug === "starlight-pony-dreamscape"
+          ? "/experiences/starlight-pony-dreamscape-entry.webp"
+          : placeholderUrl(
+              "cover",
+              template.slug,
+              template.name,
+              categoryName,
+              // The composition, so two templates in one category read as two designs
+              // rather than the same cover with different words on it.
+              template.style,
+            ),
     };
 
     const row = await prisma.template.upsert({

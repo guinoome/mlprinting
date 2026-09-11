@@ -291,11 +291,11 @@ const KINDS: Record<EventKind, KindSpec> = {
  */
 const PROOF_SPECS: Partial<Record<string, KindSpec>> = {
   "starlight-pony-dreamscape": {
-    title: "Mary Dale's Magical Day",
-    celebrantName: "Mary Dale",
+    title: "Mia's Magical Day",
+    celebrantName: "Mia",
     celebrantAge: 3,
     subtitle: "a starlight pony dreamscape",
-    hosts: ["Mary Dale"],
+    hosts: ["Mia"],
     welcome:
       "Join us for a magical day filled with love, laughter, and little big dreams.",
     invitation:
@@ -577,10 +577,9 @@ export default async function InvitePreviewPage({
     // database outage cannot load catalogue rows. Their slug is an exact,
     // platform-owned contract rather than a best-effort visual hint.
     kind = proof.eventKind;
-    // The Starlight proof must not pretend its decorative world is a customer
-    // portrait. Real invitations receive only their own approved COVER asset.
-    cover =
-      proof.slug === "starlight-pony-dreamscape" ? null : proof.sampleCover;
+    // A public proof may carry a clearly fictional demonstration portrait.
+    // Published invitations still receive only their own approved COVER asset.
+    cover = proof.samplePortrait ?? proof.sampleCover;
   }
 
   if (slug && isDatabaseConfigured()) {
@@ -590,7 +589,7 @@ export default async function InvitePreviewPage({
       // art heads the page — so this is that template, not a generic demo.
       const category = template.category.slug;
       kind = category in KINDS ? (category as EventKind) : "general";
-      cover = template.coverImageUrl;
+      cover = proof?.samplePortrait ?? template.coverImageUrl;
     }
   }
 

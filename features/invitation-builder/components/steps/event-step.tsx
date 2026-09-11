@@ -134,7 +134,7 @@ export function EventStep({
               name="celebrantName"
               value={values.celebrantName}
               onChange={(event) => set("celebrantName", event.target.value)}
-              placeholder="Mary Dale"
+              placeholder="Mia"
               error={fieldErrors.celebrantName}
               hint="Shown in birthday designs without changing the photo."
             />
