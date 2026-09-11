@@ -509,6 +509,7 @@ export function EventSite({
       motionProfile={experience.config.motionProfile}
       motionLevel={experience.motionLevel}
       visualThemeId={experience.config.visualThemeId}
+      celebrantAge={model.celebrantAge}
       style={invVars(style, model.coverImageUrl)}
     >
       <div
@@ -523,7 +524,10 @@ export function EventSite({
             merely declared — see hero.tsx for what each of the seven does and
             why the tone split matters more than the arrangement. */}
         {experienceSlug === "starlight-pony-dreamscape" ? (
-          <StarlightDreamscapeHero model={model} />
+          <StarlightDreamscapeHero
+            model={model}
+            countdownTarget={countdownTarget}
+          />
         ) : (
           <Hero
             presentation={layout.hero}

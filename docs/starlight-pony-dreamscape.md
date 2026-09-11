@@ -1,102 +1,99 @@
 # Starlight Pony Dreamscape
 
-## Production scope
+## Product contract
 
-Starlight Pony Dreamscape is a first-class ML-DEP birthday experience, not an
-isolated demo. It reuses the existing template marketplace, builder, private
-media library, preview/public renderer, countdown, gallery, map, music, RSVP,
-print, order, and publication systems.
+Starlight Pony Dreamscape is a first-class ML-DEP birthday experience. It uses
+the existing marketplace, builder, private media library, public renderer,
+countdown, gallery, map, music, RSVP, print, order, and publication systems.
 
-The home-page Children portal and launch proof both route directly into the
-live Starlight sample, making the experience discoverable before sign-in as
-well as through the template marketplace.
+The experience has two deliberate states:
 
-The launch vertical slice deliberately separates three concerns:
+1. **Storybook entrance.** Before the invitation opens, a fictional illustrated
+   toddler and unicorn establish the world. The celebrant name, age, and
+   `Begin the Magic` action are live HTML, not text baked into the artwork.
+2. **Personal reveal.** After the action, the sample reveals a fictional,
+   realistic toddler portrait with the same live name and age, followed by the
+   countdown, RSVP, date, and venue. A real published invitation uses only that
+   invitation's customer-approved `COVER` asset in this position.
 
-1. `public/experiences/starlight-pony-dreamscape-hero.webp` is a reusable,
-   child-free and text-free fantasy world.
-2. The invitation's approved `COVER` asset is the only child portrait shown in
-   the experience. It remains a separate live layer served through the existing
-   private-media proxy.
-3. Celebrant name, age, date, venue, message, and actions are structured data
-   rendered as live HTML. Changing copy does not regenerate or alter the photo.
+The public sample uses `Mia`, age 3. Customers replace the name, age, portrait,
+date, venue, and message without changing the visual system.
 
-The immutable source artwork is retained at
-`raw/experiences/starlight-pony-dreamscape-master.png`; the catalogue and hero
-WebP derivatives are optimized delivery assets.
+## Discovery surfaces
 
-## Identity and project boundaries
+- `Find your experience` presents six celebration entrances. Memorial is not a
+  portal in that marketing finder; Birthday now links directly to Starlight.
+- `Choose a world, not a card` guarantees Starlight a dedicated premium feature
+  rather than relying on catalogue ordering. The feature explains the two-step
+  reveal and links to both the live proof and template detail.
+- The launch proof and marketplace continue to use the same live preview route.
 
-- Neither supplied reference image is an identity source.
-- The reusable template artwork contains no child.
-- Candidate ranking examines only media already assigned to the current
-  invitation and never scans another customer's content.
-- Ranking uses customer tags, filename, dimensions, and orientation. It is not
-  face recognition and never claims an identity match.
-- A suggestion always requires the customer's explicit cover selection.
-- Published sites receive only media linked to that invitation.
-- Existing media originals remain immutable. Optional derivatives retain their
-  source asset and version relationship.
-- The child photograph is static; only ambient stars, background drift, and UI
-  affordances animate.
+## Identity and privacy boundaries
 
-`services/personalization/types.ts` defines the replaceable provider contract
-for a future approved build-time composite. The current production path uses a
-direct live portrait layer because no external identity-preserving provider or
-consented customer photo set was supplied. This is an honest fallback, not a
-simulated generation result.
+- Supplied references define composition and mood only; they are not identity
+  sources.
+- Both public sample children are fictional generated people. They are not
+  based on or intended to resemble the child in a supplied reference.
+- Published sites receive only media assigned to their invitation.
+- Customer media remains a separate live layer served through the existing
+  private-media proxy; names and ages remain structured data.
+- The child photograph is static. Only ambient stars, type, the entry action,
+  and transition affordances animate.
+- Candidate ranking examines invitation-owned metadata and never performs face
+  recognition or scans another customer's content.
 
-## Builder behavior
+`services/personalization/types.ts` remains the boundary for any future
+provider-backed customer composite. This release does not claim identity-
+preserving generation.
 
-- Birthday events expose first-class `celebrantName` and `celebrantAge` fields.
-- Starlight's media step explains the identity boundary and asks the customer
-  to approve one cover portrait.
-- Only invitation-assigned assets can appear as automated suggestions.
-- A portrait-oriented, sufficiently large, customer-labelled asset ranks
-  higher, but the customer still confirms it.
+## Mobile and motion contract
 
-## Mobile contract
+Both states are release-gated at 360, 375, 390, 393, 412, and 430 CSS pixels.
+The document must not widen at any supported width. The first viewport keeps
+the name, age, primary action, and main subject legible; the opened viewport
+keeps the realistic portrait, countdown, RSVP, date, and venue visible without
+requiring a desktop layout.
 
-The opening and hero are release-gated at 360, 375, 390, 393, 412, and 430 CSS
-pixels. Important content uses live safe-area-aware layout rather than raster
-text. The celebrant name scales by length and can wrap without widening the
-document. The approved portrait uses a bounded portrait mask and never relies
-on globally hiding overflow to conceal a crop defect.
+Ambient stars twinkle, the live name and age arrive gently, and the primary
+action pulses. `prefers-reduced-motion` removes non-essential motion without
+removing content or controls.
 
-Reduced-motion users receive a static background, stars, and scroll cue. The
-content and controls remain unchanged.
+## Artwork and provenance
 
-## Generated-art provenance
+Immutable generated sources:
 
-Built-in image generation was used in reference-guided concept mode. The final
-accepted prompt was:
+- `raw/experiences/starlight-pony-dreamscape-entry-master.png`
+- `raw/experiences/starlight-pony-dreamscape-sample-toddler-master.png`
 
-> Edit the supplied child-free Starlight Pony Dreamscape background into one
-> clean reusable vertical invitation world. Preserve the navy, violet, blush,
-> and warm-gold palette; luminous crescent moon; distant enchanted castle;
-> layered cloud terraces; flower-framed edges; and sparkling star field. Add
-> one gentle white pony/unicorn integrated naturally in the lower-right third,
-> leaving a generous calm central-left zone for a separately composited,
-> customer-approved child portrait and live interface copy. No people, no
-> children, no faces, no names, no letters, no numbers, no UI, no phone frame,
-> no logo, no watermark, and no checkerboard. Portrait 941 by 1672 composition,
-> polished premium children's fantasy invitation, subject-safe at mobile crop.
+Optimized delivery assets:
 
-The accepted generated source was saved by Codex at
-`C:/Users/FraNc!s/.codex/generated_images/01a04ba5-9d72-7310-8fd5-4a9ad28f5d75/exec-5dfab82c-bf69-4ceb-ae26-30c7acacc71a.png`
-and copied into the project as the immutable master above.
+- `public/experiences/starlight-pony-dreamscape-entry.webp`
+- `public/experiences/starlight-pony-dreamscape-sample-toddler.webp`
 
-## Known gate before generated child-and-pony composites
+The built-in image generator produced both assets without rasterized names,
+ages, dates, buttons, logos, or phone chrome. The entrance prompt requested a
+premium navy, violet, blush, and warm-gold storybook world with an illustrated
+fictional toddler embracing a gentle unicorn. The opened-state prompt requested
+a realistic but fictional toddler beside a small white pony in the same
+moonlit world. Neither prompt used a reference child as an identity source.
 
-A photoreal generated scene of a specific client child embracing the pony is
-not enabled by this release. Enabling it requires all of the following:
+Generator outputs retained by Codex:
 
-- the customer's consented source photos;
-- a configured identity-preserving provider behind the existing interface;
-- private intermediate storage and approved-output caching;
-- retry, timeout, and fallback behavior tested against that provider;
-- same-child, wrong-child, sibling, poor-light, group-photo, and
-  cross-project-leakage QA.
+- `C:/Users/FraNc!s/.codex/generated_images/01a04ba5-9d72-7310-8fd5-4a9ad28f5d75/exec-e95082ee-52b9-4f14-9dde-d42785bae068.png`
+- `C:/Users/FraNc!s/.codex/generated_images/01a04ba5-9d72-7310-8fd5-4a9ad28f5d75/exec-ea74cb29-6dd9-4aa8-89d9-6aa7ba1890df.png`
 
-Until those gates pass, the live portrait-layer composition is the production
-fallback and the system must not imply that a synthetic identity match occurred.
+## Intentional differences from the concept boards
+
+- The production page does not imitate a phone hardware frame or the concept's
+  surrounding annotation poster; it is the actual phone web experience.
+- All variable copy and commerce actions are live, accessible elements.
+- The public realistic portrait is a fictional product sample. Customer
+  invitations substitute the approved customer cover instead.
+- The design uses restrained web motion rather than animating a child's face.
+
+## Future provider gate
+
+A generated composite preserving a specific customer's identity remains out of
+scope until consented source photos, a configured provider, private intermediate
+storage, approved-output caching, retry/fallback behavior, and wrong-person or
+cross-project leakage tests all exist.

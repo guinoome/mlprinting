@@ -51,16 +51,27 @@ export default async function Home() {
 
   // One page of the catalogue is enough for both the hero stack and the
   // showcase; asking twice would be two round trips for the same rows.
-  const [page, categories] = showCatalogue
+  const [page, categories, starlightPage] = showCatalogue
     ? await Promise.all([
         // Empty params gives the catalogue's own defaults — recommended order,
         // which puts featured templates first. Exactly what a shop window wants.
         getCatalogPage({ ...parseCriteria({}), perPage: 8 }),
         getCategories(),
+        getCatalogPage({
+          ...parseCriteria({ q: "Starlight Pony Dreamscape" }),
+          perPage: 1,
+        }),
       ])
-    : [null, []];
+    : [null, [], null];
 
   const templates = page?.templates ?? [];
+  const starlight = starlightPage?.templates[0];
+  const showcaseTemplates = starlight
+    ? [
+        starlight,
+        ...templates.filter((template) => template.id !== starlight.id),
+      ].slice(0, 4)
+    : templates.slice(0, 4);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -89,7 +100,7 @@ export default async function Home() {
         <FeatureHighlights />
 
         <TemplateShowcase
-          templates={templates.slice(0, 4)}
+          templates={showcaseTemplates}
           categories={categories}
         />
 

@@ -47,26 +47,17 @@ const EXPERIENCE_PORTALS: readonly ExperiencePortal[] = [
   },
   {
     number: "04",
-    label: "Memorial",
-    note: "A quiet tribute",
-    image: "/experiences/memorial-sampaguita-portal.png",
-    imageAlt: "Restrained white floral memorial composition",
-    href: routes.templateLivePreview("in-loving-memory"),
-    position: "center",
-    desktopHeight: "md:h-[24rem] lg:h-[31rem]",
-  },
-  {
-    number: "05",
-    label: "Children",
-    note: "Enter the dreamscape",
-    image: "/experiences/starlight-pony-dreamscape-catalogue.webp",
-    imageAlt: "A luminous starlight pony dreamscape for a children's birthday",
+    label: "Birthday",
+    note: "Begin the magic",
+    image: "/experiences/starlight-pony-dreamscape-entry.webp",
+    imageAlt:
+      "An illustrated toddler and unicorn in a luminous birthday dreamscape",
     href: routes.templateLivePreview("starlight-pony-dreamscape"),
     position: "center",
     desktopHeight: "md:h-[27rem] lg:h-[35rem]",
   },
   {
-    number: "06",
+    number: "05",
     label: "Corporate launch",
     note: "Reveal the launch",
     image: "/experiences/product-launch-catalogue.png",
@@ -76,7 +67,7 @@ const EXPERIENCE_PORTALS: readonly ExperiencePortal[] = [
     desktopHeight: "md:h-[29rem] lg:h-[37rem]",
   },
   {
-    number: "07",
+    number: "06",
     label: "Live event",
     note: "Explore live energy",
     image: "/experiences/fiesta-banderitas-hero.png",
@@ -133,7 +124,7 @@ export function ExperienceFinder() {
         <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
           <div>
             <p className="text-[9px] font-semibold uppercase tracking-[0.3em] text-[#8b6735]">
-              Seven ways to begin
+              Six ways to begin
             </p>
             <h2
               id="experience-finder-title"
@@ -150,12 +141,12 @@ export function ExperienceFinder() {
 
         <div className="mt-7 flex items-center justify-between border-t border-black/15 pt-4 text-[9px] font-semibold uppercase tracking-[0.2em] text-black/50 md:hidden">
           <span>Swipe to explore</span>
-          <span aria-hidden="true">01 — 07</span>
+          <span aria-hidden="true">01 — 06</span>
         </div>
       </div>
 
       <div className="mx-auto max-w-[96rem] pb-16 md:px-8 md:pb-24">
-        <div className="experience-finder-rail flex snap-x snap-mandatory items-end gap-2 overflow-x-auto px-5 pb-4 md:grid md:grid-cols-7 md:gap-1 md:overflow-visible md:px-0 md:pb-0">
+        <div className="experience-finder-rail flex snap-x snap-mandatory items-end gap-2 overflow-x-auto px-5 pb-4 md:grid md:grid-cols-6 md:gap-1 md:overflow-visible md:px-0 md:pb-0">
           {EXPERIENCE_PORTALS.map((portal) => {
             const portalClass = `group relative block aspect-[0.62] w-[68vw] max-w-[17rem] shrink-0 snap-start overflow-hidden rounded-t-[999px] bg-[#181714] outline-none ring-offset-4 ring-offset-[#f5f0e7] focus-visible:ring-2 focus-visible:ring-[#8b6735] md:aspect-auto md:w-auto md:max-w-none ${portal.desktopHeight}`;
 

@@ -58,9 +58,9 @@ export const LAUNCH_ARTWORK = {
       "Midnight panels part into a candlelit black-tie programme.",
   },
   "starlight-pony-dreamscape": {
-    catalogueSrc: "/experiences/starlight-pony-dreamscape-catalogue.webp",
+    catalogueSrc: "/experiences/starlight-pony-dreamscape-entry.webp",
     heroSrc: "/experiences/starlight-pony-dreamscape-hero.webp",
-    alt: "A moonlit pony dreamscape with a glowing castle, clouds, and stars",
+    alt: "An illustrated toddler hugging a unicorn beneath a moonlit castle",
     catalogueDescription:
       "A child-safe birthday world built around the celebrant photo you approve.",
   },

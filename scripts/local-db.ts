@@ -14,7 +14,7 @@
  * Data lives in .pglite/ and is gitignored. Delete that folder to reset.
  *
  *   pnpm db:local          # start on 55432
- *   DATABASE_URL="postgresql://postgres:postgres@localhost:55432/postgres" pnpm prisma migrate dev
+ *   DATABASE_URL="postgresql://postgres:postgres@localhost:55432/postgres" pnpm prisma migrate deploy
  */
 import { PGlite } from "@electric-sql/pglite";
 import { PGLiteSocketServer } from "@electric-sql/pglite-socket";

@@ -62,6 +62,7 @@ describe("buildWhere — publication", () => {
           "ivory-lace",
           "blush-botanical",
           "midnight-gold",
+          "starlight-pony-dreamscape",
         ],
       },
     });
