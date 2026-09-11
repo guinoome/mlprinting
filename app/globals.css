@@ -284,6 +284,37 @@
   --inv-gutter: clamp(20px, 4.5vw, 44px);
 }
 
+/* The builder embeds the production renderer instead of maintaining a second,
+   generic imitation. The shell becomes a contained scroll surface: its real
+   opening action still works, while public RSVP, map, and calendar links cannot
+   perform side effects from inside an approval preview. */
+.inv-builder-live-preview > .inv-reveal-root {
+  position: relative;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.inv-builder-live-preview .inv-overlay {
+  position: absolute;
+  min-height: 100%;
+}
+
+.inv-builder-live-preview .inv-entry,
+.inv-builder-live-preview .starlight-hero {
+  min-height: 100%;
+}
+
+.inv-builder-live-preview [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+.inv-builder-live-preview a {
+  pointer-events: none;
+}
+
 /* --- Envelope intro (the signature: a sealed envelope that opens) --- */
 .inv-overlay {
   position: fixed;
@@ -2297,6 +2328,87 @@ video.inv-hero-photo {
   }
   .starlight-countdown {
     margin-bottom: 0.4rem;
+  }
+}
+
+/* Container parity makes the mobile tab truthful even when it is opened on a
+   wide desktop. The production component responds to the preview frame rather
+   than inheriting the outer browser's breakpoint. */
+@container (max-width: 700px) {
+  .inv-entry--starlight-dreamscape {
+    padding: 0;
+    background-position: 50% center;
+  }
+  .inv-entry--starlight-dreamscape .inv-entry-brand {
+    top: 1.25rem;
+    left: 1.25rem;
+  }
+  .inv-entry--starlight-dreamscape .inv-entry-copy {
+    top: 4.75rem;
+  }
+  .inv-entry--starlight-dreamscape .inv-entry-title {
+    font-size: clamp(3rem, 14cqw, 4.5rem);
+  }
+  .inv-entry--starlight-dreamscape .inv-entry-age {
+    font-size: clamp(1.25rem, 6cqw, 1.8rem);
+  }
+  .starlight-hero {
+    padding: 0;
+  }
+  .starlight-heading {
+    top: 3.15rem;
+  }
+  .starlight-kicker {
+    margin-bottom: 0.3rem;
+  }
+  .starlight-name {
+    font-size: clamp(2.9rem, 14.2cqw, 4.15rem);
+  }
+  .starlight-name--medium {
+    font-size: clamp(2.35rem, 11.6cqw, 3.5rem);
+  }
+  .starlight-name--long {
+    font-size: clamp(1.85rem, 9.3cqw, 2.8rem);
+  }
+  .starlight-age {
+    margin-top: 0.15rem;
+    font-size: clamp(1.35rem, 5.7cqw, 1.75rem);
+  }
+  .starlight-subtitle {
+    margin-top: 0.18rem;
+    font-size: clamp(0.82rem, 3.6cqw, 1rem);
+  }
+  .starlight-portrait,
+  .starlight-portrait-placeholder {
+    top: 12rem;
+    left: 50%;
+    width: min(78cqw, 31rem);
+    height: min(90cqw, 38rem);
+    transform: translateX(-50%);
+  }
+  .starlight-details {
+    right: 1rem;
+    bottom: 4.7rem;
+    left: 1rem;
+    width: auto;
+  }
+  .starlight-welcome {
+    display: -webkit-box;
+    max-width: 20rem;
+    overflow: hidden;
+    margin-block: 0.55rem 0.85rem;
+    font-size: 0.78rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .starlight-rsvp {
+    min-height: 3rem;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.82rem;
+  }
+  .starlight-facts {
+    margin-top: 0.8rem;
+    font-size: 0.65rem;
   }
 }
 

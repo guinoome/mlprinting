@@ -19,6 +19,7 @@ import {
   mediaStepSchema,
   templateStepSchema,
 } from "./schema";
+import { enforceTemplatePersonalization } from "@/features/website-generator/experience/design-policy";
 
 /**
  * Builder actions — Ph3.md §8 (Auto Save), §11 (Draft Management).
@@ -464,10 +465,19 @@ export async function savePersonalizeStep(
     return { fieldErrors: fieldErrorsFrom(parsed.error.issues) };
 
   try {
+    const invitation = await prisma.invitation.findUnique({
+      where: { id: invitationId },
+      select: { template: { select: { slug: true } } },
+    });
+    const personalization = enforceTemplatePersonalization(
+      invitation?.template?.slug,
+      parsed.data,
+    );
+
     await prisma.invitationPersonalization.upsert({
       where: { invitationId },
-      update: parsed.data,
-      create: { invitationId, ...parsed.data },
+      update: personalization,
+      create: { invitationId, ...personalization },
     });
 
     const savedAt = await touch(invitationId, "personalize");

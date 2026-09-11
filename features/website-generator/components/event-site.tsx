@@ -197,6 +197,7 @@ export function EventSite({
   qrSrc,
   memoryHref,
   experienceSlug,
+  previewMode = false,
 }: {
   invitationId: string;
   model: PreviewModel;
@@ -210,6 +211,8 @@ export function EventSite({
   memoryHref?: string | null;
   /** Template slug selects a named experience; event kind remains the fallback. */
   experienceSlug?: string | null;
+  /** Use the production composition inside the builder without live submissions. */
+  previewMode?: boolean;
 }) {
   const experience = resolveExperience(model.eventKind, {
     enabled: features.interactiveExperiences,
@@ -298,11 +301,12 @@ export function EventSite({
       </MotionStage>
     ) : null,
 
-    actions: calendar ? (
-      <MotionStage name="actions">
-        <InvitationActions title={model.title} calendarUrl={calendar} />
-      </MotionStage>
-    ) : null,
+    actions:
+      calendar && !previewMode ? (
+        <MotionStage name="actions">
+          <InvitationActions title={model.title} calendarUrl={calendar} />
+        </MotionStage>
+      ) : null,
 
     invitation: (
       <MotionStage name="invitation">
@@ -472,11 +476,15 @@ export function EventSite({
                 {model.rsvpLine}
               </p>
             ) : null}
-            <RsvpForm
-              invitationId={invitationId}
-              accentColor={style.accent}
-              tone={layout.celebratory ? "celebratory" : "quiet"}
-            />
+            {previewMode ? (
+              <p className="inv-maplink inline-block">RSVP form preview</p>
+            ) : (
+              <RsvpForm
+                invitationId={invitationId}
+                accentColor={style.accent}
+                tone={layout.celebratory ? "celebratory" : "quiet"}
+              />
+            )}
             {memoryHref ? (
               <a href={memoryHref} className="inv-maplink mt-4 inline-block">
                 Share Your Memories
@@ -510,6 +518,7 @@ export function EventSite({
       motionLevel={experience.motionLevel}
       visualThemeId={experience.config.visualThemeId}
       celebrantAge={model.celebrantAge}
+      embedded={previewMode}
       style={invVars(style, model.coverImageUrl)}
     >
       <div
@@ -561,7 +570,7 @@ export function EventSite({
         {/* The customer's own upload wins; otherwise the invitation gets an
             occasion-matched track. Profiles can deliberately omit music — the
             quiet memorial proof does — and the renderer honours that contract. */}
-        {experience.config.interactions.includes("music") ? (
+        {!previewMode && experience.config.interactions.includes("music") ? (
           <MusicPlayer
             src={
               model.musicUrl ?? MUSIC_TRACKS[moodForEventKind(model.eventKind)]

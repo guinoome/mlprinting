@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { Monitor, Tablet, Smartphone, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -11,6 +12,21 @@ import {
 import { features } from "@/lib/config";
 import { resolveExperience } from "@/features/website-generator/experience/registry";
 import { styleForExperience } from "@/features/website-generator/experience/themes";
+
+const LiveEventSitePreview = dynamic(
+  () =>
+    import("@/features/website-generator/components/event-site").then(
+      (module) => module.EventSite,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid h-full place-items-center bg-[#090d35] text-sm text-white/70">
+        Preparing your dreamscape…
+      </div>
+    ),
+  },
+);
 
 /**
  * The live preview — Ph3.md §10.
@@ -26,7 +42,9 @@ import { styleForExperience } from "@/features/website-generator/experience/them
  * is not known at build time, and the design tokens in globals.css are the
  * *application's* palette, not the invitation's.
  *
- * Not the website generator. Ph5 owns that (see model.ts).
+ * Starlight deliberately embeds the website generator so its approval preview
+ * and published output cannot drift. Other templates retain the legacy preview
+ * until they receive the same native renderer treatment.
  */
 
 const SURFACES: { id: PreviewSurface; label: string; icon: typeof Monitor }[] =
@@ -36,6 +54,12 @@ const SURFACES: { id: PreviewSurface; label: string; icon: typeof Monitor }[] =
     { id: "mobile", label: "Mobile", icon: Smartphone },
     { id: "print", label: "Print", icon: Printer },
   ];
+
+function preventPreviewNavigation(event: React.MouseEvent<HTMLDivElement>) {
+  if (event.target instanceof Element && event.target.closest("a")) {
+    event.preventDefault();
+  }
+}
 
 /** Frame per surface — Ph3.md §10 requires all three; tablet sits between. */
 const FRAME: Record<PreviewSurface, string> = {
@@ -89,11 +113,15 @@ export function InvitationPreview({
   surface,
   className,
   experienceSlug,
+  invitationId,
+  countdownTarget,
 }: {
   model: PreviewModel;
   surface: PreviewSurface;
   className?: string;
   experienceSlug?: string | null;
+  invitationId?: string;
+  countdownTarget?: Date | null;
 }) {
   const experience = resolveExperience(model.eventKind, {
     enabled: features.interactiveExperiences,
@@ -104,6 +132,38 @@ export function InvitationPreview({
       ? experience.config.visualThemeId
       : "inherit";
   const style = styleForExperience(model.style, visualThemeId);
+
+  if (
+    experienceSlug === "starlight-pony-dreamscape" &&
+    surface !== "print" &&
+    invitationId
+  ) {
+    const liveFrame =
+      surface === "mobile"
+        ? "mx-auto aspect-[9/16] w-[360px] max-w-full"
+        : surface === "tablet"
+          ? "mx-auto aspect-[3/4] w-[600px] max-w-full"
+          : "aspect-[16/10] w-full";
+
+    return (
+      <div
+        onClickCapture={preventPreviewNavigation}
+        className={cn(
+          "inv-builder-live-preview overflow-hidden rounded-lg border border-border bg-[#090d35] shadow-sm",
+          liveFrame,
+          className,
+        )}
+      >
+        <LiveEventSitePreview
+          invitationId={invitationId}
+          model={model}
+          countdownTarget={countdownTarget ?? null}
+          experienceSlug={experienceSlug}
+          previewMode
+        />
+      </div>
+    );
+  }
 
   const background =
     style.backgroundStyle === "soft-gradient"
@@ -345,9 +405,13 @@ export function InvitationPreview({
 export function PreviewPane({
   model,
   experienceSlug,
+  invitationId,
+  countdownTarget,
 }: {
   model: PreviewModel;
   experienceSlug?: string | null;
+  invitationId?: string;
+  countdownTarget?: Date | null;
 }) {
   const [surface, setSurface] = React.useState<PreviewSurface>("desktop");
   const [pinned, setPinned] = React.useState(false);
@@ -397,6 +461,8 @@ export function PreviewPane({
           model={model}
           surface={surface}
           experienceSlug={experienceSlug}
+          invitationId={invitationId}
+          countdownTarget={countdownTarget}
         />
       </div>
 

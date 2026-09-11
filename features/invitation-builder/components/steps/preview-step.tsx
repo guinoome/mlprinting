@@ -28,12 +28,14 @@ export function PreviewStep({
   issues,
   isCompleted,
   experienceSlug,
+  countdownTarget,
 }: {
   invitationId: string;
   model: PreviewModel;
   issues: StepIssue[];
   isCompleted: boolean;
   experienceSlug?: string | null;
+  countdownTarget?: Date | null;
 }) {
   const [state, formAction] = useFormState(completeDraft, initialState);
 
@@ -46,7 +48,12 @@ export function PreviewStep({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <PreviewPane model={model} experienceSlug={experienceSlug} />
+      <PreviewPane
+        model={model}
+        experienceSlug={experienceSlug}
+        invitationId={invitationId}
+        countdownTarget={countdownTarget}
+      />
 
       <aside className="space-y-4">
         {isCompleted ? (

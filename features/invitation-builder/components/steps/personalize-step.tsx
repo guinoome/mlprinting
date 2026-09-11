@@ -22,6 +22,7 @@ import {
   DECORATIVE_STYLES,
   TOGGLEABLE_SECTIONS,
 } from "@/lib/config/design-vocabulary";
+import { designPolicyForSlug } from "@/features/website-generator/experience/design-policy";
 
 /**
  * Theme & style — Ph3.md §6.
@@ -84,11 +85,14 @@ function OptionCard({
 export function PersonalizeStep({
   invitationId,
   initial,
+  templateSlug,
 }: {
   invitationId: string;
   initial: PersonalizeValues;
+  templateSlug?: string | null;
 }) {
   const [values, setValues] = React.useState(initial);
+  const designPolicy = designPolicyForSlug(templateSlug);
 
   const save = React.useCallback(async () => {
     const formData = new FormData();
@@ -131,165 +135,204 @@ export function PersonalizeStep({
       </div>
 
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Colour</CardTitle>
-            <CardDescription>
-              Chosen to print well as much as to look well on screen.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {COLOR_THEMES.map((theme) => (
-                <OptionCard
-                  key={theme.slug}
-                  selected={values.colorTheme === theme.slug}
-                  onSelect={() => set("colorTheme", theme.slug)}
-                  name={theme.name}
-                  description={theme.description}
+        {designPolicy.customization === "content-only" ? (
+          <Card className="overflow-hidden border-[#7d62bd]/30 bg-[#0b1037] text-white shadow-[0_18px_50px_rgba(28,20,74,0.18)]">
+            <CardHeader className="border-b border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(255,151,224,0.24),transparent_48%)]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#ffe0a8]">
+                Starlight Pony Dreamscape
+              </p>
+              <CardTitle className="font-serif text-2xl">
+                Your design DNA is already applied
+              </CardTitle>
+              <CardDescription className="max-w-2xl text-white/70">
+                Add your celebrant&apos;s story, photographs, date, venue, and
+                guest details. The template protects its typography, moonlit
+                palette, motion, composition, image treatment, and responsive
+                styling for you.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3 p-5 sm:grid-cols-2">
+              {[
+                "Typography and color",
+                "Motion and effects",
+                "Buttons and components",
+                "Photo treatment and layout",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-2 border-b border-white/10 py-2 text-sm last:border-0 sm:last:border-b"
                 >
-                  <div
-                    className="flex h-12 items-center justify-center rounded border border-border"
-                    style={{ background: theme.swatch.background }}
-                    aria-hidden="true"
-                  >
-                    <span
-                      className="text-sm"
-                      style={{
-                        color: theme.swatch.foreground,
-                        fontFamily: "Georgia, serif",
-                      }}
+                  <Check className="size-4 text-[#ff9fdf]" aria-hidden="true" />
+                  {item}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Colour</CardTitle>
+                <CardDescription>
+                  Chosen to print well as much as to look well on screen.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {COLOR_THEMES.map((theme) => (
+                    <OptionCard
+                      key={theme.slug}
+                      selected={values.colorTheme === theme.slug}
+                      onSelect={() => set("colorTheme", theme.slug)}
+                      name={theme.name}
+                      description={theme.description}
                     >
-                      Aa
-                    </span>
-                    <span
-                      className="ml-2 size-3 rounded-full"
-                      style={{ background: theme.swatch.accent }}
+                      <div
+                        className="flex h-12 items-center justify-center rounded border border-border"
+                        style={{ background: theme.swatch.background }}
+                        aria-hidden="true"
+                      >
+                        <span
+                          className="text-sm"
+                          style={{
+                            color: theme.swatch.foreground,
+                            fontFamily: "Georgia, serif",
+                          }}
+                        >
+                          Aa
+                        </span>
+                        <span
+                          className="ml-2 size-3 rounded-full"
+                          style={{ background: theme.swatch.accent }}
+                        />
+                      </div>
+                    </OptionCard>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Typography</CardTitle>
+                <CardDescription>
+                  Paired for you — a heading and a body that work together.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {TYPOGRAPHY_SETS.map((set_) => (
+                    <OptionCard
+                      key={set_.slug}
+                      selected={values.typography === set_.slug}
+                      onSelect={() => set("typography", set_.slug)}
+                      name={set_.name}
+                      description={set_.description}
+                    >
+                      <div
+                        className="flex h-12 flex-col justify-center rounded border border-border bg-background px-2"
+                        aria-hidden="true"
+                      >
+                        <span
+                          className="text-sm leading-tight"
+                          style={{ fontFamily: set_.preview.heading }}
+                        >
+                          Maria & Jose
+                        </span>
+                        <span
+                          className="text-[10px] leading-tight text-muted-foreground"
+                          style={{ fontFamily: set_.preview.body }}
+                        >
+                          14 March 2027
+                        </span>
+                      </div>
+                    </OptionCard>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Background</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {BACKGROUND_STYLES.map((style) => (
+                      <OptionCard
+                        key={style.slug}
+                        selected={values.backgroundStyle === style.slug}
+                        onSelect={() => set("backgroundStyle", style.slug)}
+                        name={style.name}
+                        description={style.description}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Decoration</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {DECORATIVE_STYLES.map((style) => (
+                      <OptionCard
+                        key={style.slug}
+                        selected={values.decorativeStyle === style.slug}
+                        onSelect={() => set("decorativeStyle", style.slug)}
+                        name={style.name}
+                        description={style.description}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {designPolicy.allowSectionVisibility ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">What to show</CardTitle>
+              <CardDescription>
+                Switch off anything your event does not need. Sections with
+                nothing in them are hidden anyway.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {TOGGLEABLE_SECTIONS.map((section) => {
+                const visible = !values.hiddenSections.includes(section.slug);
+
+                return (
+                  <div
+                    key={section.slug}
+                    className="flex items-start justify-between gap-4"
+                  >
+                    <div className="space-y-0.5">
+                      <Label htmlFor={`section-${section.slug}`}>
+                        {section.name}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {section.description}
+                      </p>
+                    </div>
+                    <Switch
+                      id={`section-${section.slug}`}
+                      checked={visible}
+                      onCheckedChange={(checked) =>
+                        toggleSection(section.slug, checked)
+                      }
                     />
                   </div>
-                </OptionCard>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Typography</CardTitle>
-            <CardDescription>
-              Paired for you — a heading and a body that work together.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {TYPOGRAPHY_SETS.map((set_) => (
-                <OptionCard
-                  key={set_.slug}
-                  selected={values.typography === set_.slug}
-                  onSelect={() => set("typography", set_.slug)}
-                  name={set_.name}
-                  description={set_.description}
-                >
-                  <div
-                    className="flex h-12 flex-col justify-center rounded border border-border bg-background px-2"
-                    aria-hidden="true"
-                  >
-                    <span
-                      className="text-sm leading-tight"
-                      style={{ fontFamily: set_.preview.heading }}
-                    >
-                      Maria & Jose
-                    </span>
-                    <span
-                      className="text-[10px] leading-tight text-muted-foreground"
-                      style={{ fontFamily: set_.preview.body }}
-                    >
-                      14 March 2027
-                    </span>
-                  </div>
-                </OptionCard>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Background</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {BACKGROUND_STYLES.map((style) => (
-                  <OptionCard
-                    key={style.slug}
-                    selected={values.backgroundStyle === style.slug}
-                    onSelect={() => set("backgroundStyle", style.slug)}
-                    name={style.name}
-                    description={style.description}
-                  />
-                ))}
-              </div>
+                );
+              })}
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Decoration</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {DECORATIVE_STYLES.map((style) => (
-                  <OptionCard
-                    key={style.slug}
-                    selected={values.decorativeStyle === style.slug}
-                    onSelect={() => set("decorativeStyle", style.slug)}
-                    name={style.name}
-                    description={style.description}
-                  />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">What to show</CardTitle>
-            <CardDescription>
-              Switch off anything your event does not need. Sections with
-              nothing in them are hidden anyway.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {TOGGLEABLE_SECTIONS.map((section) => {
-              const visible = !values.hiddenSections.includes(section.slug);
-
-              return (
-                <div
-                  key={section.slug}
-                  className="flex items-start justify-between gap-4"
-                >
-                  <div className="space-y-0.5">
-                    <Label htmlFor={`section-${section.slug}`}>
-                      {section.name}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {section.description}
-                    </p>
-                  </div>
-                  <Switch
-                    id={`section-${section.slug}`}
-                    checked={visible}
-                    onCheckedChange={(checked) =>
-                      toggleSection(section.slug, checked)
-                    }
-                  />
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
+        ) : null}
       </div>
     </>
   );

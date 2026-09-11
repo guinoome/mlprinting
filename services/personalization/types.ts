@@ -4,7 +4,9 @@
  * Providers receive storage references scoped to one invitation, never a
  * profile-wide photo library. The direct renderer ships first; a future hosted
  * identity-preserving provider can implement this contract without changing
- * invitation data or public rendering.
+ * invitation data or public rendering. The template policy is authoritative
+ * for required identity preservation and scene integration; this interface
+ * deliberately does not pretend that a provider exists before one is vetted.
  */
 export interface PersonalizationRequest {
   profileId: string;

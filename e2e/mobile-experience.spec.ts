@@ -6,6 +6,7 @@ const EXPERIENCE_SLUGS = [
   "blush-botanical",
   "midnight-gold",
 ] as const;
+const STARLIGHT_PHONE_WIDTHS = [360, 375, 390, 393, 412, 430] as const;
 
 for (const width of PHONE_WIDTHS) {
   test.describe(`${width}px phone viewport`, () => {
@@ -86,3 +87,53 @@ for (const width of PHONE_WIDTHS) {
     }
   });
 }
+
+test.describe.serial("Starlight phone-width release gate", () => {
+  for (const width of STARLIGHT_PHONE_WIDTHS) {
+    test(`Starlight keeps its two-stage promise at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto("/invite-preview?template=starlight-pony-dreamscape");
+
+      const entry = page.locator(".inv-entry--starlight-dreamscape");
+      const begin = entry.getByRole("button", { name: /begin the magic/i });
+      await expect(entry.getByText("Mia", { exact: true })).toBeVisible();
+      await expect(entry.getByText(/turns\s*3/i)).toBeVisible();
+      await expect(begin).toBeVisible();
+
+      const entryWidth = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(entryWidth.scroll).toBeLessThanOrEqual(entryWidth.client);
+
+      const beginBox = await begin.boundingBox();
+      expect(beginBox).not.toBeNull();
+      expect(beginBox!.height).toBeGreaterThanOrEqual(44);
+      expect(beginBox!.x).toBeGreaterThanOrEqual(0);
+      expect(beginBox!.x + beginBox!.width).toBeLessThanOrEqual(width);
+
+      await begin.click();
+      await expect(page.locator(".inv-reveal-root")).toHaveAttribute(
+        "data-opened",
+        "true",
+      );
+
+      const hero = page.locator(".starlight-hero");
+      await expect(hero.getByRole("heading", { name: "Mia" })).toBeVisible();
+      await expect(hero.getByText(/turns\s*3/i)).toBeVisible();
+      await expect(hero.getByText("The magic begins in")).toBeVisible();
+      await expect(hero.getByRole("link", { name: /rsvp now/i })).toBeVisible();
+      await expect(
+        hero.getByRole("img", { name: /Mia, the birthday celebrant/i }),
+      ).toBeVisible();
+
+      const revealWidth = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(revealWidth.scroll).toBeLessThanOrEqual(revealWidth.client);
+    });
+  }
+});

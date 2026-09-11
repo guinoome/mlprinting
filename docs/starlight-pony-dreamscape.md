@@ -19,6 +19,26 @@ The experience has two deliberate states:
 The public sample uses `Mia`, age 3. Customers replace the name, age, portrait,
 date, venue, and message without changing the visual system.
 
+## Design ownership contract
+
+Starlight is a content-only template. The template owns typography, colour,
+theme, motion, components, image treatment, and responsive layout. The customer
+supplies structured invitation content and invitation-approved media; the
+builder does not ask the customer to redesign the template.
+
+This is enforced twice:
+
+- the Personalize step removes generic visual controls for Starlight and
+  explains which decisions the template protects;
+- the server write boundary resets crafted visual overrides to the controlled
+  defaults while still honoring section visibility.
+
+The builder's screen preview embeds the same `EventSite` renderer used by a
+published invitation. Its mobile tab is a real contained 360-pixel layout, not
+a scaled desktop mockup. Live RSVP, music, map, calendar, and share side effects
+are disabled in the approval surface; `Begin the Magic` remains interactive so
+the two-state reveal can be reviewed.
+
 ## Discovery surfaces
 
 - `Find your experience` presents six celebration entrances. Memorial is not a
@@ -42,9 +62,14 @@ date, venue, and message without changing the visual system.
 - Candidate ranking examines invitation-owned metadata and never performs face
   recognition or scans another customer's content.
 
+`features/website-generator/experience/design-policy.ts` records the governing
+contract: template owns the visual experience, invitation-approved media owns
+identity, and structured project data owns invitation information.
+
 `services/personalization/types.ts` remains the boundary for any future
 provider-backed customer composite. This release does not claim identity-
-preserving generation.
+preserving generation. No synthetic composite is shown as a customer's child
+until a provider passes the gate below.
 
 ## Mobile and motion contract
 

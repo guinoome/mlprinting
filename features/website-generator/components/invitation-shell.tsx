@@ -174,6 +174,7 @@ export function InvitationShell({
   motionLevel = "M0",
   visualThemeId = "inherit",
   celebrantAge,
+  embedded = false,
   children,
 }: {
   monogram: string;
@@ -198,6 +199,8 @@ export function InvitationShell({
   visualThemeId?: VisualThemeId;
   /** Optional live age line used by child-focused opening experiences. */
   celebrantAge?: number | null;
+  /** Keep global page scroll untouched when the real renderer is embedded in the builder. */
+  embedded?: boolean;
   children: React.ReactNode;
 }) {
   const [opened, setOpened] = React.useState(false);
@@ -232,6 +235,7 @@ export function InvitationShell({
   }, [confetti]);
 
   React.useEffect(() => {
+    if (embedded) return;
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -244,14 +248,14 @@ export function InvitationShell({
       document.body.style.overflow = "";
       cancelConfetti.current();
     };
-  }, []);
+  }, [embedded]);
 
   React.useEffect(() => {
-    if (opened) document.body.style.overflow = "";
-  }, [opened]);
+    if (opened && !embedded) document.body.style.overflow = "";
+  }, [embedded, opened]);
 
   React.useEffect(() => {
-    if (!opened || !rootRef.current) return;
+    if (!opened || !rootRef.current || embedded) return;
     const targets = rootRef.current.querySelectorAll("[data-reveal]");
     const observer = new IntersectionObserver(
       (entries) => {
@@ -266,12 +270,12 @@ export function InvitationShell({
     );
     targets.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [opened]);
+  }, [embedded, opened]);
 
   // Hero parallax: the cover drifts slower than the scroll. The photo is
   // oversized (CSS) so the drift never exposes an edge.
   React.useEffect(() => {
-    if (!opened || !rootRef.current) return;
+    if (!opened || !rootRef.current || embedded) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const photo = rootRef.current.querySelector<HTMLElement>(".inv-hero-photo");
     if (!photo) return;
@@ -287,7 +291,7 @@ export function InvitationShell({
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, [opened]);
+  }, [embedded, opened]);
 
   return (
     <div
@@ -300,6 +304,7 @@ export function InvitationShell({
       data-motion-level={experienceEnabled ? motionLevel : "M0"}
       data-visual-theme={experienceEnabled ? visualThemeId : "inherit"}
       data-opened={opened ? "true" : "false"}
+      data-embedded={embedded ? "true" : "false"}
       style={style}
     >
       <noscript>

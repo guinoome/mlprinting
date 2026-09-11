@@ -8,6 +8,26 @@ artwork, photography, or type is used.
 This is step 1–3 of that document's suggested workflow: analyse, extract, then
 define a direction per category.
 
+## Governing ownership rule
+
+Every native experience follows one durable boundary:
+
+> The template owns the visual experience. Invitation-approved media owns
+> identity. Structured project data owns invitation information.
+
+A premium template therefore chooses its own type, palette, motion, components,
+image treatment, and responsive composition. Customers supply names, ages,
+dates, venues, messages, guest details, and approved photographs. The platform
+must not turn a finished art direction back into a generic theme editor.
+
+Customer photography is composed as part of the scene, with deliberate crop,
+depth, light, shadow, contact, and overlap. It is not a rectangular or cut-out
+overlay pasted onto finished artwork. If a future provider is used to create an
+integrated composite, the customer's approved media remains the identity source
+and the provider must preserve face, head and body proportions, apparent age,
+skin tone, hairline, and hairstyle. Until that provider is configured and
+validated, the direct customer cover remains the truthful production path.
+
 ---
 
 ## What the references actually do

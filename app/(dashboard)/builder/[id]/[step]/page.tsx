@@ -26,6 +26,7 @@ import {
 } from "@/services/media";
 import { DESIGN_DEFAULTS } from "@/lib/config/design-vocabulary";
 import { curateTemplateChoices } from "@/features/invitation-builder/recommendations";
+import { zonedInstant } from "@/features/website-generator/countdown-time";
 
 /**
  * One step of the builder — Ph3.md §1.
@@ -287,6 +288,7 @@ export default async function BuilderStepPage({
         return (
           <PersonalizeStep
             invitationId={draft!.id}
+            templateSlug={draft!.template?.slug ?? null}
             initial={{
               colorTheme:
                 draft!.personalization?.colorTheme ??
@@ -353,6 +355,15 @@ export default async function BuilderStepPage({
             invitationId={draft!.id}
             model={model}
             experienceSlug={draft!.template?.slug ?? null}
+            countdownTarget={
+              draft!.eventDate
+                ? zonedInstant(
+                    draft!.eventDate,
+                    draft!.eventTime,
+                    draft!.timeZone,
+                  )
+                : null
+            }
             issues={completionErrors(snapshot)}
             isCompleted={draft!.status === "COMPLETED"}
           />
